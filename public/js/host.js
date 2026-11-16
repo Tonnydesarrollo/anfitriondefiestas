@@ -353,6 +353,96 @@
     return s;
   }
 
+  // =========================================================================
+  // VOICE STUDIO CHARACTER HOST PROFILES (Herramientas Palomares Integration)
+  // =========================================================================
+  let activeTtsAudio = null;
+  let voiceStudioProfiles = [
+    {
+      id: 'host-cookie-jackbox',
+      name: '🎩 Cookie Jackbox (Sarcástico TV)',
+      gender: 'M',
+      pitch_shift_hz: 6,
+      speed: 1.12,
+      catchphrase: '¡Bienvenidos a Duelo de Ocurrencias! Espero que hayan traído su ingenio, porque la piedad se quedó en el camerino.'
+    },
+    {
+      id: 'host-lucha-libre',
+      name: '🤼 El Rudísimo (Narrador Lucha Libre)',
+      gender: 'M',
+      pitch_shift_hz: -6,
+      speed: 1.16,
+      catchphrase: '¡Arrrancan las hostilidades en el cuadrilátero de la fiesta! ¡A darle con todo desde la primera caída!'
+    },
+    {
+      id: 'host-don-showman',
+      name: '🎺 Don Showman (Gigante del Sábado)',
+      gender: 'M',
+      pitch_shift_hz: -9,
+      speed: 1.06,
+      catchphrase: '¡Qué dice el público! ¡Se encienden las luces del gran estelar y que pase el primer valiente de la noche!'
+    },
+    {
+      id: 'host-ia-sarcastica',
+      name: '🤖 S.I.L.I.C.I.O. 9000 (IA Mordaz)',
+      gender: 'F',
+      pitch_shift_hz: 12,
+      speed: 1.05,
+      catchphrase: 'Protocolo de entretenimiento humano iniciado. Sus probabilidades de sobrevivir sin hacer el ridículo son del tres por ciento.'
+    },
+    {
+      id: 'host-diva-chisme',
+      name: '💃 La Diva del Chisme (Explosiva)',
+      gender: 'F',
+      pitch_shift_hz: 8,
+      speed: 1.12,
+      catchphrase: '¡Ay, mis amores! Prepárense porque hoy vamos a sacar todos los trapitos al sol en esta sala.'
+    },
+    {
+      id: 'host-inspector-noir',
+      name: '🕵️ Inspector Noir (Detective Misterio)',
+      gender: 'M',
+      pitch_shift_hz: -14,
+      speed: 0.98,
+      catchphrase: 'Cierren las puertas. Hay un impostor entre nosotros y nadie saldrá de esta sala hasta encontrar la verdad.'
+    },
+    {
+      id: 'host-pibe-canchero',
+      name: '🧉 El Pibe Canchero (Showman Late-Night)',
+      gender: 'M',
+      pitch_shift_hz: 4,
+      speed: 1.11,
+      catchphrase: '¡Pero mirá qué equipazo tenemos esta noche, papá! Agárrense fuerte los celulares que esto se pone picante.'
+    },
+    {
+      id: 'host-tio-chabelote',
+      name: '🎪 Tío Chabelote (Concurso Retro)',
+      gender: 'M',
+      pitch_shift_hz: 18,
+      speed: 1.08,
+      catchphrase: '¡Hola cuates! ¿Qué prefieren: los puntos de esta ronda o lo que hay detrás de la catafixia número tres?'
+    }
+  ];
+
+  function getBackendBaseUrl() {
+    return window.PARTY_BACKEND_URL ? window.PARTY_BACKEND_URL.replace(/\/$/, '') : '';
+  }
+
+  async function loadVoiceStudioProfiles() {
+    try {
+      const resp = await fetch(`${getBackendBaseUrl()}/api/voices`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (Array.isArray(data.profiles) && data.profiles.length > 0) {
+          voiceStudioProfiles = data.profiles;
+          populateVoiceSelector();
+        }
+      }
+    } catch (_) {
+      // Keep default profiles
+    }
+  }
+
   function getAvailableSpanishVoices() {
     if (!window.speechSynthesis) return [];
     const all = window.speechSynthesis.getVoices() || [];
@@ -361,68 +451,83 @@
   }
 
   function populateVoiceSelector() {
-    if (!aiVoiceSelect || !window.speechSynthesis) return;
-    const esVoices = getAvailableSpanishVoices();
-
-    if (esVoices.length === 0) {
-      aiVoiceSelect.innerHTML = '<option value="">Voz predeterminada del sistema</option>';
-      return;
-    }
-
+    if (!aiVoiceSelect) return;
+    const prevValue = selectedVoiceURI || aiVoiceSelect.value;
     aiVoiceSelect.innerHTML = '';
-    esVoices.forEach((v, idx) => {
-      const opt = document.createElement('option');
-      opt.value = v.voiceURI;
-      const isNatural = (v.name.toLowerCase().includes('natural') || v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('neural'));
-      opt.textContent = `${isNatural ? '✨ ' : ''}${v.name} (${v.lang})`;
-      aiVoiceSelect.appendChild(opt);
-    });
 
-    if (!selectedVoiceURI && esVoices.length > 0) {
-      selectedVoiceURI = esVoices[0].voiceURI;
-      aiVoiceSelect.value = selectedVoiceURI;
+    // 1. Voice Studio Character Hosts (Herramientas Palomares)
+    const vsGroup = document.createElement('optgroup');
+    vsGroup.label = '🎭 Personajes Voice Studio (IA Carismática)';
+    voiceStudioProfiles.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = `vs:${p.id}`;
+      opt.textContent = p.name;
+      vsGroup.appendChild(opt);
+    });
+    aiVoiceSelect.appendChild(vsGroup);
+
+    // 2. Browser Local Fallback Voices
+    const esVoices = getAvailableSpanishVoices();
+    if (esVoices.length > 0) {
+      const browserGroup = document.createElement('optgroup');
+      browserGroup.label = '🔊 Voces Locales del Navegador';
+      esVoices.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.voiceURI;
+        const isNatural = (v.name.toLowerCase().includes('natural') || v.name.toLowerCase().includes('google') || v.name.toLowerCase().includes('neural'));
+        opt.textContent = `${isNatural ? '✨ ' : ''}${v.name} (${v.lang})`;
+        browserGroup.appendChild(opt);
+      });
+      aiVoiceSelect.appendChild(browserGroup);
     }
+
+    if (prevValue && Array.from(aiVoiceSelect.options).some(o => o.value === prevValue)) {
+      selectedVoiceURI = prevValue;
+    } else {
+      selectedVoiceURI = `vs:${voiceStudioProfiles[0].id}`;
+    }
+    aiVoiceSelect.value = selectedVoiceURI;
   }
 
   if (aiVoiceSelect) {
     aiVoiceSelect.addEventListener('change', (e) => {
       selectedVoiceURI = e.target.value;
+      lastSpokenText = '';
     });
   }
 
   if (btnTestVoice) {
     btnTestVoice.addEventListener('click', () => {
-      speakSpanish('¡Hola a todos! Soy el anfitrión de la fiesta. Prepárense para reír y ser juzgados con mi toque de humor.');
+      lastSpokenText = '';
+      if (selectedVoiceURI && selectedVoiceURI.startsWith('vs:')) {
+        const profId = selectedVoiceURI.replace(/^vs:/, '');
+        const prof = voiceStudioProfiles.find(p => p.id === profId);
+        if (prof && prof.catchphrase) {
+          speakSpanish(prof.catchphrase, true);
+          return;
+        }
+      }
+      speakSpanish('¡Hola a todos! Soy el anfitrión de la fiesta. Prepárense para reír y ser juzgados con mi toque de humor.', true);
     });
   }
 
   // Pre-load voices on browser load
+  populateVoiceSelector();
+  loadVoiceStudioProfiles();
   if (window.speechSynthesis) {
-    populateVoiceSelector();
     window.speechSynthesis.onvoiceschanged = () => {
       populateVoiceSelector();
     };
   }
 
-  function speakSpanish(text) {
-    if (!isSpeechEnabled || !window.speechSynthesis) return;
-    if (!text || text === lastSpokenText) return;
-
-    lastSpokenText = text;
-    window.speechSynthesis.cancel(); // Stop any previous speech
-
-    // Clean text for speech: remove emojis and weird characters so it reads naturally
-    const cleanSpeech = text
-      .replace(/[\u{1F600}-\u{1F6FF}|[\u{2600}-\u{26FF}]/gu, '')
-      .replace(/[""«»]/g, '')
-      .trim();
-
-    if (!cleanSpeech) return;
-
+  function speakFallbackWebSpeech(cleanSpeech, profile = null) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(cleanSpeech);
     utterance.lang = 'es-MX';
-    utterance.rate = 1.08;  // Fast, punchy TV showman cadence
-    utterance.pitch = 1.06; // Animated, high-energy party host pitch
+    utterance.rate = profile?.speed || 1.08;
+    const pitchShift = profile?.pitch_shift_hz || 0;
+    utterance.pitch = Math.max(0.6, Math.min(1.5, 1.0 + (pitchShift / 35)));
 
     const esVoices = getAvailableSpanishVoices();
     let chosenVoice = esVoices.find(v => v.voiceURI === selectedVoiceURI);
@@ -433,18 +538,61 @@
       utterance.voice = chosenVoice;
     }
 
-    // Toggle talking badge
     if (aiTalkingWave) aiTalkingWave.style.display = 'inline-block';
-
     utterance.onend = () => {
       if (aiTalkingWave) aiTalkingWave.style.display = 'none';
     };
-
     utterance.onerror = () => {
       if (aiTalkingWave) aiTalkingWave.style.display = 'none';
     };
-
     window.speechSynthesis.speak(utterance);
+  }
+
+  function speakSpanish(text, forceRepeat = false) {
+    if (!isSpeechEnabled) return;
+    if (!text || (!forceRepeat && text === lastSpokenText)) return;
+
+    lastSpokenText = text;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (activeTtsAudio) {
+      try {
+        activeTtsAudio.pause();
+        activeTtsAudio.src = '';
+      } catch (_) {}
+      activeTtsAudio = null;
+    }
+
+    // Clean text for speech: remove emojis and weird characters so it reads naturally
+    const cleanSpeech = text
+      .replace(/[\u{1F600}-\u{1F6FF}|\u{2600}-\u{26FF}|\u{1F300}-\u{1F5FF}|\u{1F900}-\u{1F9FF}]/gu, '')
+      .replace(/[""«»]/g, '')
+      .trim();
+
+    if (!cleanSpeech) return;
+
+    // If a Voice Studio Character Host is selected, synthesize neural character audio via /api/tts
+    if (!selectedVoiceURI || selectedVoiceURI.startsWith('vs:')) {
+      const profId = (selectedVoiceURI || 'vs:host-cookie-jackbox').replace(/^vs:/, '');
+      const prof = voiceStudioProfiles.find(p => p.id === profId) || voiceStudioProfiles[0];
+      const ttsUrl = `${getBackendBaseUrl()}/api/tts?voice=${encodeURIComponent(profId)}&speed=${encodeURIComponent(prof?.speed || 1.08)}&text=${encodeURIComponent(cleanSpeech)}`;
+      const audio = new Audio(ttsUrl);
+      activeTtsAudio = audio;
+      if (aiTalkingWave) aiTalkingWave.style.display = 'inline-block';
+
+      audio.onended = () => {
+        if (aiTalkingWave) aiTalkingWave.style.display = 'none';
+      };
+      audio.onerror = () => {
+        if (aiTalkingWave) aiTalkingWave.style.display = 'none';
+        speakFallbackWebSpeech(cleanSpeech, prof);
+      };
+      audio.play().catch(() => {
+        speakFallbackWebSpeech(cleanSpeech, prof);
+      });
+      return;
+    }
+
+    speakFallbackWebSpeech(cleanSpeech);
   }
 
   // =========================================================================

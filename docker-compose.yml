@@ -9,5 +9,6 @@ services:
       - PORT=3000
       - NODE_ENV=production
       - OLLAMA_HOST=http://host.docker.internal:11434
+      - VOICE_WORKER_URL=http://100.70.121.47:3900
     extra_hosts:
       - "host.docker.internal:host-gateway"

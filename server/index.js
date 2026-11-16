@@ -144,6 +144,174 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// ====================================================
+// HERRAMIENTAS PALOMARES — VOICE STUDIO INTEGRATION
+// ====================================================
+const VOICE_STUDIO_ENDPOINTS = [
+  process.env.VOICESTUDIO_URL,
+  'http://127.0.0.1:3900',
+  'http://100.70.121.47:3900',
+  'http://host.docker.internal:3900',
+  'http://100.100.148.80:5000/voice-studio/api'
+].filter(Boolean);
+
+const DEFAULT_HOST_VOICE_PROFILES = [
+  {
+    id: 'host-cookie-jackbox',
+    name: '🎩 Cookie Jackbox (Anfitrión Sarcástico TV)',
+    gender: 'M',
+    pitch_shift_hz: 6,
+    formant_ratio: 1.03,
+    speed: 1.12,
+    base_voice: 'es-MX-JorgeNeural',
+    catchphrase: '¡Bienvenidos a Duelo de Ocurrencias! Espero que hayan traído su ingenio, porque la piedad se quedó en el camerino.'
+  },
+  {
+    id: 'host-lucha-libre',
+    name: '🤼 El Rudísimo (Narrador de Lucha y Arena)',
+    gender: 'M',
+    pitch_shift_hz: -6,
+    formant_ratio: 0.95,
+    speed: 1.16,
+    base_voice: 'es-MX-JorgeNeural',
+    catchphrase: '¡Arrrancan las hostilidades en el cuadrilátero de la fiesta! ¡A darle con todo desde la primera caída!'
+  },
+  {
+    id: 'host-don-showman',
+    name: '🎺 Don Showman (Gigante del Sábado TV)',
+    gender: 'M',
+    pitch_shift_hz: -9,
+    formant_ratio: 0.96,
+    speed: 1.06,
+    base_voice: 'es-CO-GonzaloNeural',
+    catchphrase: '¡Qué dice el público! ¡Se encienden las luces del gran estelar y que pase el primer valiente de la noche!'
+  },
+  {
+    id: 'host-ia-sarcastica',
+    name: '🤖 S.I.L.I.C.I.O. 9000 (IA Mordaz / GLaDOS)',
+    gender: 'F',
+    pitch_shift_hz: 12,
+    formant_ratio: 1.05,
+    speed: 1.05,
+    base_voice: 'es-ES-ElviraNeural',
+    catchphrase: 'Protocolo de entretenimiento humano iniciado. Sus probabilidades de sobrevivir sin hacer el ridículo son del tres por ciento.'
+  },
+  {
+    id: 'host-diva-chisme',
+    name: '💃 La Diva del Chisme (Conductora Explosiva)',
+    gender: 'F',
+    pitch_shift_hz: 8,
+    formant_ratio: 1.03,
+    speed: 1.12,
+    base_voice: 'es-CO-SalomeNeural',
+    catchphrase: '¡Ay, mis amores! Prepárense porque hoy vamos a sacar todos los trapitos al sol en esta sala.'
+  },
+  {
+    id: 'host-inspector-noir',
+    name: '🕵️ Inspector Noir (Detective de Misterio)',
+    gender: 'M',
+    pitch_shift_hz: -14,
+    formant_ratio: 0.93,
+    speed: 0.98,
+    base_voice: 'es-ES-AlvaroNeural',
+    catchphrase: 'Cierren las puertas. Hay un impostor entre nosotros y nadie saldrá de esta sala hasta encontrar la verdad.'
+  },
+  {
+    id: 'host-pibe-canchero',
+    name: '🧉 El Pibe Canchero (Showman Late-Night)',
+    gender: 'M',
+    pitch_shift_hz: 4,
+    formant_ratio: 1.01,
+    speed: 1.11,
+    base_voice: 'es-AR-TomasNeural',
+    catchphrase: '¡Pero mirá qué equipazo tenemos esta noche, papá! Agárrense fuerte los celulares que esto se pone picante.'
+  },
+  {
+    id: 'host-tio-chabelote',
+    name: '🎪 Tío Chabelote (Concurso Retro Caricatura)',
+    gender: 'M',
+    pitch_shift_hz: 18,
+    formant_ratio: 1.07,
+    speed: 1.08,
+    base_voice: 'es-MX-JorgeNeural',
+    catchphrase: '¡Hola cuates! ¿Qué prefieren: los puntos de esta ronda o lo que hay detrás de la catafixia número tres?'
+  }
+];
+
+app.get('/api/voices', async (req, res) => {
+  let remoteProfiles = [];
+  for (const baseUrl of VOICE_STUDIO_ENDPOINTS) {
+    try {
+      const target = baseUrl.endsWith('/api') ? `${baseUrl}/status` : `${baseUrl}/profiles`;
+      const resp = await fetch(target, { signal: AbortSignal.timeout(1800) });
+      if (resp.ok) {
+        const data = await resp.json();
+        remoteProfiles = data.profiles || [];
+        if (remoteProfiles.length > 0) break;
+      }
+    } catch (_) {
+      // try next endpoint
+    }
+  }
+
+  const merged = [...DEFAULT_HOST_VOICE_PROFILES];
+  for (const rp of remoteProfiles) {
+    if (rp && rp.id && !merged.some(m => m.id === rp.id)) {
+      merged.push(rp);
+    }
+  }
+  res.json({ online: remoteProfiles.length > 0, profiles: merged });
+});
+
+async function handleVoiceStudioTts(req, res) {
+  const text = String(req.body?.text || req.query?.text || '').trim();
+  const voiceId = String(req.body?.voice || req.query?.voice || 'host-cookie-jackbox').replace(/^vs:/, '');
+  if (!text) {
+    return res.status(400).json({ error: 'Texto vacío' });
+  }
+
+  const profile = DEFAULT_HOST_VOICE_PROFILES.find(p => p.id === voiceId);
+  const speed = Number(req.body?.speed || req.query?.speed || profile?.speed || 1.08);
+
+  const payload = {
+    model: 'omnivoice-v1',
+    input: text,
+    voice: voiceId,
+    language: 'es',
+    speed,
+    response_format: 'wav'
+  };
+
+  for (const baseUrl of VOICE_STUDIO_ENDPOINTS) {
+    try {
+      const target = baseUrl.endsWith('/api') ? `${baseUrl}/tts` : `${baseUrl}/v1/audio/speech`;
+      const resp = await fetch(target, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer palomares-voicestudio-local-2026'
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(12000)
+      });
+      if (resp.ok) {
+        const contentType = resp.headers.get('content-type') || 'audio/wav';
+        const arrayBuf = await resp.arrayBuffer();
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        return res.send(Buffer.from(arrayBuf));
+      }
+    } catch (_) {
+      // try next endpoint
+    }
+  }
+
+  return res.status(503).json({ error: 'Voice Studio no disponible temporalmente' });
+}
+
+app.get('/api/tts', handleVoiceStudioTts);
+app.post('/api/tts', handleVoiceStudioTts);
+
 // Dynamic QR code generator endpoint
 app.get('/api/room/:code/qr', async (req, res) => {
   const { code } = req.params;

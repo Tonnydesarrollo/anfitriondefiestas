@@ -22,6 +22,21 @@
 ## Verificación de Tests Automatizados
 - `node tests/test-all-7-games.js`: 100% PASS (Los 7 juegos completaron sus flujos con código de salida 0, incluyendo verificación explícita de modos 1v1 con 2 jugadores para Trivia Caótica y Telepatía de Fiesta).
 
+## Corrección Visual Profunda y Mobile-Native (Emil Kowalski) - Commit a0dcfe8
+1. **Eliminación de unidades de viewport `vw/vh/dvh` en iframes**:
+   - En `.player-viewport` y `.host-container` se cambió `width: 100vw; height: 100vh;` por `position: absolute; inset: 0; width: 100%; height: 100%;`. Esto evita que las ventanas simuladas en `/demo` o los iframes móviles adopten el ancho del monitor de escritorio (1400px+).
+2. **Corrección de la Cabecera Móvil (`.player-header`)**:
+   - Se configuró como flexbox estricto de una sola fila (`flex-direction: row; flex-wrap: nowrap; height: 38px`), impidiendo que el badge de sala (`.room-code-tag`) se quiebre en una segunda fila o se expanda al 100% de la pantalla.
+   - Píldora de sala compacta y badges con elipsis en el nombre para garantizar ajuste impecable a 240px de ancho.
+3. **Rediseño del Dock de Reacciones Móvil (`.player-reactions-bar`)**:
+   - Altura contenida a 54px con botones de tamaño táctil estandarizado (34x35px e icono SVG de 20x20px).
+   - Los 6 stickers caben en una sola fila horizontal sin apilarse en una columna vertical ni invadir el área de juego.
+4. **Delimitación de Stickers Flotantes y Partículas**:
+   - Contención estricta en `.mobile-local-sticker-particle` (48px) y `.player-token-reaction-bubble` (68px con SVG al 100%), impidiendo que los stickers de personajes se agranden a cientos de píxeles o tapen la pantalla.
+   - Posicionamiento matemático corregido sobre el avatar en el Host (`startY = rect.top - 10`), evitando colocación en `0, 0` o residuos visuales.
+5. **Control de Caché v7**:
+   - Bumping de versión de assets a `?v=7` en `host.html`, `play.html`, `player.html` y `demo.html`.
+
 ## Resolución de "NO INICIA" y Bloqueos de Sala
 1. **Límite Mínimo de Jugadores Ajustado**:
    - `minPlayers` reducido de 3 a 2 para permitir partidas directas entre 2 personas.

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pantalla Host (TV) | Duelo de Ocurrencias</title>
-  <link rel="stylesheet" href="/css/style.css?v=8">
+  <link rel="stylesheet" href="/css/style.css?v=9">
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <script>if (typeof io === 'undefined') document.write('<script src="/socket.io/socket.io.js"><\/script>');</script>
   <script src="/js/config.js"></script>
@@ -241,58 +241,58 @@
       <!-- ==========================================
            2. INTRO PHASE / CÓMO JUGAR (TUTORIAL FORMAL)
            ========================================== -->
-      <section id="stageIntro" class="card" style="display: none; text-align: center; max-width: 1100px; width: 100%; padding: 32px 40px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <div class="duel-badge" id="introBadge" style="background: linear-gradient(135deg, var(--neon-cyan), #0072ff); color: #fff;">
+      <section id="stageIntro" class="card" style="display: none; text-align: center; max-width: 1100px; width: 100%; height: 100%; max-height: 100%; overflow-y: auto; scrollbar-width: none; padding: 10px 18px; box-sizing: border-box;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <div class="duel-badge" id="introBadge" style="background: linear-gradient(135deg, var(--neon-cyan), #0072ff); color: #fff; font-size: 0.78rem; padding: 3px 10px;">
             📖 GUÍA DE COMBATE | ¿CÓMO JUGAR?
           </div>
           <div class="timer-container">
-            <div class="timer-circle">
+            <div class="timer-circle" style="width: 52px; height: 52px;">
               <svg viewBox="0 0 100 100">
                 <circle class="timer-bg" cx="50" cy="50" r="42"></circle>
                 <circle class="timer-bar" id="introTimerBar" cx="50" cy="50" r="42"></circle>
               </svg>
-              <div class="timer-number" id="introTimerText">15</div>
+              <div class="timer-number" id="introTimerText" style="font-size: 1.15rem;">15</div>
             </div>
           </div>
         </div>
 
-        <h2 id="introGameTitle" style="font-family: var(--font-display); font-size: 2.8rem; color: var(--neon-yellow); margin-bottom: 4px;">
+        <h2 id="introGameTitle" style="font-family: var(--font-display); font-size: clamp(1.35rem, 2.4vw, 1.95rem); color: var(--neon-yellow); margin-bottom: 2px; line-height: 1.1;">
           Duelo de Ocurrencias
         </h2>
-        <p id="introGameTagline" style="font-size: 1.2rem; color: var(--neon-cyan); margin-bottom: 20px; font-weight: 600;">
+        <p id="introGameTagline" style="font-size: 0.85rem; color: var(--neon-cyan); margin-bottom: 6px; font-weight: 700;">
           El Coliseo del Ingenio Rápido
         </p>
 
         <!-- Main Objective Banner -->
-        <div style="background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 20px; border-left: 4px solid var(--neon-cyan); text-align: left;">
-          <span style="font-weight: 800; color: var(--neon-cyan); font-size: 0.95rem; text-transform: uppercase;">🎯 OBJETIVO:</span>
-          <span id="introObjectiveText" style="font-size: 1.15rem; color: #ffffff; margin-left: 8px;">
+        <div style="background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 6px 12px; margin-bottom: 8px; border-left: 4px solid var(--neon-cyan); text-align: left;">
+          <span style="font-weight: 800; color: var(--neon-cyan); font-size: 0.78rem; text-transform: uppercase;">🎯 OBJETIVO:</span>
+          <span id="introObjectiveText" style="font-size: 0.84rem; color: #ffffff; margin-left: 6px;">
             Escribe las ocurrencias más graciosas o absurdas para ganar los votos de tus amigos y el visto bueno del Anfitrión IA.
           </span>
         </div>
 
         <!-- 3 Golden Rules Grid -->
-        <div id="introGoldenRulesContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+        <div id="introGoldenRulesContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px;">
           <!-- Injected dynamically by host.js -->
         </div>
 
         <!-- Scoring Economy Chips -->
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); padding: 14px; margin-bottom: 20px;">
-          <div style="font-size: 0.9rem; color: var(--neon-yellow); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); padding: 6px 10px; margin-bottom: 6px;">
+          <div style="font-size: 0.68rem; color: var(--neon-yellow); font-weight: 800; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.8px;">
             💰 SISTEMA DE PUNTUACIÓN DE ESTA PARTIDA:
           </div>
-          <div id="introScoringEconomyContainer" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          <div id="introScoringEconomyContainer" style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
             <!-- Chips injected dynamically by host.js -->
           </div>
         </div>
 
         <!-- Host Speech Bubble -->
-        <div class="ai-host-stage" id="introAiSpeechBubble" style="display: flex; margin-top: 10px;">
-          <div class="ai-host-avatar">🤖</div>
+        <div class="ai-host-stage" id="introAiSpeechBubble" style="display: flex; margin-top: 4px; padding: 6px 10px;">
+          <div class="ai-host-avatar" style="font-size: 1.5rem;">🤖</div>
           <div class="ai-bubble-content" style="text-align: left;">
-            <div class="ai-bubble-tag"><span>🎙️</span> EL ANFITRIÓN EXPLICA LAS REGLAS:</div>
-            <div class="ai-commentary-text" id="introHostNarrationText" style="font-size: 1.15rem;">
+            <div class="ai-bubble-tag" style="font-size: 0.65rem;"><span>🎙️</span> EL ANFITRIÓN EXPLICA LAS REGLAS:</div>
+            <div class="ai-commentary-text" id="introHostNarrationText" style="font-size: 0.8rem; line-height: 1.25;">
               "¡Bienvenidos al Duelo de Ocurrencias! Recibirán dos preguntas en su celular..."
             </div>
           </div>
@@ -884,7 +884,7 @@
     </main>
   </div>
 
-  <script src="/js/characterEmotes.js?v=8"></script>
-  <script src="/js/host.js?v=8"></script>
+  <script src="/js/characterEmotes.js?v=9"></script>
+  <script src="/js/host.js?v=9"></script>
 </body>
 </html>

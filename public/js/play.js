@@ -468,12 +468,12 @@
       return;
     }
 
-    // Update Contextual CTA banner on mobile
-    if (state.status === 'IN_GAME' && state.game?.cta && mobileCtaBanner) {
+    // Update Contextual CTA banner on mobile (hide during HOW_TO_PLAY since screenHowToPlay already explains it)
+    if (state.status === 'IN_GAME' && state.game?.cta && state.game?.phase !== 'HOW_TO_PLAY' && mobileCtaBanner) {
       mobileCtaBanner.style.display = 'block';
       if (ctaHeadline) ctaHeadline.textContent = state.game.cta.headline || '📱 ANFITRIÓN DE FIESTAS';
-      if (ctaBadge) ctaBadge.textContent = state.game.cta.badge || 'ACCIÓN REQUERIDA';
-      if (ctaInstruction) ctaInstruction.textContent = state.game.cta.instruction || 'Sigue las instrucciones';
+      if (ctaBadge) ctaBadge.textContent = state.game.cta.badge || 'ACCIÓN';
+      if (ctaInstruction) ctaInstruction.textContent = state.game.cta.instruction || '';
       if (ctaSubtext) ctaSubtext.textContent = state.game.cta.subtext || '';
     } else if (mobileCtaBanner) {
       mobileCtaBanner.style.display = 'none';

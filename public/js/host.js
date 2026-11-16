@@ -554,7 +554,10 @@
     if (timer === undefined || !currentState?.game) return;
     currentState.game.timer = timer;
 
-    if (currentState.game.gameId === 'impostor-silicio') {
+    if (currentState.game.phase === 'HOW_TO_PLAY' || (currentState.game.phase === 'INTRO' && currentState.game.gameId === 'duelo-ocurrencias')) {
+      const tutDur = currentState.game.howToPlay?.durationSeconds || 12;
+      updateTimerCircle(document.getElementById('introTimerBar'), document.getElementById('introTimerText'), timer, tutDur);
+    } else if (currentState.game.gameId === 'impostor-silicio') {
       const totalSec = currentState.game.phase === 'CLUES' ? 35 : (currentState.game.phase === 'DEBATE' ? 60 : 20);
       updateTimerCircle(document.getElementById('impostorTimerBar'), document.getElementById('impostorTimerText'), timer, totalSec);
     } else if (currentState.game.gameId === 'dilemas-extremos') {
@@ -581,9 +584,17 @@
     currentState = state;
     if (!state) return;
 
-    // Show/hide top room code tag
+    // Show/hide top room code tag and compact topbar during active game
     if (topRoomCodeTag) {
-      topRoomCodeTag.style.display = (state.status === 'IN_GAME') ? 'flex' : 'none';
+      topRoomCodeTag.style.display = (state.status === 'IN_GAME') ? 'inline-flex' : 'none';
+    }
+    const btnTestVoiceEl = document.getElementById('btnTestVoice');
+    if (btnTestVoiceEl) {
+      btnTestVoiceEl.style.display = (state.status === 'IN_GAME') ? 'none' : 'inline-flex';
+    }
+    const aiVoiceSelectEl = document.getElementById('aiVoiceSelect');
+    if (aiVoiceSelectEl) {
+      aiVoiceSelectEl.style.display = (state.status === 'IN_GAME') ? 'none' : 'inline-block';
     }
 
     // Show/hide skip timer button
@@ -713,6 +724,11 @@
       hostMainLogoText.textContent = game.gameTitle.toUpperCase();
     }
 
+    if (game.phase === 'HOW_TO_PLAY') {
+      renderIntroPhase(game);
+      return;
+    }
+
     if (game.gameId === 'impostor-silicio') {
       renderImpostorGame(game);
       return;
@@ -779,7 +795,7 @@
       renderScoresPhase(game);
       return;
     }
-    if (game.phase === 'INTRO' && game.currentRound === 1 && game.howToPlay) {
+    if (game.phase === 'HOW_TO_PLAY') {
       renderIntroPhase(game);
       return;
     }
@@ -1008,7 +1024,7 @@
       renderScoresPhase(game);
       return;
     }
-    if (game.phase === 'INTRO' && game.currentRound === 1 && game.howToPlay) {
+    if (game.phase === 'HOW_TO_PLAY') {
       renderIntroPhase(game);
       return;
     }
@@ -1098,7 +1114,7 @@
       renderScoresPhase(game);
       return;
     }
-    if (game.phase === 'INTRO' && game.currentRound === 1 && game.howToPlay) {
+    if (game.phase === 'HOW_TO_PLAY') {
       renderIntroPhase(game);
       return;
     }
@@ -1169,7 +1185,7 @@
       renderScoresPhase(game);
       return;
     }
-    if (game.phase === 'INTRO' && game.currentRound === 1 && game.howToPlay) {
+    if (game.phase === 'HOW_TO_PLAY') {
       renderIntroPhase(game);
       return;
     }
@@ -1549,25 +1565,41 @@
 
     const titleEl = document.getElementById('introGameTitle');
     const taglineEl = document.getElementById('introGameTagline');
-    const stepsContainer = document.getElementById('introStepsContainer');
+    const objectiveEl = document.getElementById('introObjectiveText');
+    const stepsContainer = document.getElementById('introGoldenRulesContainer') || document.getElementById('introStepsContainer');
+    const economyContainer = document.getElementById('introScoringEconomyContainer');
+    const narrationEl = document.getElementById('introHostNarrationText');
 
     const tutorial = game.howToPlay;
     if (tutorial) {
       if (titleEl) titleEl.textContent = tutorial.title || game.gameTitle || 'Minijuego';
       if (taglineEl) taglineEl.textContent = tutorial.tagline || '¡Prepárense para la diversión!';
+      if (objectiveEl && tutorial.objective) objectiveEl.textContent = tutorial.objective;
+      if (narrationEl && tutorial.hostNarration) narrationEl.textContent = `"${tutorial.hostNarration}"`;
 
       if (stepsContainer && tutorial.goldenRules && tutorial.goldenRules.length > 0) {
         stepsContainer.innerHTML = '';
         tutorial.goldenRules.slice(0, 3).forEach((rule, idx) => {
           const card = document.createElement('div');
           card.className = 'step-card';
+          card.style.padding = '12px 14px';
           card.innerHTML = `
             <span class="step-badge-num">PASO ${idx + 1}</span>
-            <span class="step-icon">${rule.icon || '🎯'}</span>
-            <div class="step-title">${escapeHtml(rule.title)}</div>
-            <div class="step-desc">${escapeHtml(rule.description)}</div>
+            <span class="step-icon" style="font-size: 2rem; margin-bottom: 4px;">${rule.icon || '🎯'}</span>
+            <div class="step-title" style="font-size: 0.95rem; margin-bottom: 4px;">${escapeHtml(rule.title)}</div>
+            <div class="step-desc" style="font-size: 0.78rem; line-height: 1.3;">${escapeHtml(rule.description)}</div>
           `;
           stepsContainer.appendChild(card);
+        });
+      }
+
+      if (economyContainer && tutorial.scoringEconomy && tutorial.scoringEconomy.length > 0) {
+        economyContainer.innerHTML = '';
+        tutorial.scoringEconomy.forEach(item => {
+          const chip = document.createElement('div');
+          chip.style.cssText = 'background: rgba(0,240,255,0.1); border: 1px solid rgba(0,240,255,0.3); border-radius: 999px; padding: 3px 10px; font-size: 0.76rem; font-weight: 700; color: #fff;';
+          chip.innerHTML = `${escapeHtml(item.label)}: <strong style="color: var(--neon-yellow);">${escapeHtml(item.points)}</strong>`;
+          economyContainer.appendChild(chip);
         });
       }
 
@@ -1582,7 +1614,7 @@
       document.getElementById('introTimerBar'),
       document.getElementById('introTimerText'),
       game.timer,
-      (tutorial && tutorial.durationSeconds) ? tutorial.durationSeconds : 20
+      (tutorial && tutorial.durationSeconds) ? tutorial.durationSeconds : 14
     );
   }
 
@@ -1927,26 +1959,26 @@
         if (rect && rect.width > 20 && rect.height > 20 && rect.left > 0 && rect.top > 0) {
           found = true;
           const centerX = Math.round(rect.left + (rect.width / 2));
-          const startY = Math.max(58, Math.round(rect.top + 8));
+          const startY = Math.round(rect.top + 38);
 
           // Remove any active bubble for this token
           const existing = document.querySelector(`.player-token-reaction-bubble[data-owner="${cleanTarget}"]`);
           if (existing) existing.remove();
 
-          // Create overlay reaction sticker directly ABOVE the player avatar appended to body
+          // Create overlay reaction sticker directly OVER/ABOVE the player avatar appended to body
           const bubble = document.createElement('div');
           bubble.className = 'player-token-reaction-bubble';
           bubble.setAttribute('data-owner', cleanTarget);
-          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 64px; height: 64px; max-width: 64px; max-height: 64px; transform: translate(-50%, -100%); overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65));`;
+          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 62px; height: 62px; max-width: 62px; max-height: 62px; transform: translate(-50%, -65%); overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65));`;
           bubble.innerHTML = svgMarkup;
           document.body.appendChild(bubble);
 
           if (typeof bubble.animate === 'function') {
             bubble.animate([
-              { transform: 'translate(-50%, -40%) scale(0.3)', opacity: 0 },
-              { transform: 'translate(-50%, -95%) scale(1.25) rotate(-6deg)', opacity: 1, offset: 0.22 },
-              { transform: 'translate(-50%, -115%) scale(1.08) rotate(4deg)', opacity: 1, offset: 0.55 },
-              { transform: 'translate(-50%, -145%) scale(0.8) rotate(-2deg)', opacity: 0 }
+              { transform: 'translate(-50%, -20%) scale(0.3)', opacity: 0 },
+              { transform: 'translate(-50%, -65%) scale(1.22) rotate(-6deg)', opacity: 1, offset: 0.22 },
+              { transform: 'translate(-50%, -82%) scale(1.08) rotate(4deg)', opacity: 1, offset: 0.58 },
+              { transform: 'translate(-50%, -115%) scale(0.8) rotate(-2deg)', opacity: 0 }
             ], {
               duration: 1650,
               easing: 'cubic-bezier(0.22, 1, 0.36, 1)',

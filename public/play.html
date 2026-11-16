@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mando Móvil | Duelo de Ocurrencias</title>
   <meta name="theme-color" content="#0b0c1b">
-  <link rel="stylesheet" href="/css/style.css?v=8">
+  <link rel="stylesheet" href="/css/style.css?v=9">
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <script>if (typeof io === 'undefined') document.write('<script src="/socket.io/socket.io.js"><\/script>');</script>
   <script src="/js/config.js"></script>
@@ -38,19 +38,19 @@
     <main class="player-body" id="playerBody">
 
       <!-- Universal Contextual Mobile Call-To-Action (CTA) Banner -->
-      <div class="mobile-cta-banner" id="mobileCtaBanner" style="display: none; width: 100%; max-width: 440px; margin-bottom: 12px; border-radius: var(--radius-md); background: rgba(0, 240, 255, 0.1); border: 2px solid var(--neon-cyan); padding: 12px 14px; text-align: left; box-sizing: border-box;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-          <span id="ctaHeadline" style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 800; color: #ffffff;">
+      <div class="mobile-cta-banner" id="mobileCtaBanner" style="display: none; width: 100%; max-width: 440px; margin-bottom: 8px; border-radius: 10px; background: rgba(0, 240, 255, 0.08); border: 1.5px solid var(--neon-cyan); padding: 6px 10px; text-align: left; box-sizing: border-box; flex-shrink: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+          <span id="ctaHeadline" style="font-family: var(--font-display); font-size: 0.76rem; font-weight: 800; color: #ffffff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             ✍️ ESCRIBE TUS OCURRENCIAS
           </span>
-          <span id="ctaBadge" style="font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--neon-cyan); color: #000;">
-            ACCIÓN REQUERIDA
+          <span id="ctaBadge" style="font-size: 0.62rem; font-weight: 800; padding: 2px 6px; border-radius: var(--radius-pill); background: var(--neon-cyan); color: #000; white-space: nowrap; flex-shrink: 0;">
+            ACCIÓN
           </span>
         </div>
-        <div id="ctaInstruction" style="font-size: 1.05rem; font-weight: 700; color: var(--neon-yellow); line-height: 1.25;">
+        <div id="ctaInstruction" style="font-size: 0.78rem; font-weight: 700; color: var(--neon-yellow); line-height: 1.2; margin-top: 2px;">
           Escribe tu respuesta más graciosa antes de que acabe el tiempo.
         </div>
-        <div id="ctaSubtext" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+        <div id="ctaSubtext" style="display: none; font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">
           Cualquier tontería es mejor que dejarlo en blanco.
         </div>
       </div>
@@ -256,35 +256,35 @@
       <!-- ==========================================
            6B. SCREEN: EL IMPOSTOR DE SILICIO (Móvil)
            ========================================== -->
-      <section id="screenImpostor" class="card" style="display: none; flex-direction: column; width: 100%; max-width: 440px; box-sizing: border-box; padding: 20px; gap: 14px;">
+      <section id="screenImpostor" class="card" style="display: none; flex-direction: column; width: 100%; max-width: 440px; box-sizing: border-box; padding: 14px 12px; gap: 10px;">
         <!-- Header Info -->
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span id="impostorRoleBadge" style="font-family: var(--font-display); font-size: 0.95rem; color: var(--neon-cyan); background: rgba(0, 240, 255, 0.15); border: 1px solid var(--neon-cyan); padding: 4px 12px; border-radius: var(--radius-pill); font-weight: 700;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+          <span id="impostorRoleBadge" style="font-family: var(--font-display); font-size: 0.82rem; color: var(--neon-cyan); background: rgba(0, 240, 255, 0.15); border: 1px solid var(--neon-cyan); padding: 3px 10px; border-radius: var(--radius-pill); font-weight: 700;">
             INOCENTE 😇
           </span>
-          <span id="impostorMobileTimer" style="font-family: var(--font-display); font-size: 1.2rem; color: var(--neon-yellow); font-weight: 800;">
+          <span id="impostorMobileTimer" style="font-family: var(--font-display); font-size: 1.05rem; color: var(--neon-yellow); font-weight: 800; font-variant-numeric: tabular-nums;">
             30s
           </span>
         </div>
 
         <!-- Category & Secret Role Card -->
-        <div id="impostorInfoCard" style="background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 16px; text-align: center;">
-          <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Categoría</div>
-          <div id="impostorMobileCategory" style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin-top: 4px;">Mascotas</div>
+        <div id="impostorInfoCard" style="background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 12px 10px; text-align: center;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Categoría</div>
+          <div id="impostorMobileCategory" style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-top: 2px;">Mascotas</div>
           
-          <div id="impostorSecretWordBox" style="margin-top: 12px; padding: 12px; background: rgba(0,240,255,0.1); border: 2px dashed var(--neon-cyan); border-radius: var(--radius-sm);">
-            <div style="font-size: 0.85rem; color: var(--neon-cyan); font-weight: 700;">TU PALABRA SECRETA:</div>
-            <div id="impostorSecretWordText" style="font-family: var(--font-display); font-size: 1.8rem; color: #ffffff; letter-spacing: 2px; margin-top: 4px;">
+          <div id="impostorSecretWordBox" style="margin-top: 8px; padding: 8px; background: rgba(0,240,255,0.1); border: 2px dashed var(--neon-cyan); border-radius: var(--radius-sm); overflow: hidden;">
+            <div style="font-size: 0.72rem; color: var(--neon-cyan); font-weight: 700;">TU PALABRA SECRETA:</div>
+            <div id="impostorSecretWordText" style="font-family: var(--font-display); font-size: clamp(1.1rem, 5.5vw, 1.55rem); color: #ffffff; letter-spacing: 0.5px; margin-top: 2px; overflow-wrap: anywhere; word-break: break-word;">
               DELFÍN
             </div>
           </div>
 
-          <div id="impostorWarningBox" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,42,133,0.15); border: 2px solid var(--neon-magenta); border-radius: var(--radius-sm);">
-            <div style="font-size: 1.1rem; color: var(--neon-magenta); font-weight: 800;">¡ERES EL IMPOSTOR! 😈</div>
-            <div style="font-size: 0.9rem; color: #ffffff; margin-top: 4px;">
+          <div id="impostorWarningBox" style="display: none; margin-top: 8px; padding: 10px 8px; background: rgba(255,42,133,0.15); border: 2px solid var(--neon-magenta); border-radius: var(--radius-sm);">
+            <div style="font-size: 0.95rem; color: var(--neon-magenta); font-weight: 800;">¡ERES EL IMPOSTOR! 😈</div>
+            <div style="font-size: 0.78rem; color: #ffffff; margin-top: 3px; line-height: 1.25;">
               No conoces la palabra exacta. ¡Finge con cuidado para no delatarte!
             </div>
-            <div id="impostorHintContainer" style="margin-top: 8px; font-size: 0.85rem; color: var(--neon-yellow); background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: var(--radius-sm);">
+            <div id="impostorHintContainer" style="margin-top: 6px; font-size: 0.76rem; color: var(--neon-yellow); background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: var(--radius-sm);">
               🔍 Pista orientativa: <strong id="impostorHintText" style="color: #fff;">-</strong>
             </div>
           </div>
@@ -619,7 +619,7 @@
     <footer class="player-reactions-bar" id="playerReactionsBar" style="display: none;"></footer>
   </div>
 
-  <script src="/js/characterEmotes.js?v=8"></script>
-  <script src="/js/play.js?v=8"></script>
+  <script src="/js/characterEmotes.js?v=9"></script>
+  <script src="/js/play.js?v=9"></script>
 </body>
 </html>

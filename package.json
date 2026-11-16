@@ -1,0 +1,19 @@
+{
+  "name": "anfitriondefiestas",
+  "version": "1.0.0",
+  "description": "Plataforma de Party Games estilo Jackbox con Host en pantalla común, mandos móviles y Anfitrión IA local (Ollama)",
+  "main": "server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test:sim": "node tests/simulate-game.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  }
+}

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  anfitrion-backend:
+    build: .
+    container_name: anfitrion-party-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pantalla Host (TV) | Duelo de Ocurrencias</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script>if (typeof io === 'undefined') document.write('<script src="/socket.io/socket.io.js"><\/script>');</script>
+  <script src="/js/config.js"></script>
+</head>
+<body class="host-body">
+  <!-- Dynamic TV Studio Stage Lighting -->
+  <div class="tv-studio-lighting"></div>
+
+  <!-- Ambient floating particles -->
+  <div class="party-backdrop">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+  </div>
+
+  <!-- Confetti Canvas for Winners and Celebrations -->
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+  <!-- Floating reactions overlay -->
+  <div id="reactionsOverlay" class="reactions-overlay"></div>
+
+  <div class="host-container">
+    <!-- Top Bar -->
+    <header class="host-topbar">
+      <div class="host-brand">
+        <span style="font-size: 2.2rem;">🎪</span>
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h1 class="host-logo-text" id="hostMainLogoText">DUELO DE OCURRENCIAS</h1>
+            <div class="tv-on-air-pill">
+              <div class="tv-on-air-dot"></div> EN VIVO
+            </div>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--neon-cyan); letter-spacing: 1px; font-weight: 700;">
+            SHOW TELEVISIVO EN DIRECTO
+          </div>
+        </div>
+      </div>
+
+      <div class="host-topbar-controls">
+        <!-- Room Code Tag (Visible throughout the game) -->
+        <div class="room-code-tag" id="topRoomCodeTag" style="display: none;">
+          <span>SALA:</span>
+          <span class="code-letter-box" id="topRoomCode">----</span>
+        </div>
+
+        <!-- AI Voice Controls (Toggle + Natural Voice Selector) -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <label class="switch-container" title="Activa la narración hablada del Anfitrión IA en español">
+            <span>🔊 Voz IA</span>
+            <div class="switch">
+              <input type="checkbox" id="aiVoiceToggle" checked>
+              <span class="slider"></span>
+            </div>
+          </label>
+
+          <select id="aiVoiceSelect" class="btn btn-outline btn-sm" style="background: rgba(0,0,0,0.6); color: #fff; border-color: rgba(255,255,255,0.25); font-size: 0.85rem; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; max-width: 190px;" title="Selecciona la voz del anfitrión">
+            <option value="">🎙️ Buscando voces naturales...</option>
+          </select>
+
+          <button type="button" id="btnTestVoice" class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 5px 10px;" title="Probar voz">
+            ▶️ Probar
+          </button>
+        </div>
+
+        <!-- Skip Timer Button -->
+        <button id="btnSkipTimer" class="btn btn-outline btn-sm" style="display: none;" title="Avanzar fase o saltar temporizador">
+          ⏩ Saltar
+        </button>
+
+        <!-- Arena 360 Multi-Screen Link -->
+        <a href="/demo" target="_blank" class="btn btn-cyan btn-sm" style="text-decoration: none; font-size: 0.8rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;" title="Abrir simulador con TV y celulares en vivo">
+          🕹️ Arena 360°
+        </a>
+
+        <!-- Fullscreen Button -->
+        <button id="btnFullscreen" class="btn btn-outline btn-icon" title="Pantalla completa">
+          ⛶
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Host Arena -->
+    <main class="host-main-arena" id="hostMainArena">
+      
+      <!-- ==========================================
+           1. LOBBY STAGE
+           ========================================== -->
+      <section id="stageLobby" class="lobby-screen" style="display: none;">
+        <!-- Left Column: Join Instructions & QR Code -->
+        <div class="card lobby-join-card">
+          <div style="font-family: var(--font-display); font-size: 1.4rem; color: var(--neon-cyan); margin-bottom: 8px;">
+            ¡ÚNETE DESDE TU CELULAR!
+          </div>
+
+          <!-- Dynamic QR Code -->
+          <div class="qr-frame">
+            <img id="lobbyQrImage" src="" alt="Código QR para unirse">
+          </div>
+
+          <div style="font-size: 1rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">
+            O entra en el navegador a:
+          </div>
+          <div class="lobby-url-hint" id="lobbyUrlHint">
+            http://localhost:3000/play
+          </div>
+
+          <div class="lobby-code-giant" id="lobbyRoomCode">
+            ----
+          </div>
+
+          <div style="font-size: 0.95rem; color: var(--text-dim); margin-top: 6px;">
+            Escanea con la cámara o ingresa el código de 4 letras
+          </div>
+        </div>
+
+        <!-- Right Column: Connected Players Grid -->
+        <div class="card lobby-players-card">
+          <div class="lobby-players-header">
+            <div>
+              <h2>Jugadores en Sala</h2>
+              <p style="color: var(--text-muted); font-size: 1.05rem;">Mínimo 2 jugadores (o pulsa "+ Bots" para probar)</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button id="btnQuickBots" type="button" class="btn btn-sm btn-cyan" style="padding: 6px 14px; font-size: 0.85rem; border-radius: var(--radius-pill);">
+                🤖 + 3 Bots
+              </button>
+              <div class="player-count-badge" id="lobbyPlayerCount">
+                0 / 8 Jugadores
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Players Grid -->
+          <div class="players-grid" id="lobbyPlayersGrid">
+            <!-- Tokens injected by host.js -->
+          </div>
+
+          <!-- Game Catalog & Audience Settings -->
+          <div class="lobby-config-panel" style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px;">
+            <!-- Audience / Age Range Filter -->
+            <div style="margin-bottom: 14px;">
+              <div style="font-family: var(--font-display); font-size: 0.95rem; color: var(--neon-cyan); letter-spacing: 1px; font-weight: 700; margin-bottom: 6px;">
+                🎯 RANGO DE EDAD / AUDIENCIA:
+              </div>
+              <div class="audience-options" id="audienceGroup" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-sm audience-btn active" data-audience="familia" style="font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-pill);">
+                  👨‍👩‍👧‍👦 Familia (Para Todos)
+                </button>
+                <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="cerebritos" style="font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-pill);">
+                  🧠 Cerebritos / Ingenio
+                </button>
+                <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="parejas" style="font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-pill);">
+                  💑 Parejas / Citas
+                </button>
+                <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="amigos" style="font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-pill);">
+                  🍻 Fiesta Picante (+18 Spicy)
+                </button>
+              </div>
+            </div>
+
+            <!-- Game Catalog Selector -->
+            <div>
+              <div style="font-family: var(--font-display); font-size: 0.95rem; color: var(--neon-yellow); letter-spacing: 1px; font-weight: 700; margin-bottom: 6px;">
+                🎲 CATÁLOGO DE MINIJUEGOS (JACKBOX STYLE):
+              </div>
+              <div class="catalog-grid" id="catalogGroup" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px;">
+                <div class="game-card active" data-game="duelo-ocurrencias" style="background: rgba(0,240,255,0.12); border: 2px solid var(--neon-cyan); border-radius: var(--radius-md); padding: 10px 14px; cursor: pointer; transition: all 0.2s;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.4rem;">🥊</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #ff9500; background: rgba(255,149,0,0.15); padding: 2px 6px; border-radius: 4px;">MÍN. 3 JUG</span>
+                  </div>
+                  <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 4px;">Duelo de Ocurrencias</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Batallas 1v1, votación y juez cómico IA.</div>
+                </div>
+                <div class="game-card" data-game="impostor-silicio" style="background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.15); border-radius: var(--radius-md); padding: 10px 14px; cursor: pointer; transition: all 0.2s;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.4rem;">🕵️</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #ff2a85; background: rgba(255,42,133,0.15); padding: 2px 6px; border-radius: 4px;">MÍN. 3 JUG</span>
+                  </div>
+                  <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 4px;">El Impostor de Silicio</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Deducción social y sospecha acumulada.</div>
+                </div>
+                <div class="game-card" data-game="dilemas-extremos" style="background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.15); border-radius: var(--radius-md); padding: 10px 14px; cursor: pointer; transition: all 0.2s;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.4rem;">🤔</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: var(--neon-cyan); background: rgba(0,240,255,0.15); padding: 2px 6px; border-radius: 4px;">2-10 JUG</span>
+                  </div>
+                  <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 4px;">Dilemas Extremos</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Dilemas morales absurdos y apuestas.</div>
+                </div>
+                <div class="game-card" data-game="bomba-palabras" style="background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.15); border-radius: var(--radius-md); padding: 10px 14px; cursor: pointer; transition: all 0.2s;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.4rem;">💣</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #ff9500; background: rgba(255,149,0,0.15); padding: 2px 6px; border-radius: 4px;">2-10 JUG</span>
+                  </div>
+                  <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 4px;">Bomba de Palabras</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Reflejos rápidos y patata caliente explosiva.</div>
+                </div>
+                <div class="game-card" data-game="falso-sabio" style="background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.15); border-radius: var(--radius-md); padding: 10px 14px; cursor: pointer; transition: all 0.2s;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.4rem;">🎓</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #ff9500; background: rgba(255,149,0,0.15); padding: 2px 6px; border-radius: 4px;">MÍN. 3 JUG</span>
+                  </div>
+                  <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 4px;">Falso Sabio</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Trivial de faroles: inventa mentiras creíbles.</div>
+                </div>
+                <div class="game-card" data-game="trivia-caotica" style="background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.15); border-radius: var(--radius-md); padding: 10px 14px; cursor: pointer; transition: all 0.2s;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.4rem;">🧠</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: var(--neon-cyan); background: rgba(0,240,255,0.15); padding: 2px 6px; border-radius: 4px;">2-10 JUG</span>
+                  </div>
+                  <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 4px;">Trivia Caótica</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Duelo 1v1 con robo de puntos y batalla grupal.</div>
+                </div>
+                <div class="game-card" data-game="telepatia-fiesta" style="background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.15); border-radius: var(--radius-md); padding: 10px 14px; cursor: pointer; transition: all 0.2s;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.4rem;">🔮</span>
+                    <span style="font-size: 0.7rem; font-weight: 800; color: var(--neon-magenta); background: rgba(255,0,85,0.15); padding: 2px 6px; border-radius: 4px;">2-10 JUG</span>
+                  </div>
+                  <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #fff; margin-top: 4px;">Telepatía de Fiesta</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Sintonía 0-100: test de conexión y mente colmena.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Pacing & Adaptive Rounds (Auto-Calculated by Group Size) -->
+            <div>
+              <div style="font-family: var(--font-display); font-size: 0.95rem; color: var(--neon-cyan); letter-spacing: 1px; font-weight: 700; margin-bottom: 6px;">
+                ✨ RITMO DE PARTIDA DINÁMICO (JACKBOX STYLE):
+              </div>
+              <div id="dynamicRoundsCard" class="dynamic-pacing-card">
+                <div class="dynamic-pacing-header">
+                  <span id="dynamicPacingTitle">⚡ 2 RONDAS DINÁMICAS</span>
+                  <span class="dynamic-pacing-tag">AUTO-CALIBRADO</span>
+                </div>
+                <div id="dynamicPacingDesc" class="dynamic-pacing-desc">
+                  Adaptado automáticamente a la cantidad de jugadores para mantener la partida dinámica y sin esperas.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lobby Footer Actions -->
+          <div class="lobby-actions" style="margin-top: 16px;">
+            <!-- Test Mode Button for Standalone Verification -->
+            <button id="btnSimulatePlayers" class="btn btn-outline btn-sm">
+              🤖 Simular Jugadores (Demo)
+            </button>
+
+            <!-- Start Game Button -->
+            <button id="btnStartGame" class="btn btn-yellow btn-lg disabled" disabled>
+              🚀 Comenzar Partida
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           2. INTRO PHASE / CÓMO JUGAR (TUTORIAL FORMAL)
+           ========================================== -->
+      <section id="stageIntro" class="card" style="display: none; text-align: center; max-width: 1100px; width: 100%; padding: 32px 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div class="duel-badge" id="introBadge" style="background: linear-gradient(135deg, var(--neon-cyan), #0072ff); color: #fff;">
+            📖 GUÍA DE COMBATE | ¿CÓMO JUGAR?
+          </div>
+          <div class="timer-container">
+            <div class="timer-circle">
+              <svg viewBox="0 0 100 100">
+                <circle class="timer-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="timer-bar" id="introTimerBar" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="timer-number" id="introTimerText">15</div>
+            </div>
+          </div>
+        </div>
+
+        <h2 id="introGameTitle" style="font-family: var(--font-display); font-size: 2.8rem; color: var(--neon-yellow); margin-bottom: 4px;">
+          Duelo de Ocurrencias
+        </h2>
+        <p id="introGameTagline" style="font-size: 1.2rem; color: var(--neon-cyan); margin-bottom: 20px; font-weight: 600;">
+          El Coliseo del Ingenio Rápido
+        </p>
+
+        <!-- Main Objective Banner -->
+        <div style="background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 14px 20px; margin-bottom: 20px; border-left: 4px solid var(--neon-cyan); text-align: left;">
+          <span style="font-weight: 800; color: var(--neon-cyan); font-size: 0.95rem; text-transform: uppercase;">🎯 OBJETIVO:</span>
+          <span id="introObjectiveText" style="font-size: 1.15rem; color: #ffffff; margin-left: 8px;">
+            Escribe las ocurrencias más graciosas o absurdas para ganar los votos de tus amigos y el visto bueno del Anfitrión IA.
+          </span>
+        </div>
+
+        <!-- 3 Golden Rules Grid -->
+        <div id="introGoldenRulesContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+          <!-- Injected dynamically by host.js -->
+        </div>
+
+        <!-- Scoring Economy Chips -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); padding: 14px; margin-bottom: 20px;">
+          <div style="font-size: 0.9rem; color: var(--neon-yellow); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
+            💰 SISTEMA DE PUNTUACIÓN DE ESTA PARTIDA:
+          </div>
+          <div id="introScoringEconomyContainer" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <!-- Chips injected dynamically by host.js -->
+          </div>
+        </div>
+
+        <!-- Host Speech Bubble -->
+        <div class="ai-host-stage" id="introAiSpeechBubble" style="display: flex; margin-top: 10px;">
+          <div class="ai-host-avatar">🤖</div>
+          <div class="ai-bubble-content" style="text-align: left;">
+            <div class="ai-bubble-tag"><span>🎙️</span> EL ANFITRIÓN EXPLICA LAS REGLAS:</div>
+            <div class="ai-commentary-text" id="introHostNarrationText" style="font-size: 1.15rem;">
+              "¡Bienvenidos al Duelo de Ocurrencias! Recibirán dos preguntas en su celular..."
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           3. ANSWERING PHASE (Escribir en el móvil)
+           ========================================== -->
+      <section id="stageAnswering" class="card" style="display: none; text-align: center; max-width: 950px; width: 100%; padding: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div class="duel-badge" id="answeringRoundBadge">RONDA 1 DE 2</div>
+          <div class="timer-container">
+            <div class="timer-circle">
+              <svg viewBox="0 0 100 100">
+                <circle class="timer-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="timer-bar" id="answeringTimerBar" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="timer-number" id="answeringTimerText">45</div>
+            </div>
+          </div>
+        </div>
+
+        <h2 style="font-family: var(--font-display); font-size: 3rem; color: #ffffff; margin-bottom: 14px;">
+          ¡Escriban sus ocurrencias! ✍️
+        </h2>
+        <p style="font-size: 1.35rem; color: var(--text-muted); margin-bottom: 30px;">
+          Miren la pantalla de sus teléfonos móviles y respondan a las dos premisas secretas antes de que se agote el tiempo.
+        </p>
+
+        <!-- Status Grid: Who has submitted -->
+        <div style="background: rgba(0, 0, 0, 0.35); border-radius: var(--radius-md); padding: 20px;">
+          <h4 style="font-family: var(--font-display); color: var(--neon-cyan); margin-bottom: 16px; font-size: 1.2rem;">
+            ESTADO DE RESPUESTAS (<span id="answeringProgressCount">0/0</span>)
+          </h4>
+          <div class="players-grid" id="answeringPlayersStatus" style="max-height: 220px;">
+            <!-- Player submission tokens -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           4. DUEL / VOTING & AI JUDGING STAGE
+           ========================================== -->
+      <section id="stageDuel" class="duel-arena" style="display: none;">
+        <!-- Header Info -->
+        <div class="duel-header">
+          <div class="duel-badge" id="duelCounterBadge">⚔️ DUELO 1 DE 3</div>
+          <div class="timer-container" id="duelTimerContainer">
+            <div class="timer-circle">
+              <svg viewBox="0 0 100 100">
+                <circle class="timer-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="timer-bar" id="duelTimerBar" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="timer-number" id="duelTimerText">18</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Giant Premise Prompt -->
+        <div class="duel-prompt-box">
+          <div style="font-size: 1.1rem; color: var(--neon-yellow); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">
+            PREMISA EN DISPUTA
+          </div>
+          <div class="duel-prompt-text" id="duelPromptText">
+            "¿Qué hace tu refrigerador cuando cierras la puerta y se apaga la luz?"
+          </div>
+        </div>
+
+        <!-- Combat Split: Answer A vs Answer B -->
+        <div class="duel-combatants">
+          <!-- Combatant A -->
+          <div class="combat-card combat-card-a" id="combatCardA">
+            <div class="combat-header">
+              <span class="combat-letter">OPCIÓN A</span>
+              <span class="combat-author" id="combatAuthorA">???</span>
+            </div>
+            <div class="combat-answer-text" id="combatAnswerA">
+              "Respuesta A"
+            </div>
+            <!-- Vote Results (Revealed after voting) -->
+            <div id="voteSectionA" style="display: none;">
+              <div class="vote-reveal-bar">
+                <div class="vote-fill" id="voteFillA"></div>
+              </div>
+              <div class="vote-stats">
+                <span id="votePercentA">0%</span>
+                <span id="voteCountA">0 Votos</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- VS Animated Badge -->
+          <div class="duel-vs-badge">
+            VS
+          </div>
+
+          <!-- Combatant B -->
+          <div class="combat-card combat-card-b" id="combatCardB">
+            <div class="combat-header">
+              <span class="combat-letter">OPCIÓN B</span>
+              <span class="combat-author" id="combatAuthorB">???</span>
+            </div>
+            <div class="combat-answer-text" id="combatAnswerB">
+              "Respuesta B"
+            </div>
+            <!-- Vote Results (Revealed after voting) -->
+            <div id="voteSectionB" style="display: none;">
+              <div class="vote-reveal-bar">
+                <div class="vote-fill" id="voteFillB"></div>
+              </div>
+              <div class="vote-stats">
+                <span id="votePercentB">0%</span>
+                <span id="voteCountB">0 Votos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Host Comic Bubble (Ollama Speech & Verdict) -->
+        <div class="ai-host-stage" id="aiHostSpeechStage" style="display: none;">
+          <div class="ai-host-avatar">
+            🤖
+            <div class="ai-talking-wave" id="aiTalkingWave" style="display: none;">HABLANDO</div>
+          </div>
+          <div class="ai-bubble-content">
+            <div class="ai-bubble-tag">
+              <span>⚡</span> EL ANFITRIÓN IA HA HABLADO:
+            </div>
+            <div class="ai-commentary-text" id="aiCommentaryText">
+              "¡Una respuesta digna de un genio, la otra digna de un arresto preventivo!"
+            </div>
+            <div class="ai-verdict-badge" id="aiVerdictBadge">
+              👑 Veredicto del Juez: Opción A gana +250 PTS extra
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           4B. STAGE: EL IMPOSTOR DE SILICIO
+           ========================================== -->
+      <section id="stageImpostor" class="card theme-impostor-stage" style="display: none; width: 100%; max-width: 1100px; padding: 28px 36px; text-align: center;">
+        <div class="spy-hazard-banner">
+          ⚠️ ALERTA DE SEGURIDAD // INFILTRADO EN LA SALA // PROTOCOLO DE IDENTIFICACIÓN ACTIVO ⚠️
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div class="duel-badge" id="impostorRoundBadge" style="background: linear-gradient(135deg, #00f0ff, #0055ff); border: 2px solid #000; box-shadow: 0 4px 0 #000;">
+            🕵️ EL IMPOSTOR | RONDA 1 DE 2
+          </div>
+          <div class="timer-container">
+            <div class="timer-circle">
+              <svg viewBox="0 0 100 100">
+                <circle class="timer-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="timer-bar" id="impostorTimerBar" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="timer-number" id="impostorTimerText">30</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <span style="font-size: 1rem; color: var(--neon-cyan); letter-spacing: 2px; font-weight: 700;">CATEGORÍA DE LA RONDA</span>
+          <h2 id="impostorCategoryText" style="font-family: var(--font-display); font-size: 2.8rem; color: #ffffff; margin-top: 6px;">
+            Mascotas y Animales
+          </h2>
+          <p id="impostorInstructionsText" style="color: var(--text-muted); font-size: 1.2rem; margin-top: 6px;">
+            Todos tienen la palabra secreta excepto el impostor. ¡Escriban su pista disimulada en el móvil!
+          </p>
+        </div>
+
+        <!-- Clues Board Grid -->
+        <div id="impostorCluesContainer" style="background: rgba(0,0,0,0.3); border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px;">
+          <h3 style="font-family: var(--font-display); color: var(--neon-yellow); font-size: 1.3rem; margin-bottom: 16px;">
+            TABLERO DE PISTAS DE LOS JUGADORES
+          </h3>
+          <div id="impostorCluesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px;">
+            <!-- Player clue cards injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Suspicion Board Stage (End of Intermediate Rounds - Nobody Expelled) -->
+        <div id="impostorSuspicionBoardStage" class="card" style="display: none; width: 100%; padding: 24px; margin-top: 16px; text-align: center; background: rgba(10, 15, 30, 0.95); border: 3px solid var(--neon-cyan); box-shadow: 0 8px 0 #000;">
+          <div style="font-family: var(--font-display); font-size: 1.2rem; color: var(--neon-cyan); letter-spacing: 2px; font-weight: 900; text-transform: uppercase;">
+            📊 EXPEDIENTE DE SOSPECHAS // FIN DE RONDA
+          </div>
+          <div style="font-size: 1.05rem; color: var(--text-muted); margin: 6px 0 16px 0;">
+            Los votos quedan registrados. ¡Nadie es expulsado todavía! El infiltrado sigue en la mesa.
+          </div>
+          <!-- Suspicion Bars List -->
+          <div id="impostorSuspicionList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; max-width: 900px; margin: 0 auto;">
+            <!-- Injected by host.js -->
+          </div>
+          <div class="spy-hazard-banner" style="margin-top: 20px; font-size: 0.9rem;">
+            ⚠️ ¡SIGUIENTE RONDA EN CAMINO! PREPAREN SUS NUEVAS PISTAS ⚠️
+          </div>
+        </div>
+
+        <!-- Impostor Resolution & Final Verdict Climax Stage -->
+        <div id="impostorResolutionStage" class="card" style="display: none; width: 100%; padding: 30px; margin-top: 20px; text-align: center; background: rgba(15, 10, 30, 0.95); border: 3px solid #ff003c; box-shadow: 0 10px 0 #000, 0 0 50px rgba(255, 0, 60, 0.4);">
+          <div style="font-size: 1.1rem; color: #ff003c; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; font-family: var(--font-display);">
+            ⚖️ JUICIO FINAL // VEREDICTO DE LA MESA
+          </div>
+          
+          <!-- Suspect Voted Banner -->
+          <div style="margin: 20px 0;">
+            <div style="font-size: 1.2rem; color: var(--text-muted);">El sospechoso principal con más votos acumulados es:</div>
+            <div id="resolutionVotedName" style="font-family: var(--font-display); font-size: 2.8rem; color: #ffffff; margin-top: 6px; font-weight: 900;">
+              🦊 Carlos (3 VOTOS)
+            </div>
+          </div>
+
+          <!-- Verdict Banner (Green / Red) -->
+          <div id="resolutionVerdictBadge" style="padding: 16px 24px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1.8rem; margin: 20px auto; max-width: 750px; letter-spacing: 1px;">
+            ¡ERA EL VERDADERO IMPOSTOR! 🚨
+          </div>
+
+          <!-- Secret Word & Real Impostor Reveal Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 800px; margin: 20px auto; text-align: center;">
+            <div style="background: rgba(0, 240, 255, 0.1); border: 2px solid var(--neon-cyan); border-radius: var(--radius-md); padding: 18px;">
+              <div style="font-size: 0.85rem; color: var(--neon-cyan); font-weight: 800; text-transform: uppercase;">PALABRA SECRETA:</div>
+              <div id="resolutionSecretWord" style="font-family: var(--font-display); font-size: 2.2rem; color: #ffffff; margin-top: 4px;">
+                TEQUILA
+              </div>
+            </div>
+            <div style="background: rgba(255, 42, 133, 0.1); border: 2px solid var(--neon-magenta); border-radius: var(--radius-md); padding: 18px;">
+              <div style="font-size: 0.85rem; color: var(--neon-magenta); font-weight: 800; text-transform: uppercase;">VERDADERO IMPOSTOR:</div>
+              <div id="resolutionRealImpostor" style="font-family: var(--font-display); font-size: 2.2rem; color: #ffffff; margin-top: 4px;">
+                😈 Carlos
+              </div>
+            </div>
+          </div>
+
+          <!-- Escape Status -->
+          <div id="resolutionEscapeStatus" style="font-size: 1.25rem; font-weight: 800; color: var(--neon-yellow); margin-top: 14px;">
+          </div>
+        </div>
+
+        <!-- AI Host Commentary Box for Impostor -->
+        <div class="ai-host-stage" id="impostorAiHostBox" style="display: none; margin-top: 20px;">
+          <div class="ai-host-avatar">🤖</div>
+          <div class="ai-bubble-content">
+            <div class="ai-bubble-tag"><span>⚡</span> JUICIO DEL ANFITRIÓN IA:</div>
+            <div class="ai-commentary-text" id="impostorAiCommentaryText">
+              "¡Esa pista estuvo tan sospechosa que hasta mi GPU se puso nerviosa!"
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           4C. STAGE: DILEMAS EXTREMOS
+           ========================================== -->
+      <section id="stageDilemas" class="card" style="display: none; width: 100%; max-width: 1050px; padding: 30px; text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div class="duel-badge" id="dilemasRoundBadge">🤔 DILEMAS EXTREMOS | RONDA 1 DE 3</div>
+          <div class="timer-container">
+            <div class="timer-circle">
+              <svg viewBox="0 0 100 100">
+                <circle class="timer-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="timer-bar" id="dilemasTimerBar" cx="50" cy="50" r="42"></circle>
+              </svg>
+              <div class="timer-number" id="dilemasTimerText">25</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dilemma Question Box -->
+        <div style="margin-bottom: 28px; background: rgba(0,0,0,0.3); border-radius: var(--radius-md); padding: 24px;">
+          <div style="font-size: 1.05rem; color: var(--neon-yellow); font-weight: 700; letter-spacing: 2px;">
+            EL DILEMA MORAL DEL SALÓN
+          </div>
+          <h2 id="dilemaQuestionText" style="font-family: var(--font-display); font-size: 2.4rem; color: #ffffff; margin-top: 10px; line-height: 1.3;">
+            "¿Qué preferirías tener como maldición familiar?"
+          </h2>
+        </div>
+
+        <!-- Options Combat Split -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+          <!-- Option A -->
+          <div id="dilemaCardA" class="combat-card combat-card-a" style="padding: 24px; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <span class="combat-letter" style="color: var(--neon-cyan);">OPCIÓN A</span>
+              <div id="dilemaOptionTextA" style="font-size: 1.4rem; font-weight: 700; color: #ffffff; margin-top: 10px;">
+                Cargando...
+              </div>
+            </div>
+            <!-- Results meter (revealed in REVEAL phase) -->
+            <div id="dilemaMeterA" style="margin-top: 20px; display: none;">
+              <div class="vote-reveal-bar" style="height: 18px;">
+                <div id="dilemaFillA" class="vote-fill" style="width: 50%; background: var(--neon-cyan);"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.3rem; margin-top: 6px;">
+                <span id="dilemaPercentA" style="color: var(--neon-cyan);">50%</span>
+                <span id="dilemaVotesA">0 Votos</span>
+              </div>
+              <div id="dilemaPlayersA" style="font-size: 0.95rem; color: var(--text-muted); margin-top: 8px;"></div>
+            </div>
+          </div>
+
+          <!-- Option B -->
+          <div id="dilemaCardB" class="combat-card combat-card-b" style="padding: 24px; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <span class="combat-letter" style="color: var(--neon-magenta);">OPCIÓN B</span>
+              <div id="dilemaOptionTextB" style="font-size: 1.4rem; font-weight: 700; color: #ffffff; margin-top: 10px;">
+                Cargando...
+              </div>
+            </div>
+            <!-- Results meter (revealed in REVEAL phase) -->
+            <div id="dilemaMeterB" style="margin-top: 20px; display: none;">
+              <div class="vote-reveal-bar" style="height: 18px;">
+                <div id="dilemaFillB" class="vote-fill" style="width: 50%; background: var(--neon-magenta);"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.3rem; margin-top: 6px;">
+                <span id="dilemaPercentB" style="color: var(--neon-magenta);">50%</span>
+                <span id="dilemaVotesB">0 Votos</span>
+              </div>
+              <div id="dilemaPlayersB" style="font-size: 0.95rem; color: var(--text-muted); margin-top: 8px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Roast Commentary Box -->
+        <div class="ai-host-stage" id="dilemaAiHostBox" style="display: none; margin-top: 16px;">
+          <div class="ai-host-avatar">🤖</div>
+          <div class="ai-bubble-content">
+            <div class="ai-bubble-tag"><span>⚡</span> ANÁLISIS PSICOLÓGICO DEL ANFITRIÓN IA:</div>
+            <div class="ai-commentary-text" id="dilemaAiCommentaryText">
+              "¡La mayoría eligió la opción más perturbadora! Qué bonita vecindad..."
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           BOMBA DE PALABRAS (WORD BOMB HOST STAGE)
+           ========================================== -->
+      <section id="stageBomba" class="card theme-bomba-stage" style="display: none; width: 100%; max-width: 1050px; padding: 30px; text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div class="duel-badge" id="bombaRoundBadge" style="background: linear-gradient(135deg, #ff4500, #ff0055); color: #fff; border: 2px solid #000; box-shadow: 0 4px 0 #000;">
+            💣 BOMBA DE PALABRAS | RONDA 1 DE 3
+          </div>
+          <div class="timer-container" style="display: flex; align-items: center; gap: 8px;">
+            <div style="font-family: var(--font-display); font-size: 2.2rem; color: #ff0055; font-weight: 900;" id="bombaTimer">
+              8s
+            </div>
+          </div>
+        </div>
+
+        <!-- Bomb Center Graphic -->
+        <div style="margin: 20px auto; position: relative; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(255,69,0,0.3) 0%, rgba(0,0,0,0.8) 70%); border-radius: 50%; border: 3px solid #ff4500; box-shadow: 0 0 35px #ff4500;" id="bombaVisualSphere">
+          <span style="font-size: 5rem; animation: pulse 0.6s infinite alternate;" id="bombaEmojiIcon">💣</span>
+        </div>
+
+        <!-- Current Bomb Holder Announcement -->
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-weight: 700;">¡LA MECHA ESTÁ ARDIENDO EN MANOS DE:</div>
+          <div id="bombaActiveHolderName" style="font-family: var(--font-display); font-size: 2.4rem; color: #ff0055; font-weight: 900; margin-top: 4px;">
+            🦊 FedeZorro
+          </div>
+        </div>
+
+        <!-- Syllable / Category Filter Prompt -->
+        <div style="background: rgba(0,0,0,0.5); border: 2px solid #ff4500; border-radius: var(--radius-md); padding: 18px 24px; margin-bottom: 20px; max-width: 750px; margin-left: auto; margin-right: auto;">
+          <div style="font-size: 0.85rem; color: var(--neon-yellow); font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">REGLA DE PALABRA OBLIGATORIA:</div>
+          <div id="bombaPromptText" style="font-family: var(--font-display); font-size: 2rem; color: #fff; margin-top: 6px; font-weight: 800;">
+            Palabras que empiecen con: CAR-
+          </div>
+        </div>
+
+        <!-- Words Accepted Feed -->
+        <div style="text-align: left; background: rgba(255,255,255,0.03); border-radius: var(--radius-md); padding: 14px 20px; max-width: 750px; margin: 0 auto;">
+          <div style="font-size: 0.8rem; color: var(--neon-cyan); font-weight: 700; margin-bottom: 8px;">CADENA DE PALABRAS SALVADAS ESTA RONDA:</div>
+          <div id="bombaWordsFeed" style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <span class="badge" style="background: rgba(0,255,157,0.15); color: var(--neon-green); border: 1px solid var(--neon-green); padding: 4px 10px; border-radius: var(--radius-pill); font-weight: 700;">Esperando primer pase...</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           FALSO SABIO (FIBBAGE / BLUFF TRIVIA HOST STAGE)
+           ========================================== -->
+      <section id="stageFalsoSabio" class="card theme-falso-stage" style="display: none; width: 100%; max-width: 1050px; padding: 30px; text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div class="duel-badge" id="falsoRoundBadge" style="background: linear-gradient(135deg, #eab308, #d97706); color: #000; border: 2px solid #000; box-shadow: 0 4px 0 #000; font-weight: 900;">
+            🎓 FALSO SABIO | RONDA 1 DE 3
+          </div>
+          <div class="timer-container" style="display: flex; align-items: center; gap: 8px;">
+            <div style="font-family: var(--font-display); font-size: 2.2rem; color: var(--neon-yellow); font-weight: 900;" id="falsoTimer">
+              25s
+            </div>
+          </div>
+        </div>
+
+        <!-- Question Prompt Display -->
+        <div style="background: rgba(0,0,0,0.5); border: 2px solid rgba(255,230,0,0.5); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px;">
+          <div style="font-size: 0.85rem; color: var(--neon-cyan); font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">COMPLETA EL HECHO HISTÓRICO INSÓLITO:</div>
+          <h2 id="falsoPromptQuestion" style="font-family: var(--font-display); font-size: 2.2rem; color: #fff; margin-top: 10px; line-height: 1.3;">
+            En 1923, el jockey Frank Hayes ganó una carrera histórica en Nueva York a pesar de haber... <span style="color: var(--neon-yellow); border-bottom: 3px dashed var(--neon-yellow); padding: 0 10px;">________________</span>
+          </h2>
+        </div>
+
+        <!-- Options / Lies Revealed Grid -->
+        <div id="falsoChoicesGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 900px; margin: 0 auto;">
+          <!-- Choice cards injected via host.js -->
+        </div>
+
+        <!-- Revelation Commentary -->
+        <div id="falsoRevealBox" style="display: none; margin-top: 24px; background: rgba(0, 255, 157, 0.1); border: 2px solid var(--neon-green); border-radius: var(--radius-md); padding: 18px; text-align: center;">
+          <div style="font-size: 0.9rem; color: var(--neon-green); font-weight: 800; letter-spacing: 1px;">✓ LA VERDAD OCULTA ERA:</div>
+          <div id="falsoRealAnswer" style="font-family: var(--font-display); font-size: 2rem; color: #fff; font-weight: 900; margin-top: 6px;">...</div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TRIVIA CAÓTICA (TRIVIA MURDER PARTY STYLE HOST STAGE)
+           ========================================== -->
+      <section id="stageTrivia" class="card theme-trivia-stage" style="display: none; width: 100%; max-width: 1050px; padding: 30px; text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="duel-badge" id="triviaRoundBadge" style="background: linear-gradient(135deg, #00f0ff, #0077ff); color: #fff; border: 2px solid #000; box-shadow: 0 4px 0 #000; font-weight: 900;">
+              🧠 TRIVIA CAÓTICA | RONDA 1 DE 3
+            </div>
+            <div id="triviaDoublePointsBadge" style="display: none; background: linear-gradient(135deg, #ff0055, #ff5500); color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: 900; font-size: 0.8rem; border: 2px solid #000;">
+              🔥 ¡DOBLE PUNTUACIÓN!
+            </div>
+          </div>
+          <div class="timer-container" style="display: flex; align-items: center; gap: 8px;">
+            <div style="font-family: var(--font-display); font-size: 2.2rem; color: var(--neon-cyan); font-weight: 900;" id="triviaTimer">
+              20s
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Notification Banner -->
+        <div id="triviaModePill" style="display: inline-block; background: rgba(0,240,255,0.12); border: 1px solid var(--neon-cyan); border-radius: var(--radius-pill); padding: 4px 16px; font-size: 0.85rem; font-weight: 800; color: var(--neon-cyan); margin-bottom: 16px; letter-spacing: 1px;">
+          ⚡ BATALLA CAMPAL: ¡BONIFICACIÓN POR VELOCIDAD!
+        </div>
+
+        <!-- Question Card -->
+        <div style="background: rgba(0,0,0,0.55); border: 2px solid var(--neon-cyan); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px; box-shadow: 0 0 25px rgba(0,240,255,0.15);">
+          <div id="triviaCategory" style="font-size: 0.85rem; color: var(--neon-yellow); font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">CATEGORÍA: CURIOSIDADES EXTRAÑAS</div>
+          <h2 id="triviaQuestionText" style="font-family: var(--font-display); font-size: 2.2rem; color: #fff; margin-top: 10px; line-height: 1.3;">
+            ¿Pregunta de Trivia?
+          </h2>
+        </div>
+
+        <!-- 4 Options Grid -->
+        <div id="triviaOptionsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 900px; margin: 0 auto;">
+          <!-- Injected via host.js -->
+        </div>
+
+        <!-- Explanation & AI Host speech -->
+        <div id="triviaExplanationBox" style="display: none; margin-top: 24px; background: rgba(0, 240, 255, 0.08); border: 2px solid var(--neon-cyan); border-radius: var(--radius-md); padding: 18px; text-align: center;">
+          <div style="font-size: 0.85rem; color: var(--neon-cyan); font-weight: 800; letter-spacing: 1px;">💡 EXPLICACIÓN CIENTÍFICA / HISTÓRICA:</div>
+          <div id="triviaExplanationText" style="font-size: 1.15rem; color: #fff; margin-top: 6px; line-height: 1.4;">...</div>
+          <div id="triviaAiCommentary" style="margin-top: 12px; font-size: 1.05rem; color: var(--neon-yellow); font-style: italic;">...</div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TELEPATÍA DE FIESTA (WAVELENGTH / SINTONÍA HOST STAGE)
+           ========================================== -->
+      <section id="stageTelepatia" class="card theme-telepatia-stage" style="display: none; width: 100%; max-width: 1050px; padding: 30px; text-align: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="duel-badge" id="telepatiaRoundBadge" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff; border: 2px solid #000; box-shadow: 0 4px 0 #000; font-weight: 900;">
+              🔮 TELEPATÍA DE FIESTA | RONDA 1 DE 3
+            </div>
+            <div id="telepatiaDoublePointsBadge" style="display: none; background: linear-gradient(135deg, #ff0055, #ff5500); color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: 900; font-size: 0.8rem; border: 2px solid #000;">
+              🔥 ¡DOBLE PUNTUACIÓN!
+            </div>
+          </div>
+          <div class="timer-container" style="display: flex; align-items: center; gap: 8px;">
+            <div style="font-family: var(--font-display); font-size: 2.2rem; color: #ec4899; font-weight: 900;" id="telepatiaTimer">
+              25s
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Subtitle -->
+        <div id="telepatiaModePill" style="display: inline-block; background: rgba(236,72,153,0.15); border: 1px solid #ec4899; border-radius: var(--radius-pill); padding: 4px 16px; font-size: 0.85rem; font-weight: 800; color: #f472b6; margin-bottom: 16px; letter-spacing: 1px;">
+          💑 TEST DE CONEXIÓN MENTAL (DUELO 1v1)
+        </div>
+
+        <!-- Topic Card -->
+        <div style="background: rgba(0,0,0,0.55); border: 2px solid #ec4899; border-radius: var(--radius-md); padding: 24px; margin-bottom: 28px; box-shadow: 0 0 25px rgba(236,72,153,0.18);">
+          <div style="font-size: 0.85rem; color: var(--neon-yellow); font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">CALIBREN SU ESCALA DE PENSAMIENTO:</div>
+          <h2 id="telepatiaTopicText" style="font-family: var(--font-display); font-size: 2.2rem; color: #fff; margin-top: 10px; line-height: 1.3;">
+            ¿Qué tan aceptable es comerse la última rebanada de pizza?
+          </h2>
+        </div>
+
+        <!-- Spectrum Visualizer -->
+        <div style="background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 24px 30px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; font-weight: 800; margin-bottom: 14px;">
+            <span id="telepatiaLeftLabel" style="color: #60a5fa; max-width: 40%; text-align: left;">0% (Mínimo)</span>
+            <span id="telepatiaRightLabel" style="color: #f43f5e; max-width: 40%; text-align: right;">100% (Máximo)</span>
+          </div>
+
+          <!-- The Spectrum Gauge Track -->
+          <div style="position: relative; height: 32px; background: linear-gradient(90deg, #3b82f6 0%, #a855f7 50%, #f43f5e 100%); border-radius: var(--radius-pill); border: 2px solid #fff; box-shadow: 0 0 20px rgba(168,85,247,0.3);">
+            <!-- Markers injected dynamically via host.js -->
+            <div id="telepatiaMarkersContainer" style="position: absolute; top: -14px; left: 0; right: 0; height: 60px; pointer-events: none;"></div>
+          </div>
+
+          <!-- Waiting/Status summary -->
+          <div id="telepatiaSubmissionStatus" style="margin-top: 36px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+            <!-- Player submit status pills -->
+          </div>
+        </div>
+
+        <!-- Results & Psychological Roasting -->
+        <div id="telepatiaResultBox" style="display: none; background: rgba(236, 72, 153, 0.1); border: 2px solid #ec4899; border-radius: var(--radius-md); padding: 20px; text-align: center;">
+          <div id="telepatiaAffinityHeadline" style="font-family: var(--font-display); font-size: 2rem; color: #fff; font-weight: 900;">¡SINTONÍA DEL 94%!</div>
+          <div id="telepatiaAffinityDesc" style="font-size: 1.15rem; color: var(--neon-cyan); margin-top: 6px;">Mentes gemelas: diferencia de solo 6 puntos (+1000 PTS)</div>
+          <div id="telepatiaAiCommentary" style="margin-top: 12px; font-size: 1.05rem; color: var(--neon-yellow); font-style: italic;">...</div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           5. ROUND RESULTS / LEADERBOARD
+           ========================================== -->
+      <section id="stageScores" class="scores-screen" style="display: none;">
+        <div class="scores-header">
+          <div class="duel-badge" id="scoresRoundBadge" style="margin-bottom: 12px; display: inline-block;">
+            FIN DE RONDA 1
+          </div>
+          <h2 class="scores-title">TABLA DE POSICIONES</h2>
+        </div>
+
+        <div class="leaderboard-list" id="scoresLeaderboardList">
+          <!-- Injected via host.js -->
+        </div>
+      </section>
+
+      <!-- ==========================================
+           6. FINAL PODIUM & GAME OVER
+           ========================================== -->
+      <section id="stagePodium" class="podium-container" style="display: none;">
+        <h2 class="podium-title">🏆 ¡CAMPEONES DE LA FIESTA! 🏆</h2>
+
+        <div class="podium-stage podium-stage-jackbox">
+          <!-- 2nd Place -->
+          <div class="podium-step step-2" id="podiumStep2">
+            <div class="podium-avatar-wrap">
+              <div class="podium-avatar" id="podiumAvatar2">🐙</div>
+            </div>
+            <div class="podium-pillar podium-pillar-3d pillar-silver">
+              <div class="podium-place-number">2</div>
+              <div class="podium-player-name" id="podiumName2">Plata</div>
+              <div class="podium-score" id="podiumScore2">0 PTS</div>
+            </div>
+          </div>
+
+          <!-- 1st Place (Gold / Champion) -->
+          <div class="podium-step step-1" id="podiumStep1">
+            <div class="podium-avatar-wrap">
+              <span class="podium-crown">👑</span>
+              <div class="podium-avatar" id="podiumAvatar1">🦊</div>
+            </div>
+            <div class="podium-pillar podium-pillar-3d pillar-gold">
+              <div class="podium-place-number">1</div>
+              <div class="podium-player-name" id="podiumName1">Campeón</div>
+              <div class="podium-score" id="podiumScore1">0 PTS</div>
+            </div>
+          </div>
+
+          <!-- 3rd Place -->
+          <div class="podium-step step-3" id="podiumStep3">
+            <div class="podium-avatar-wrap">
+              <div class="podium-avatar" id="podiumAvatar3">🦙</div>
+            </div>
+            <div class="podium-pillar podium-pillar-3d pillar-bronze">
+              <div class="podium-place-number">3</div>
+              <div class="podium-player-name" id="podiumName3">Bronce</div>
+              <div class="podium-score" id="podiumScore3">0 PTS</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
+          <button id="btnRestartGame" class="btn btn-cyan btn-lg">
+            🔄 Jugar Otra Partida
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/js/host.js"></script>
+</body>
+</html>

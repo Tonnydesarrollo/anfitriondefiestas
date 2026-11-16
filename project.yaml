@@ -1,0 +1,30 @@
+# Claude Code Game Studios — Project Configuration
+schema_version: 1
+
+framework:
+  version: 1.3.0
+  studio: "Claude Code Game Studios (Donchitos)"
+
+project:
+  name: anfitriondefiestas
+  title: "Anfitrión de Fiestas (Jackbox-style AI Party Game)"
+  engine: web
+  platform: browser
+  language: javascript
+  stage: pre-production
+  goal: commercial-polish
+
+modes:
+  rigor: standard
+  automation: collaborative
+
+team:
+  lead: "creative-director"
+  roles:
+    - creative-director
+    - game-designer
+    - lead-programmer
+    - gameplay-programmer
+    - frontend-designer
+    - audio-director
+    - qa-lead

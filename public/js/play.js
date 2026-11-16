@@ -255,6 +255,25 @@
 
     const avatarPickerGrid = document.getElementById('avatarPickerGrid');
     const joinAvatarPreview = document.getElementById('joinAvatarPreview');
+    const selectedAvatarLabel = document.getElementById('selectedAvatarLabel');
+    const playerViewportEl = document.querySelector('.player-viewport');
+
+    function applyAvatarTheme(av) {
+      if (!av) return;
+      const accent = av.color || '#4254f4';
+      if (playerViewportEl) {
+        playerViewportEl.style.setProperty('--player-accent', accent);
+      }
+      if (selectedAvatarLabel) {
+        selectedAvatarLabel.textContent = av.name || 'Personaje';
+        selectedAvatarLabel.style.color = accent;
+      }
+      if (joinAvatarPreview) {
+        joinAvatarPreview.textContent = av.emoji;
+        joinAvatarPreview.style.borderColor = accent;
+        joinAvatarPreview.style.background = `${accent}26`;
+      }
+    }
 
     function renderAvatarPicker() {
       if (!avatarPickerGrid) return;
@@ -262,37 +281,23 @@
       AVAILABLE_AVATARS.forEach((av) => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.style.padding = '8px 4px';
-        btn.style.fontSize = '1.7rem';
-        btn.style.borderRadius = 'var(--radius-sm)';
-        btn.style.cursor = 'pointer';
-        btn.style.transition = 'all 0.15s ease';
         const isSelected = (selectedAvatar.emoji === av.emoji);
-        btn.style.border = isSelected ? '2px solid var(--neon-cyan)' : '1px solid rgba(255,255,255,0.12)';
-        btn.style.background = isSelected ? 'rgba(0, 240, 255, 0.25)' : 'rgba(255,255,255,0.04)';
-        btn.style.boxShadow = isSelected ? '0 0 15px rgba(0, 240, 255, 0.5)' : 'none';
+        btn.className = `jackbox-avatar-chip${isSelected ? ' selected' : ''}`;
+        btn.style.setProperty('--chip-color', av.color || '#4254f4');
         btn.textContent = av.emoji;
         btn.title = av.name;
         btn.addEventListener('click', () => {
           triggerHaptic(30);
           selectedAvatar = av;
           renderAvatarPicker();
-          if (joinAvatarPreview) {
-            joinAvatarPreview.textContent = av.emoji;
-            joinAvatarPreview.style.borderColor = av.color || 'var(--neon-cyan)';
-            joinAvatarPreview.style.background = `${av.color || '#00f0ff'}22`;
-          }
+          applyAvatarTheme(av);
         });
         avatarPickerGrid.appendChild(btn);
       });
     }
 
     renderAvatarPicker();
-    if (joinAvatarPreview) {
-      joinAvatarPreview.textContent = selectedAvatar.emoji;
-      joinAvatarPreview.style.borderColor = selectedAvatar.color || 'var(--neon-cyan)';
-      joinAvatarPreview.style.background = `${selectedAvatar.color || '#00f0ff'}22`;
-    }
+    applyAvatarTheme(selectedAvatar);
 
     if (btnRandomName && inputPlayerName) {
       btnRandomName.addEventListener('click', () => {
@@ -394,6 +399,13 @@
 
   function onJoinedSuccess(data) {
     triggerHaptic([60, 40, 60]);
+
+    const vp = document.querySelector('.player-viewport');
+    const accentColor = myPlayer.avatar?.color || selectedAvatar?.color || '#4254f4';
+    if (vp) {
+      vp.style.setProperty('--player-accent', accentColor);
+      vp.setAttribute('data-joined', 'true');
+    }
 
     // Update Header
     if (playerRoomDisplay) playerRoomDisplay.textContent = currentRoomCode;

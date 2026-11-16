@@ -814,10 +814,12 @@
       btnStartGame.removeAttribute('disabled');
       btnStartGame.classList.remove('disabled');
       btnStartGame.classList.add('btn-yellow');
+      btnStartGame.style.flexDirection = 'column';
+      btnStartGame.style.gap = '2px';
       if (players.length < 2) {
-        btnStartGame.innerHTML = '🚀 Comenzar Partida <span style="font-size:0.8rem;opacity:0.85;display:block;font-family:var(--font-ui);">+ bots automáticos</span>';
+        btnStartGame.innerHTML = '<span>🚀 ¡COMENZAR PARTIDA!</span><span style="font-size:0.68rem;opacity:0.9;font-weight:700;font-family:var(--font-ui);">+ bots automáticos</span>';
       } else {
-        btnStartGame.innerHTML = '🚀 ¡Comenzar Partida!';
+        btnStartGame.innerHTML = '<span>🚀 ¡COMENZAR PARTIDA!</span>';
       }
     }
 
@@ -837,14 +839,12 @@
     // Sync selected game card
     if (state.selectedGameId) {
       document.querySelectorAll('.game-card').forEach(card => {
+        card.style.removeProperty('background');
+        card.style.removeProperty('border-color');
         if (card.getAttribute('data-game') === state.selectedGameId) {
           card.classList.add('active');
-          card.style.background = 'rgba(0,240,255,0.12)';
-          card.style.borderColor = 'var(--neon-cyan)';
         } else {
           card.classList.remove('active');
-          card.style.background = 'rgba(255,255,255,0.04)';
-          card.style.borderColor = 'rgba(255,255,255,0.15)';
         }
       });
     }
@@ -1745,8 +1745,10 @@
         economyContainer.innerHTML = '';
         tutorial.scoringEconomy.forEach(item => {
           const chip = document.createElement('div');
-          chip.style.cssText = 'background: rgba(0,240,255,0.1); border: 1px solid rgba(0,240,255,0.3); border-radius: 999px; padding: 3px 10px; font-size: 0.76rem; font-weight: 700; color: #fff;';
-          chip.innerHTML = `${escapeHtml(item.label)}: <strong style="color: var(--neon-yellow);">${escapeHtml(item.points)}</strong>`;
+          chip.style.cssText = 'background: rgba(0,240,255,0.12); border: 1.5px solid rgba(0,240,255,0.4); border-radius: 999px; padding: 4px 12px; font-size: clamp(0.74rem, 1vw, 0.88rem); font-weight: 800; color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,0.45);';
+          const labelText = item.event || item.label || 'Bono';
+          const iconText = item.icon ? `${item.icon} ` : '';
+          chip.innerHTML = `${iconText}${escapeHtml(labelText)}: <strong style="color: var(--neon-yellow);">${escapeHtml(item.points)}</strong>`;
           economyContainer.appendChild(chip);
         });
       }
@@ -1785,14 +1787,17 @@
       players.forEach(p => {
         if (p.hasAnswered) answeredCount++;
         const item = document.createElement('div');
-        item.className = 'player-token';
+        item.className = `answering-player-pill ${p.hasAnswered ? 'answered' : 'pending'}`;
         item.setAttribute('data-player-name', p.name);
-        item.style.padding = '10px';
+        const avColor = (typeof p.avatar === 'object' ? p.avatar?.color : null) || '#4254f4';
+        item.style.setProperty('--pill-color', avColor);
         item.innerHTML = `
-          <div style="font-size: 2rem; margin-bottom: 4px;">${getAvatarEmoji(p.avatar)}</div>
-          <div style="font-family: var(--font-display); font-size: 1rem; font-weight: 700;">${escapeHtml(p.name)}</div>
-          <div style="font-size: 0.85rem; font-weight: 700; color: ${p.hasAnswered ? 'var(--neon-green)' : 'var(--neon-yellow)'};">
-            ${p.hasAnswered ? '✓ Enviado' : '⏳ Escribiendo...'}
+          <div class="answering-pill-avatar" style="background: ${avColor};">${getAvatarEmoji(p.avatar)}</div>
+          <div class="answering-pill-info">
+            <div class="answering-pill-name">${escapeHtml(p.name)}</div>
+            <div class="answering-pill-status">
+              ${p.hasAnswered ? '✓ ¡LISTO!' : '⏳ Escribiendo...'}
+            </div>
           </div>
         `;
         answeringPlayersStatus.appendChild(item);
@@ -2196,18 +2201,24 @@
     catalogGroup.addEventListener('click', (e) => {
       const card = e.target.closest('.game-card');
       if (!card) return;
-      const gameId = card.getAttribute('data-game');
-      SoundFX.playDing();
+      let gameId = card.getAttribute('data-game');
+      if (gameId === 'ruleta-fiesta') {
+        const allGames = ['duelo-ocurrencias', 'impostor-silicio', 'dilemas-extremos', 'bomba-palabras', 'falso-sabio', 'trivia-caotica', 'telepatia-fiesta'];
+        gameId = allGames[Math.floor(Math.random() * allGames.length)];
+        SoundFX.playFanfare();
+      } else {
+        SoundFX.playDing();
+      }
       socket.emit('host:set_game', { gameId }, (res) => {
         if (res && res.success) {
           document.querySelectorAll('.game-card').forEach(c => {
             c.classList.remove('active');
-            c.style.background = 'rgba(255,255,255,0.04)';
-            c.style.borderColor = 'rgba(255,255,255,0.15)';
+            c.style.removeProperty('background');
+            c.style.removeProperty('border-color');
+            if (c.getAttribute('data-game') === gameId) {
+              c.classList.add('active');
+            }
           });
-          card.classList.add('active');
-          card.style.background = 'rgba(0,240,255,0.12)';
-          card.style.borderColor = 'var(--neon-cyan)';
         }
       });
     });
@@ -2294,8 +2305,13 @@
       btnSimulatePlayers.innerText = '🤖 Bots Simulados';
 
       // Connect simulated sockets to quickly fill the room and test the entire game flow
-      const simNames = ['🦊 FedeZorro', '🐙 PulpoFiestero', '🦙 LlamaLoca'];
-      simNames.forEach((name, i) => {
+      const simBots = [
+        { name: 'FedeZorro', avatar: { emoji: '🦊', color: '#ff6b4a', name: 'Zorro Astuto' } },
+        { name: 'PulpoFiestero', avatar: { emoji: '🐙', color: '#ec4899', name: 'Pulpo Fiestero' } },
+        { name: 'LlamaLoca', avatar: { emoji: '🦙', color: '#8b5cf6', name: 'Llama Loca' } }
+      ];
+      simBots.forEach((bot, i) => {
+        const name = bot.name;
         setTimeout(() => {
           const simSocket = io();
           let answeredRound = null;
@@ -2304,7 +2320,7 @@
           let votedImpostorRound = null;
           let chosenDilemmaRound = null;
 
-          simSocket.emit('player:join', { roomCode: currentRoomCode, playerName: name }, (res) => {
+          simSocket.emit('player:join', { roomCode: currentRoomCode, playerName: name, avatar: bot.avatar }, (res) => {
             console.log(`[Sim] ${name} joined:`, res);
 
             // Auto-respond across all 3 party games

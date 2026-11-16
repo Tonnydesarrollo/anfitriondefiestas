@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mando Móvil | Duelo de Ocurrencias</title>
   <meta name="theme-color" content="#0b0c1b">
-  <link rel="stylesheet" href="/css/style.css?v=10">
+  <link rel="stylesheet" href="/css/style.css?v=11">
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
@@ -36,27 +36,28 @@
     <main class="player-body" id="playerBody">
 
       <!-- ==========================================
-           1. JOIN SCREEN
+           1. JOIN SCREEN (Jackbox.tv @connect Architecture)
            ========================================== -->
-      <section id="screenJoin" class="join-form">
-        <div style="text-align: center; margin-bottom: 10px;">
-          <span style="font-size: 3.5rem;">🎮</span>
-          <h2 style="font-family: var(--font-display); font-size: 2.2rem; color: var(--neon-cyan); margin-top: 6px;">
-            ¡ÚNETE A LA SALA!
-          </h2>
-          <p style="color: var(--text-muted); font-size: 1rem;">
-            Ingresa el código de 4 letras y tu apodo de combate.
-          </p>
+      <section id="screenJoin" class="join-form jackbox-join-card">
+        <div class="jackbox-join-hero">
+          <span class="jackbox-join-icon">🎮</span>
+          <div>
+            <h2 class="jackbox-join-title">¡ÚNETE A LA SALA!</h2>
+            <p class="jackbox-join-sub">Ingresa el código de 4 letras y tu apodo de combate.</p>
+          </div>
         </div>
 
         <!-- Room Code -->
         <div class="form-group">
-          <label class="form-label" for="inputRoomCode">Código de Sala</label>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="form-label" for="inputRoomCode">Código de la Sala</label>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.05em;">4 LETRAS</span>
+          </div>
           <input 
             type="text" 
             id="inputRoomCode" 
-            class="input-giant" 
-            placeholder="ABCD" 
+            class="input-giant jackbox-input" 
+            placeholder="INTRODUCIR CÓDIGO (EJ: ABCD)" 
             maxlength="4" 
             required 
             autocomplete="off" 
@@ -67,30 +68,42 @@
         <!-- Player Nickname -->
         <div class="form-group">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label class="form-label" for="inputPlayerName">Tu Apodo</label>
-            <button type="button" id="btnRandomName" class="btn btn-outline btn-sm" style="padding: 4px 12px; font-size: 0.85rem;">
+            <label class="form-label" for="inputPlayerName">Nombre / Apodo</label>
+            <button type="button" id="btnRandomName" class="btn btn-outline btn-sm" style="padding: 3px 10px; font-size: 0.75rem; border-radius: var(--radius-pill);">
               🎲 Aleatorio
             </button>
           </div>
-          <input 
-            type="text" 
-            id="inputPlayerName" 
-            class="input-giant" 
-            placeholder="Ej: TacoPoderoso" 
-            maxlength="16" 
-            required 
-            autocomplete="off"
-            style="text-transform: none; font-size: 1.4rem;"
-          >
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div id="joinAvatarPreview" style="font-size: 1.65rem; min-width: 44px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(0,240,255,0.15); border: 2px solid var(--neon-cyan); border-radius: 12px; flex-shrink: 0;">🦊</div>
+            <input 
+              type="text" 
+              id="inputPlayerName" 
+              class="input-giant jackbox-input" 
+              placeholder="INDICA TU NOMBRE" 
+              maxlength="16" 
+              required 
+              autocomplete="off"
+              style="text-transform: none; font-size: 1.1rem; flex: 1; text-align: left; padding-left: 14px;"
+            >
+          </div>
+        </div>
+
+        <!-- Avatar Selection Grid -->
+        <div class="form-group" style="margin-bottom: 2px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="form-label">Elige tu Personaje</label>
+            <span id="selectedAvatarLabel" style="font-size: 0.72rem; color: var(--neon-yellow); font-weight: 800;">Zorro Astuto</span>
+          </div>
+          <div id="avatarPickerGrid" class="jackbox-avatar-grid"></div>
         </div>
 
         <!-- Join Error Banner -->
-        <div id="joinErrorMsg" style="display: none; background: rgba(255, 42, 133, 0.2); border: 1px solid var(--neon-magenta); color: #ffffff; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.95rem; text-align: center;">
+        <div id="joinErrorMsg" style="display: none; background: rgba(255, 42, 133, 0.2); border: 1.5px solid var(--neon-magenta); color: #ffffff; padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-align: center;">
         </div>
 
         <!-- Submit Button -->
-        <button type="button" id="btnJoinRoom" class="btn btn-cyan btn-lg" style="width: 100%; margin-top: 6px;">
-          🚀 ¡Entrar a Jugar!
+        <button type="button" id="btnJoinRoom" class="btn btn-cyan btn-lg jackbox-submit-btn" style="width: 100%; margin-top: 2px;">
+          🚀 ¡JUGAR!
         </button>
       </section>
 
@@ -247,7 +260,7 @@
     <footer class="player-reactions-bar" id="playerReactionsBar" style="display: none;"></footer>
   </div>
 
-  <script src="/js/characterEmotes.js?v=10"></script>
-  <script src="/js/play.js?v=10"></script>
+  <script src="/js/characterEmotes.js?v=11"></script>
+  <script src="/js/play.js?v=11"></script>
 </body>
 </html>

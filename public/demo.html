@@ -458,7 +458,7 @@
         </div>
       </div>
       <div class="tv-bezel">
-        <iframe id="iframeHost" class="tv-screen-iframe" src="/host?v=10"></iframe>
+        <iframe id="iframeHost" class="tv-screen-iframe" src="/host?v=11"></iframe>
       </div>
     </section>
 
@@ -583,11 +583,11 @@
         
         const serverSuffix = window.PARTY_BACKEND_URL ? `&server=${encodeURIComponent(window.PARTY_BACKEND_URL)}` : '';
         // Load Phone 1: FedeZorro (Bot)
-        iframePlayer1.src = `/play?room=${code}&name=FedeZorro&autoJoin=1&bot=1&v=10${serverSuffix}`;
+        iframePlayer1.src = `/play?room=${code}&name=FedeZorro&autoJoin=1&bot=1&v=11${serverSuffix}`;
         // Load Phone 2: PulpoFiestero (Bot)
-        iframePlayer2.src = `/play?room=${code}&name=PulpoFiestero&autoJoin=1&bot=1&v=10${serverSuffix}`;
+        iframePlayer2.src = `/play?room=${code}&name=PulpoFiestero&autoJoin=1&bot=1&v=11${serverSuffix}`;
         // Load Phone 3: LlamaLoca (Bot)
-        iframePlayer3.src = `/play?room=${code}&name=LlamaLoca&autoJoin=1&bot=1&v=10${serverSuffix}`;
+        iframePlayer3.src = `/play?room=${code}&name=LlamaLoca&autoJoin=1&bot=1&v=11${serverSuffix}`;
       }
 
       // Launch demo: change game and audience in host, and click start
@@ -645,7 +645,7 @@
       if (btnResetArena) {
         btnResetArena.addEventListener('click', () => {
           logAgent('🔄', 'Arena Manager', 'Reiniciando arena completa...');
-          iframeHost.src = '/host?v=10';
+          iframeHost.src = '/host?v=11';
           iframePlayer1.src = 'about:blank';
           iframePlayer2.src = 'about:blank';
           iframePlayer3.src = 'about:blank';

@@ -1868,10 +1868,27 @@
   // =========================================================================
   // PLAYER LIVE REACTIONS (Custom Vector Character Stickers Over Player Card)
   // =========================================================================
+  // Hide Arena 360 link when Host TV is already embedded inside Arena 360 iframe
+  const btnOpenArena360 = document.getElementById('btnOpenArena360');
+  if (btnOpenArena360 && window.self !== window.top) {
+    btnOpenArena360.style.display = 'none';
+  }
+
   socket.on('host:player_reaction', ({ playerName, avatar, emoteId, emoteSvg, emoji }) => {
     SoundFX.playPop();
 
-    const targetEmoteId = emoteId || 'happy';
+    let targetEmoteId = emoteId;
+    if (!targetEmoteId && emoji) {
+      const raw = String(emoji).toLowerCase();
+      if (raw.startsWith('laug') || raw.includes('😂')) targetEmoteId = 'laugh';
+      else if (raw.startsWith('shoc') || raw.includes('😱')) targetEmoteId = 'shock';
+      else if (raw.startsWith('fire') || raw.includes('🔥')) targetEmoteId = 'fire';
+      else if (raw.startsWith('sus') || raw.includes('👀')) targetEmoteId = 'sus';
+      else if (raw.startsWith('dead') || raw.includes('💀')) targetEmoteId = 'dead';
+      else targetEmoteId = 'happy';
+    }
+    targetEmoteId = targetEmoteId || 'happy';
+
     const playerEmoji = avatar?.emoji || '🦊';
     const playerColor = avatar?.color || '#ff6b4a';
 
@@ -1882,7 +1899,7 @@
     } else if (emoteSvg) {
       svgMarkup = emoteSvg;
     } else {
-      svgMarkup = `<span style="font-size:3.5rem;">${emoji || '🎉'}</span>`;
+      svgMarkup = `<span style="font-size:3rem;">${emoji || '🎉'}</span>`;
     }
 
     triggerPlayerTokenReaction(playerName, svgMarkup);
@@ -1910,7 +1927,7 @@
         if (rect && rect.width > 20 && rect.height > 20 && rect.left > 0 && rect.top > 0) {
           found = true;
           const centerX = Math.round(rect.left + (rect.width / 2));
-          const startY = Math.round(rect.top - 10);
+          const startY = Math.max(58, Math.round(rect.top + 8));
 
           // Remove any active bubble for this token
           const existing = document.querySelector(`.player-token-reaction-bubble[data-owner="${cleanTarget}"]`);
@@ -1920,11 +1937,24 @@
           const bubble = document.createElement('div');
           bubble.className = 'player-token-reaction-bubble';
           bubble.setAttribute('data-owner', cleanTarget);
-          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 68px; height: 68px; max-width: 68px; max-height: 68px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)); animation: stickerPopAbove 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;`;
+          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 64px; height: 64px; max-width: 64px; max-height: 64px; transform: translate(-50%, -100%); overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65));`;
           bubble.innerHTML = svgMarkup;
           document.body.appendChild(bubble);
 
-          setTimeout(() => bubble.remove(), 1800);
+          if (typeof bubble.animate === 'function') {
+            bubble.animate([
+              { transform: 'translate(-50%, -40%) scale(0.3)', opacity: 0 },
+              { transform: 'translate(-50%, -95%) scale(1.25) rotate(-6deg)', opacity: 1, offset: 0.22 },
+              { transform: 'translate(-50%, -115%) scale(1.08) rotate(4deg)', opacity: 1, offset: 0.55 },
+              { transform: 'translate(-50%, -145%) scale(0.8) rotate(-2deg)', opacity: 0 }
+            ], {
+              duration: 1650,
+              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+              fill: 'forwards'
+            });
+          }
+
+          setTimeout(() => bubble.remove(), 1650);
         }
       }
     });
@@ -1933,10 +1963,24 @@
     if (!found) {
       const floater = document.createElement('div');
       floater.className = 'arena-floating-emote';
-      floater.style.cssText = `position: fixed; bottom: 80px; right: ${Math.floor(40 + Math.random() * 220)}px; width: 68px; height: 68px; max-width: 68px; max-height: 68px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: floatReactionAesthetic 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;`;
+      floater.style.cssText = `position: fixed; bottom: 80px; right: ${Math.floor(40 + Math.random() * 220)}px; width: 64px; height: 64px; max-width: 64px; max-height: 64px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6));`;
       floater.innerHTML = svgMarkup;
       document.body.appendChild(floater);
-      setTimeout(() => floater.remove(), 2500);
+
+      if (typeof floater.animate === 'function') {
+        floater.animate([
+          { transform: 'translateY(0) scale(0.4)', opacity: 0 },
+          { transform: 'translateY(-40px) scale(1.2) rotate(8deg)', opacity: 1, offset: 0.18 },
+          { transform: 'translateY(-160px) scale(1) rotate(-6deg)', opacity: 0.95, offset: 0.6 },
+          { transform: 'translateY(-280px) scale(0.75)', opacity: 0 }
+        ], {
+          duration: 2100,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          fill: 'forwards'
+        });
+      }
+
+      setTimeout(() => floater.remove(), 2100);
     }
   }
 

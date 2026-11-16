@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pantalla Host (TV) | Duelo de Ocurrencias</title>
-  <link rel="stylesheet" href="/css/style.css?v=7">
+  <link rel="stylesheet" href="/css/style.css?v=8">
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <script>if (typeof io === 'undefined') document.write('<script src="/socket.io/socket.io.js"><\/script>');</script>
   <script src="/js/config.js"></script>
@@ -27,15 +27,15 @@
     <!-- Top Bar -->
     <header class="host-topbar">
       <div class="host-brand">
-        <span style="font-size: 2.2rem;">🎪</span>
-        <div>
-          <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="host-brand-icon">🎪</span>
+        <div class="host-brand-titles">
+          <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
             <h1 class="host-logo-text" id="hostMainLogoText">DUELO DE OCURRENCIAS</h1>
             <div class="tv-on-air-pill">
               <div class="tv-on-air-dot"></div> EN VIVO
             </div>
           </div>
-          <div style="font-size: 0.85rem; color: var(--neon-cyan); letter-spacing: 1px; font-weight: 700;">
+          <div class="host-brand-subtitle">
             SHOW TELEVISIVO EN DIRECTO
           </div>
         </div>
@@ -49,7 +49,7 @@
         </div>
 
         <!-- AI Voice Controls (Toggle + Natural Voice Selector) -->
-        <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="host-voice-bar">
           <label class="switch-container" title="Activa la narración hablada del Anfitrión IA en español">
             <span>🔊 Voz IA</span>
             <div class="switch">
@@ -58,22 +58,22 @@
             </div>
           </label>
 
-          <select id="aiVoiceSelect" class="btn btn-outline btn-sm" style="background: rgba(0,0,0,0.6); color: #fff; border-color: rgba(255,255,255,0.25); font-size: 0.85rem; padding: 5px 8px; border-radius: var(--radius-sm); cursor: pointer; max-width: 190px;" title="Selecciona la voz del anfitrión">
-            <option value="">🎙️ Buscando voces naturales...</option>
+          <select id="aiVoiceSelect" class="btn btn-outline btn-sm host-voice-select" title="Selecciona la voz del anfitrión">
+            <option value="">🎙️ Buscando voces...</option>
           </select>
 
-          <button type="button" id="btnTestVoice" class="btn btn-outline btn-sm" style="font-size: 0.8rem; padding: 5px 10px;" title="Probar voz">
+          <button type="button" id="btnTestVoice" class="btn btn-outline btn-sm" style="font-size: 0.78rem; padding: 4px 8px; white-space: nowrap;" title="Probar voz">
             ▶️ Probar
           </button>
         </div>
 
         <!-- Skip Timer Button -->
-        <button id="btnSkipTimer" class="btn btn-outline btn-sm" style="display: none;" title="Avanzar fase o saltar temporizador">
+        <button id="btnSkipTimer" class="btn btn-outline btn-sm" style="display: none; white-space: nowrap;" title="Avanzar fase o saltar temporizador">
           ⏩ Saltar
         </button>
 
         <!-- Arena 360 Multi-Screen Link -->
-        <a href="/demo" target="_blank" class="btn btn-cyan btn-sm" style="text-decoration: none; font-size: 0.8rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;" title="Abrir simulador con TV y celulares en vivo">
+        <a href="/demo" target="_blank" id="btnOpenArena360" class="btn btn-cyan btn-sm" style="text-decoration: none; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;" title="Abrir simulador con TV y celulares en vivo">
           🕹️ Arena 360°
         </a>
 
@@ -88,13 +88,13 @@
     <main class="host-main-arena" id="hostMainArena">
       
       <!-- ==========================================
-           1. LOBBY STAGE
+           1. LOBBY STAGE (Jackbox / Kahoot Zero-Scroll Broadcast Split)
            ========================================== -->
       <section id="stageLobby" class="lobby-screen" style="display: none;">
-        <!-- Left Column: Join Instructions & QR Code -->
+        <!-- Left Column: VIP Join Pass, Room Code & Launch CTA -->
         <div class="card lobby-join-card">
-          <div style="font-family: var(--font-display); font-size: 1.4rem; color: var(--neon-cyan); margin-bottom: 8px;">
-            ¡ÚNETE DESDE TU CELULAR!
+          <div class="lobby-join-headline">
+            📱 ¡ÚNETE DESDE TU CELULAR!
           </div>
 
           <!-- Dynamic QR Code -->
@@ -102,160 +102,138 @@
             <img id="lobbyQrImage" src="" alt="Código QR para unirse">
           </div>
 
-          <div style="font-size: 1rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">
-            O entra en el navegador a:
-          </div>
-          <div class="lobby-url-hint" id="lobbyUrlHint">
-            http://localhost:3000/play
+          <div class="lobby-join-meta">
+            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.06em;">
+              ENTRA EN EL NAVEGADOR A:
+            </div>
+            <div class="lobby-url-hint" id="lobbyUrlHint" title="URL para unirse">
+              http://localhost:3000/play
+            </div>
+
+            <div class="lobby-code-badge-wrap">
+              <span class="lobby-code-label">CÓDIGO DE SALA</span>
+              <div class="lobby-code-giant" id="lobbyRoomCode">----</div>
+            </div>
           </div>
 
-          <div class="lobby-code-giant" id="lobbyRoomCode">
-            ----
-          </div>
-
-          <div style="font-size: 0.95rem; color: var(--text-dim); margin-top: 6px;">
-            Escanea con la cámara o ingresa el código de 4 letras
+          <!-- Primary Launch Actions Always Visible in VIP Column -->
+          <div class="lobby-actions">
+            <button id="btnStartGame" class="btn btn-yellow btn-lg disabled" disabled>
+              🚀 ¡Comenzar Partida!
+            </button>
+            <button id="btnSimulatePlayers" class="btn btn-outline btn-sm" style="width: 100%; font-size: 0.75rem; padding: 5px 8px;">
+              🤖 Simular Partida Completa
+            </button>
           </div>
         </div>
 
-        <!-- Right Column: Connected Players Grid -->
+        <!-- Right Column: Connected Players Roster + 7-Game Arcade Catalog -->
         <div class="card lobby-players-card">
+          <!-- Top Roster Header + Inline Audience Filter -->
           <div class="lobby-players-header">
-            <div>
-              <h2>Jugadores en Sala</h2>
-              <p style="color: var(--text-muted); font-size: 1.05rem;">Mínimo 2 jugadores (o pulsa "+ Bots" para probar)</p>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <button id="btnQuickBots" type="button" class="btn btn-sm btn-cyan" style="padding: 6px 14px; font-size: 0.85rem; border-radius: var(--radius-pill);">
-                🤖 + 3 Bots
-              </button>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <h2>👥 Jugadores en Sala</h2>
               <div class="player-count-badge" id="lobbyPlayerCount">
                 0 / 8 Jugadores
               </div>
+              <button id="btnQuickBots" type="button" class="btn btn-sm btn-cyan" style="padding: 4px 12px; font-size: 0.78rem; border-radius: var(--radius-pill); white-space: nowrap;">
+                🤖 + 3 Bots
+              </button>
+            </div>
+
+            <!-- Compact Audience Selector Bar -->
+            <div class="audience-options" id="audienceGroup">
+              <button type="button" class="btn btn-sm audience-btn active" data-audience="familia" title="Apto para toda la familia">
+                👨‍👩‍👧‍👦 Familia
+              </button>
+              <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="cerebritos" title="Humor inteligente y cultura pop">
+                🧠 Ingenio
+              </button>
+              <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="parejas" title="Preguntas de complicidad y citas">
+                💑 Parejas
+              </button>
+              <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="amigos" title="Humor picante para adultos">
+                🍻 +18 Picante
+              </button>
             </div>
           </div>
 
-          <!-- Dynamic Players Grid -->
+          <!-- Dynamic Players Grid (Compact Jackbox Character Chips) -->
           <div class="players-grid" id="lobbyPlayersGrid">
             <!-- Tokens injected by host.js -->
           </div>
 
-          <!-- Game Catalog & Audience Settings -->
-          <div class="lobby-config-panel" style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px;">
-            <!-- Audience / Age Range Filter -->
-            <div style="margin-bottom: 14px;">
-              <div style="font-family: var(--font-display); font-size: 0.95rem; color: var(--neon-cyan); letter-spacing: 1px; font-weight: 700; margin-bottom: 6px;">
-                🎯 RANGO DE EDAD / AUDIENCIA:
-              </div>
-              <div class="audience-options" id="audienceGroup" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button type="button" class="btn btn-sm audience-btn active" data-audience="familia" style="font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-pill);">
-                  👨‍👩‍👧‍👦 Familia (Para Todos)
-                </button>
-                <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="cerebritos" style="font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-pill);">
-                  🧠 Cerebritos / Ingenio
-                </button>
-                <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="parejas" style="font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-pill);">
-                  💑 Parejas / Citas
-                </button>
-                <button type="button" class="btn btn-sm audience-btn btn-outline" data-audience="amigos" style="font-size: 0.85rem; padding: 6px 14px; border-radius: var(--radius-pill);">
-                  🍻 Fiesta Picante (+18 Spicy)
-                </button>
-              </div>
-            </div>
-
-            <!-- Game Catalog Selector -->
-            <div>
-              <div style="font-family: var(--font-display); font-size: 0.95rem; color: var(--neon-yellow); letter-spacing: 1px; font-weight: 700; margin-bottom: 6px;">
-                🎲 CATÁLOGO DE MINIJUEGOS (JACKBOX STYLE):
-              </div>
-              <div class="catalog-grid" id="catalogGroup">
-                <div class="game-card active" data-game="duelo-ocurrencias">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 1.25rem;">🥊</span>
-                    <span style="font-size: 0.68rem; font-weight: 800; color: #ff9500; background: rgba(255,149,0,0.15); padding: 2px 6px; border-radius: 4px;">MÍN. 3 JUG</span>
-                  </div>
-                  <div style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 3px;">Duelo de Ocurrencias</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Batallas 1v1, votación y juez cómico IA.</div>
-                </div>
-                <div class="game-card" data-game="impostor-silicio">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 1.25rem;">🕵️</span>
-                    <span style="font-size: 0.68rem; font-weight: 800; color: #ff2a85; background: rgba(255,42,133,0.15); padding: 2px 6px; border-radius: 4px;">MÍN. 3 JUG</span>
-                  </div>
-                  <div style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 3px;">El Impostor de Silicio</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Deducción social y sospecha acumulada.</div>
-                </div>
-                <div class="game-card" data-game="dilemas-extremos">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 1.25rem;">🤔</span>
-                    <span style="font-size: 0.68rem; font-weight: 800; color: var(--neon-cyan); background: rgba(0,240,255,0.15); padding: 2px 6px; border-radius: 4px;">2-10 JUG</span>
-                  </div>
-                  <div style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 3px;">Dilemas Extremos</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Dilemas morales absurdos y apuestas.</div>
-                </div>
-                <div class="game-card" data-game="bomba-palabras">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 1.25rem;">💣</span>
-                    <span style="font-size: 0.68rem; font-weight: 800; color: #ff9500; background: rgba(255,149,0,0.15); padding: 2px 6px; border-radius: 4px;">2-10 JUG</span>
-                  </div>
-                  <div style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 3px;">Bomba de Palabras</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Reflejos rápidos y patata caliente explosiva.</div>
-                </div>
-                <div class="game-card" data-game="falso-sabio">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 1.25rem;">🎓</span>
-                    <span style="font-size: 0.68rem; font-weight: 800; color: #ff9500; background: rgba(255,149,0,0.15); padding: 2px 6px; border-radius: 4px;">MÍN. 3 JUG</span>
-                  </div>
-                  <div style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 3px;">Falso Sabio</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Trivial de faroles: inventa mentiras creíbles.</div>
-                </div>
-                <div class="game-card" data-game="trivia-caotica">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 1.25rem;">🧠</span>
-                    <span style="font-size: 0.68rem; font-weight: 800; color: var(--neon-cyan); background: rgba(0,240,255,0.15); padding: 2px 6px; border-radius: 4px;">2-10 JUG</span>
-                  </div>
-                  <div style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 3px;">Trivia Caótica</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Duelo 1v1 con robo de puntos y batalla grupal.</div>
-                </div>
-                <div class="game-card" data-game="telepatia-fiesta">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 1.25rem;">🔮</span>
-                    <span style="font-size: 0.68rem; font-weight: 800; color: var(--neon-magenta); background: rgba(255,0,85,0.15); padding: 2px 6px; border-radius: 4px;">2-10 JUG</span>
-                  </div>
-                  <div style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 3px;">Telepatía de Fiesta</div>
-                  <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.2; margin-top: 2px;">Sintonía 0-100: test de conexión y mente colmena.</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Dynamic Pacing & Adaptive Rounds (Auto-Calculated by Group Size) -->
-            <div>
-              <div style="font-family: var(--font-display); font-size: 0.95rem; color: var(--neon-cyan); letter-spacing: 1px; font-weight: 700; margin-bottom: 6px;">
-                ✨ RITMO DE PARTIDA DINÁMICO (JACKBOX STYLE):
+          <!-- Game Catalog & Dynamic Pacing Section -->
+          <div class="lobby-config-panel">
+            <div class="catalog-header-bar">
+              <div style="font-family: var(--font-display); font-size: 0.9rem; color: var(--neon-yellow); letter-spacing: 0.5px; font-weight: 800;">
+                🎲 SELECCIONA EL MINIJUEGO:
               </div>
               <div id="dynamicRoundsCard" class="dynamic-pacing-card">
-                <div class="dynamic-pacing-header">
-                  <span id="dynamicPacingTitle">⚡ 2 RONDAS DINÁMICAS</span>
-                  <span class="dynamic-pacing-tag">AUTO-CALIBRADO</span>
-                </div>
-                <div id="dynamicPacingDesc" class="dynamic-pacing-desc">
-                  Adaptado automáticamente a la cantidad de jugadores para mantener la partida dinámica y sin esperas.
-                </div>
+                <span id="dynamicPacingTitle" class="dynamic-pacing-title">⚡ 4 RONDAS DINÁMICAS</span>
+                <span class="dynamic-pacing-tag">AUTO-CALIBRADO</span>
+                <span id="dynamicPacingDesc" class="dynamic-pacing-desc" style="display: none;">Adaptado automáticamente</span>
               </div>
             </div>
-          </div>
 
-          <!-- Lobby Footer Actions -->
-          <div class="lobby-actions" style="margin-top: 16px;">
-            <!-- Test Mode Button for Standalone Verification -->
-            <button id="btnSimulatePlayers" class="btn btn-outline btn-sm">
-              🤖 Simular Jugadores (Demo)
-            </button>
-
-            <!-- Start Game Button -->
-            <button id="btnStartGame" class="btn btn-yellow btn-lg disabled" disabled>
-              🚀 Comenzar Partida
-            </button>
+            <div class="catalog-grid" id="catalogGroup">
+              <div class="game-card active" data-game="duelo-ocurrencias">
+                <div class="game-card-top">
+                  <span class="game-card-icon">🥊</span>
+                  <span class="game-card-tag tag-orange">MÍN. 3 JUG</span>
+                </div>
+                <div class="game-card-title">Duelo de Ocurrencias</div>
+                <div class="game-card-desc">Batallas 1v1 de ingenio y juez IA.</div>
+              </div>
+              <div class="game-card" data-game="impostor-silicio">
+                <div class="game-card-top">
+                  <span class="game-card-icon">🕵️</span>
+                  <span class="game-card-tag tag-pink">MÍN. 3 JUG</span>
+                </div>
+                <div class="game-card-title">El Impostor de Silicio</div>
+                <div class="game-card-desc">Deducción social y pistas secretas.</div>
+              </div>
+              <div class="game-card" data-game="dilemas-extremos">
+                <div class="game-card-top">
+                  <span class="game-card-icon">🤔</span>
+                  <span class="game-card-tag tag-cyan">2-10 JUG</span>
+                </div>
+                <div class="game-card-title">Dilemas Extremos</div>
+                <div class="game-card-desc">Dilemas absurdos y predicciones.</div>
+              </div>
+              <div class="game-card" data-game="bomba-palabras">
+                <div class="game-card-top">
+                  <span class="game-card-icon">💣</span>
+                  <span class="game-card-tag tag-orange">2-10 JUG</span>
+                </div>
+                <div class="game-card-title">Bomba de Palabras</div>
+                <div class="game-card-desc">Patata caliente de vocabulario veloz.</div>
+              </div>
+              <div class="game-card" data-game="falso-sabio">
+                <div class="game-card-top">
+                  <span class="game-card-icon">🎓</span>
+                  <span class="game-card-tag tag-orange">MÍN. 3 JUG</span>
+                </div>
+                <div class="game-card-title">Falso Sabio</div>
+                <div class="game-card-desc">Inventa mentiras creíbles y caza la verdad.</div>
+              </div>
+              <div class="game-card" data-game="trivia-caotica">
+                <div class="game-card-top">
+                  <span class="game-card-icon">🧠</span>
+                  <span class="game-card-tag tag-cyan">2-10 JUG</span>
+                </div>
+                <div class="game-card-title">Trivia Caótica</div>
+                <div class="game-card-desc">Asalto 1v1 con robo de puntos y velocidad.</div>
+              </div>
+              <div class="game-card" data-game="telepatia-fiesta">
+                <div class="game-card-top">
+                  <span class="game-card-icon">🔮</span>
+                  <span class="game-card-tag tag-pink">2-10 JUG</span>
+                </div>
+                <div class="game-card-title">Telepatía de Fiesta</div>
+                <div class="game-card-desc">Sintonía mental 0-100% y mente colmena.</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -906,7 +884,7 @@
     </main>
   </div>
 
-  <script src="/js/characterEmotes.js?v=7"></script>
-  <script src="/js/host.js?v=7"></script>
+  <script src="/js/characterEmotes.js?v=8"></script>
+  <script src="/js/host.js?v=8"></script>
 </body>
 </html>

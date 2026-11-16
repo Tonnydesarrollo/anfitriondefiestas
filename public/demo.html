@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Titan+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=7">
+  <link rel="stylesheet" href="/css/style.css?v=8">
   <style>
     * {
       box-sizing: border-box;
@@ -431,7 +431,7 @@
         </div>
       </div>
       <div class="tv-bezel">
-        <iframe id="iframeHost" class="tv-screen-iframe" src="/host?v=7"></iframe>
+        <iframe id="iframeHost" class="tv-screen-iframe" src="/host?v=8"></iframe>
       </div>
     </section>
 
@@ -556,11 +556,11 @@
         
         const serverSuffix = window.PARTY_BACKEND_URL ? `&server=${encodeURIComponent(window.PARTY_BACKEND_URL)}` : '';
         // Load Phone 1: FedeZorro (Bot)
-        iframePlayer1.src = `/play?room=${code}&name=FedeZorro&autoJoin=1&bot=1&v=7${serverSuffix}`;
+        iframePlayer1.src = `/play?room=${code}&name=FedeZorro&autoJoin=1&bot=1&v=8${serverSuffix}`;
         // Load Phone 2: PulpoFiestero (Bot)
-        iframePlayer2.src = `/play?room=${code}&name=PulpoFiestero&autoJoin=1&bot=1&v=7${serverSuffix}`;
+        iframePlayer2.src = `/play?room=${code}&name=PulpoFiestero&autoJoin=1&bot=1&v=8${serverSuffix}`;
         // Load Phone 3: LlamaLoca (Bot)
-        iframePlayer3.src = `/play?room=${code}&name=LlamaLoca&autoJoin=1&bot=1&v=7${serverSuffix}`;
+        iframePlayer3.src = `/play?room=${code}&name=LlamaLoca&autoJoin=1&bot=1&v=8${serverSuffix}`;
       }
 
       // Launch demo: change game and audience in host, and click start
@@ -618,7 +618,7 @@
       if (btnResetArena) {
         btnResetArena.addEventListener('click', () => {
           logAgent('🔄', 'Arena Manager', 'Reiniciando arena completa...');
-          iframeHost.src = '/host?v=7';
+          iframeHost.src = '/host?v=8';
           iframePlayer1.src = 'about:blank';
           iframePlayer2.src = 'about:blank';
           iframePlayer3.src = 'about:blank';

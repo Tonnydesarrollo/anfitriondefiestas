@@ -1700,11 +1700,12 @@
           { id: 'dead', label: '¡KO!', svg: '<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="#64748b"/><line x1="30" y1="36" x2="42" y2="48" stroke="#0f172a" stroke-width="5"/><line x1="42" y1="36" x2="30" y2="48" stroke="#0f172a" stroke-width="5"/><line x1="58" y1="36" x2="70" y2="48" stroke="#0f172a" stroke-width="5"/><line x1="70" y1="36" x2="58" y2="48" stroke="#0f172a" stroke-width="5"/><ellipse cx="50" cy="66" rx="6" ry="10" fill="#0f172a"/></svg>' }
         ];
 
+    playerReactionsBar.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 56px; max-height: 56px; background: rgba(8, 10, 26, 0.96); border-top: 1.5px solid rgba(0, 240, 255, 0.45); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 3px 6px; box-sizing: border-box; z-index: 999999; overflow: hidden;';
     playerReactionsBar.innerHTML = `
-      <div class="reactions-dock-header">
-        <span class="reactions-dock-title">⚡ REACCIONA EN VIVO (${escapeHtml(playerName || 'TÚ')}):</span>
+      <div class="reactions-dock-header" style="display: flex; align-items: center; justify-content: center; width: 100%; line-height: 1;">
+        <span class="reactions-dock-title" style="font-size: 0.56rem; font-weight: 800; color: #00f0ff; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap;">⚡ REACCIONA EN VIVO (${escapeHtml(playerName || 'TÚ')}):</span>
       </div>
-      <div class="reactions-dock-buttons" id="reactionsDockButtons"></div>
+      <div class="reactions-dock-buttons" id="reactionsDockButtons" style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: center; justify-items: center; gap: 4px; width: 100%; max-width: 340px; padding: 1px 2px; box-sizing: border-box;"></div>
     `;
 
     const dockButtons = document.getElementById('reactionsDockButtons') || playerReactionsBar;
@@ -1715,7 +1716,7 @@
       btn.className = 'btn-custom-emote-sticker';
       btn.setAttribute('data-emote-id', r.id);
       btn.setAttribute('title', r.label);
-      btn.style.cssText = 'width: 34px; height: 35px; min-width: 34px; min-height: 35px; max-width: 34px; max-height: 35px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1px; box-sizing: border-box; flex-shrink: 0;';
+      btn.style.cssText = 'width: 100%; height: 35px; min-width: 0; min-height: 35px; max-width: 48px; max-height: 35px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1px; box-sizing: border-box; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(0,240,255,0.35); border-radius: 8px; cursor: pointer;';
       btn.innerHTML = `
         <div class="sticker-icon" style="width: 20px; height: 20px; max-width: 20px; max-height: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none;">${r.svg}</div>
         <span class="sticker-label" style="font-size: 0.48rem; font-weight: 800; color: #ffffff; line-height: 1; text-align: center; text-transform: uppercase; white-space: nowrap; pointer-events: none;">${shortLabels[r.id] || r.label}</span>
@@ -1747,10 +1748,21 @@
     if (!svgMarkup) return;
     const floater = document.createElement('div');
     floater.className = 'mobile-local-sticker-particle';
-    floater.style.cssText = 'position: fixed; bottom: 60px; right: 14px; width: 48px; height: 48px; max-width: 48px; max-height: 48px; overflow: hidden; pointer-events: none; z-index: 999999; animation: mobileStickerFloatUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
+    floater.style.cssText = 'position: fixed; bottom: 60px; right: 14px; width: 48px; height: 48px; max-width: 48px; max-height: 48px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
     floater.innerHTML = svgMarkup;
     document.body.appendChild(floater);
-    setTimeout(() => floater.remove(), 1100);
+    if (typeof floater.animate === 'function') {
+      floater.animate([
+        { transform: 'translateY(0) scale(0.5)', opacity: 1 },
+        { transform: 'translateY(-60px) scale(1.2)', opacity: 1, offset: 0.45 },
+        { transform: 'translateY(-135px) scale(0.8)', opacity: 0 }
+      ], {
+        duration: 1050,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        fill: 'forwards'
+      });
+    }
+    setTimeout(() => floater.remove(), 1050);
   }
 
   // Ensure reactions bar is updated whenever player profile is synced

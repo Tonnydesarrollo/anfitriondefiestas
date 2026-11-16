@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mando Móvil | Duelo de Ocurrencias</title>
   <meta name="theme-color" content="#0b0c1b">
-  <link rel="stylesheet" href="/css/style.css?v=7">
+  <link rel="stylesheet" href="/css/style.css?v=8">
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
@@ -17,17 +17,17 @@
 
   <div class="player-viewport">
     <!-- Top Player Header Bar -->
-    <header class="player-header">
-      <div class="player-badge-profile" id="playerProfileBadge" style="display: none;">
-        <span class="player-header-avatar" id="headerAvatar">👤</span>
-        <span class="player-header-name" id="headerName">Jugador</span>
+    <header class="player-header" style="display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 6px; width: 100%; height: 38px; min-height: 38px; max-height: 38px; box-sizing: border-box; overflow: hidden;">
+      <div class="player-badge-profile" id="playerProfileBadge" style="display: none; align-items: center; gap: 4px; min-width: 0; max-width: 44%; overflow: hidden; white-space: nowrap;">
+        <span class="player-header-avatar" id="headerAvatar" style="flex-shrink: 0;">👤</span>
+        <span class="player-header-name" id="headerName" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Jugador</span>
       </div>
 
-      <div class="room-code-tag" id="playerRoomTag">
+      <div class="room-code-tag" id="playerRoomTag" style="display: inline-flex; width: auto; flex: 0 0 auto; align-items: center; justify-content: center; padding: 2px 8px; font-size: 0.76rem; white-space: nowrap;">
         <span id="playerRoomDisplay">----</span>
       </div>
 
-      <div class="player-header-score" id="playerScoreDisplay" style="display: none;">
+      <div class="player-header-score" id="playerScoreDisplay" style="display: none; flex: 0 0 auto; white-space: nowrap; font-size: 0.78rem; font-weight: 800;">
         0 PTS
       </div>
     </header>
@@ -247,7 +247,7 @@
     <footer class="player-reactions-bar" id="playerReactionsBar" style="display: none;"></footer>
   </div>
 
-  <script src="/js/characterEmotes.js?v=7"></script>
-  <script src="/js/play.js?v=7"></script>
+  <script src="/js/characterEmotes.js?v=8"></script>
+  <script src="/js/play.js?v=8"></script>
 </body>
 </html>

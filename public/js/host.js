@@ -515,9 +515,16 @@
     if (lobbyRoomCode) lobbyRoomCode.textContent = currentRoomCode;
     if (topRoomCode) topRoomCode.textContent = currentRoomCode;
 
-    // Update Join URL Hint
-    const joinUrl = data.joinUrl || `${window.location.origin}/play.html?room=${currentRoomCode}`;
-    if (lobbyUrlHint) lobbyUrlHint.textContent = joinUrl;
+    // Update Join URL Hint - Clean human-friendly short display
+    const joinUrl = data.joinUrl || `${window.location.origin}/play?room=${currentRoomCode}`;
+    if (lobbyUrlHint) {
+      try {
+        const u = new URL(joinUrl);
+        lobbyUrlHint.textContent = `${u.host}/play`;
+      } catch (e) {
+        lobbyUrlHint.textContent = 'anfitriondefiestas.vercel.app/play';
+      }
+    }
 
     // Update QR Code
     if (lobbyQrImage) {

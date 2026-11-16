@@ -1715,9 +1715,10 @@
       btn.className = 'btn-custom-emote-sticker';
       btn.setAttribute('data-emote-id', r.id);
       btn.setAttribute('title', r.label);
+      btn.style.cssText = 'width: 44px; height: 46px; min-width: 44px; min-height: 46px; max-width: 44px; max-height: 46px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 1px; box-sizing: border-box; flex-shrink: 0;';
       btn.innerHTML = `
-        <div class="sticker-icon">${r.svg}</div>
-        <span class="sticker-label">${shortLabels[r.id] || r.label}</span>
+        <div class="sticker-icon" style="width: 26px; height: 26px; max-width: 26px; max-height: 26px; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none;">${r.svg}</div>
+        <span class="sticker-label" style="font-size: 0.58rem; font-weight: 800; color: #ffffff; line-height: 1; text-align: center; text-transform: uppercase; white-space: nowrap; pointer-events: none;">${shortLabels[r.id] || r.label}</span>
       `;
 
       btn.addEventListener('click', (e) => {
@@ -1746,7 +1747,7 @@
     if (!svgMarkup) return;
     const floater = document.createElement('div');
     floater.className = 'mobile-local-sticker-particle';
-    floater.style.cssText = 'position: fixed; bottom: 85px; right: 20px; width: 64px; height: 64px; max-width: 64px; max-height: 64px; overflow: hidden; pointer-events: none; z-index: 999999; animation: mobileStickerFloatUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
+    floater.style.cssText = 'position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; max-width: 56px; max-height: 56px; overflow: hidden; pointer-events: none; z-index: 999999; animation: mobileStickerFloatUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
     floater.innerHTML = svgMarkup;
     document.body.appendChild(floater);
     setTimeout(() => floater.remove(), 1100);
@@ -1758,7 +1759,8 @@
     originalHandlePrivateState(state);
     if (state?.me && playerReactionsBar) {
       playerReactionsBar.style.display = 'flex';
-      if (playerReactionsBar.children.length === 0) {
+      const dockButtons = document.getElementById('reactionsDockButtons');
+      if (!dockButtons || dockButtons.children.length === 0) {
         setupPlayerAvatarReactions(state.me.avatar, state.me.name);
       }
     }

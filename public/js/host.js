@@ -1583,6 +1583,7 @@
         if (p.hasAnswered) answeredCount++;
         const item = document.createElement('div');
         item.className = 'player-token';
+        item.setAttribute('data-player-name', p.name);
         item.style.padding = '10px';
         item.innerHTML = `
           <div style="font-size: 2rem; margin-bottom: 4px;">${getAvatarEmoji(p.avatar)}</div>
@@ -1789,35 +1790,28 @@
   }
 
   // =========================================================================
-  // PLAYER LIVE REACTIONS (Aesthetic Floating & Direct Token Popups)
+  // PLAYER LIVE REACTIONS (Custom Vector Character Stickers Over Player Card)
   // =========================================================================
-  socket.on('host:player_reaction', ({ playerName, avatar, emoji }) => {
+  socket.on('host:player_reaction', ({ playerName, avatar, emoteId, emoteSvg, emoji }) => {
     SoundFX.playPop();
-    const cleanEmoji = emoji || '🔥';
 
-    // 1. Popup reaction directly overlaid on top of the player's card
-    triggerPlayerTokenReaction(playerName, cleanEmoji);
+    // Resolve high-res vector sticker markup
+    const svgMarkup = emoteSvg || (window.CharacterEmoteEngine 
+      ? window.CharacterEmoteEngine.getEmoteSvg(avatar?.emoji || '👻', emoteId || 'happy', avatar?.color)
+      : `<span style="font-size:3.5rem;">${emoji || '👻'}</span>`);
 
-    // 2. Aesthetic floating reaction overlaid over the players card
-    if (reactionsOverlay) {
-      const reactionEl = document.createElement('div');
-      reactionEl.className = 'floating-reaction';
-      reactionEl.textContent = cleanEmoji;
-      reactionEl.style.left = `${Math.floor(Math.random() * 180)}px`;
-      reactionsOverlay.appendChild(reactionEl);
-
-      setTimeout(() => {
-        reactionEl.remove();
-      }, 2800);
-    }
+    triggerPlayerTokenReaction(playerName, svgMarkup);
   });
 
-  function triggerPlayerTokenReaction(playerName, emoji) {
+  function triggerPlayerTokenReaction(playerName, svgMarkup) {
     if (!playerName) return;
     const tokens = document.querySelectorAll('.player-token');
+    let found = false;
+
     tokens.forEach(t => {
       const name = t.getAttribute('data-player-name') || t.querySelector('.player-token-name')?.textContent?.trim();
       if (name === playerName) {
+        found = true;
         // Bounce the avatar
         const av = t.querySelector('.player-token-avatar');
         if (av) {
@@ -1826,14 +1820,32 @@
           av.classList.add('avatar-bounce');
         }
 
-        // Overlay the emoticon directly on the player token
-        const popup = document.createElement('div');
-        popup.className = 'player-token-reaction-popup';
-        popup.textContent = emoji;
-        t.appendChild(popup);
-        setTimeout(() => popup.remove(), 1600);
+        // Calculate token position on screen so sticker overlays perfectly without affecting DOM flow or scrollbars
+        const rect = t.getBoundingClientRect();
+        const centerX = rect.left + (rect.width / 2);
+        const startY = rect.top + 20;
+
+        // Create overlay reaction sticker directly ABOVE the player avatar appended to body
+        const bubble = document.createElement('div');
+        bubble.className = 'player-token-reaction-bubble';
+        bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 92px; height: 92px; pointer-events: none; z-index: 99999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)); animation: stickerPopAbove 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;`;
+        bubble.innerHTML = svgMarkup;
+        document.body.appendChild(bubble);
+
+        setTimeout(() => bubble.remove(), 1800);
       }
     });
+
+    // If player is not currently in the lobby grid (e.g. answering or duel phases)
+    if (!found) {
+      const arena = document.getElementById('hostMainArena') || document.body;
+      const floater = document.createElement('div');
+      floater.className = 'arena-floating-emote';
+      floater.style.cssText = `position: fixed; bottom: 80px; right: ${Math.floor(40 + Math.random() * 220)}px; width: 92px; height: 92px; pointer-events: none; z-index: 9999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: floatReactionAesthetic 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;`;
+      floater.innerHTML = svgMarkup;
+      arena.appendChild(floater);
+      setTimeout(() => floater.remove(), 2500);
+    }
   }
 
   // =========================================================================

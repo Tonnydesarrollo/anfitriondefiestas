@@ -664,9 +664,9 @@ io.on('connection', (socket) => {
   });
 
   /**
-   * Player sends an avatar-based reaction emoji to pop up on the Host screen.
+   * Player sends a custom character sticker/emote to pop up on the Host screen.
    */
-  socket.on('player:react', ({ emoji, comboEmoji }) => {
+  socket.on('player:react', ({ emoji, emoteId, emoteSvg }) => {
     const session = roomManager.getSession(socket.id);
     if (!session || session.isHost) return;
 
@@ -674,12 +674,13 @@ io.on('connection', (socket) => {
     if (!room || !room.hostSocketId) return;
 
     const player = room.players.get(socket.id);
-    if (player && (emoji || comboEmoji)) {
+    if (player) {
       io.to(room.hostSocketId).emit('host:player_reaction', {
         playerName: player.name,
         avatar: player.avatar,
-        emoji: String(emoji || '🔥').slice(0, 16),
-        comboEmoji: comboEmoji ? String(comboEmoji).slice(0, 24) : undefined
+        emoteId: emoteId || 'happy',
+        emoteSvg: typeof emoteSvg === 'string' && emoteSvg.length < 15000 ? emoteSvg : undefined,
+        emoji: emoji || '👻'
       });
     }
   });

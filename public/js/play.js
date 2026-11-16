@@ -1671,47 +1671,54 @@
 
   function setupPlayerAvatarReactions(avatar, playerName) {
     if (!playerReactionsBar) return;
-    const avEmoji = avatar?.emoji || '👤';
+    const avEmoji = avatar?.emoji || '👻';
+    const avColor = avatar?.color || '#00f0ff';
 
-    // Retrieve dedicated character pack, or smart fallback based on the character
-    const pack = CHARACTER_EMOTE_PACKS[avEmoji] || [
-      { emoji: avEmoji, label: playerName || '¡Personaje!' },
-      { emoji: '🔥', label: '¡Fuego!' },
-      { emoji: '😂', label: '¡Risas!' },
-      { emoji: '🎉', label: '¡Fiesta!' },
-      { emoji: '👀', label: '¡Ojo!' },
-      { emoji: '💀', label: '¡Fallecí!' }
-    ];
+    // Retrieve dedicated vector sticker emotes created by CharacterEmoteEngine
+    const emotes = window.CharacterEmoteEngine 
+      ? window.CharacterEmoteEngine.getEmotesForAvatar(avEmoji, avColor)
+      : [
+          { id: 'happy', label: '¡Feliz!', svg: '<span style="font-size:2rem;">👻</span>' },
+          { id: 'laugh', label: '¡Risa!', svg: '<span style="font-size:2rem;">😂</span>' },
+          { id: 'shock', label: '¡OMG!', svg: '<span style="font-size:2rem;">😱</span>' },
+          { id: 'fire', label: '¡Fuego!', svg: '<span style="font-size:2rem;">🔥</span>' },
+          { id: 'sus', label: '¡Ojo!', svg: '<span style="font-size:2rem;">👀</span>' },
+          { id: 'dead', label: '¡RIP!', svg: '<span style="font-size:2rem;">💀</span>' }
+        ];
 
     playerReactionsBar.innerHTML = '';
-    pack.forEach(r => {
+    emotes.forEach(r => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'btn-reaction';
-      btn.setAttribute('data-emoji', r.emoji);
+      btn.className = 'btn-custom-emote-sticker';
+      btn.setAttribute('data-emote-id', r.id);
       btn.setAttribute('title', r.label);
-      btn.textContent = r.emoji;
+      btn.innerHTML = r.svg;
 
       btn.addEventListener('click', () => {
-        triggerHaptic(30);
+        triggerHaptic(35);
         btn.classList.add('pop');
         setTimeout(() => btn.classList.remove('pop'), 200);
 
-        // Immediate particle effect on player screen
-        showLocalReactionParticle(r.emoji);
+        // Immediate tactile vector particle effect on player screen
+        showLocalStickerParticle(r.svg);
 
-        // Emit to Host TV
-        socket.emit('player:react', { emoji: r.emoji });
+        // Emit custom character sticker to Host TV
+        socket.emit('player:react', {
+          emoteId: r.id,
+          emoteSvg: r.svg,
+          emoji: r.id
+        });
       });
 
       playerReactionsBar.appendChild(btn);
     });
   }
 
-  function showLocalReactionParticle(emoji) {
+  function showLocalStickerParticle(svgMarkup) {
     const floater = document.createElement('div');
-    floater.className = 'mobile-local-particle';
-    floater.textContent = emoji;
+    floater.className = 'mobile-local-sticker-particle';
+    floater.innerHTML = svgMarkup;
     document.body.appendChild(floater);
     setTimeout(() => floater.remove(), 1100);
   }

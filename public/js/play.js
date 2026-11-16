@@ -1718,20 +1718,21 @@
   function showLocalStickerParticle(svgMarkup) {
     const floater = document.createElement('div');
     floater.className = 'mobile-local-sticker-particle';
+    floater.style.cssText = 'position: fixed; bottom: 85px; right: 20px; width: 68px; height: 68px; max-width: 68px; max-height: 68px; pointer-events: none; z-index: 99999; animation: mobileStickerFloatUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
     floater.innerHTML = svgMarkup;
     document.body.appendChild(floater);
     setTimeout(() => floater.remove(), 1100);
   }
 
-  // Fallback initial listener for any static reaction buttons
-  document.querySelectorAll('.btn-reaction').forEach(btn => {
-    btn.addEventListener('click', () => {
-      triggerHaptic(30);
-      const emoji = btn.getAttribute('data-emoji') || '🔥';
-      showLocalReactionParticle(emoji);
-      socket.emit('player:react', { emoji });
-    });
-  });
+  // Ensure reactions bar is updated whenever player profile is synced
+  const originalHandlePrivateState = handlePrivateState;
+  handlePrivateState = function(state) {
+    originalHandlePrivateState(state);
+    if (state?.me && playerReactionsBar && playerReactionsBar.children.length === 0) {
+      playerReactionsBar.style.display = 'flex';
+      setupPlayerAvatarReactions(state.me.avatar, state.me.name);
+    }
+  };
 
   // Impostor clue submission
   if (btnSubmitClue) {

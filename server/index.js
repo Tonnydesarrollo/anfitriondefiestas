@@ -675,12 +675,25 @@ io.on('connection', (socket) => {
 
     const player = room.players.get(socket.id);
     if (player) {
+      // Robust mapping: resolve whether sent as emoteId or standard emoji/id string
+      let resolvedId = emoteId;
+      if (!resolvedId && emoji) {
+        const raw = String(emoji).toLowerCase();
+        if (raw.includes('laugh') || raw.includes('😂') || raw.includes('risas') || raw.includes('jaja')) resolvedId = 'laugh';
+        else if (raw.includes('shock') || raw.includes('😱') || raw.includes('sorpresa') || raw.includes('grito')) resolvedId = 'shock';
+        else if (raw.includes('fire') || raw.includes('🔥') || raw.includes('fuego') || raw.includes('hype')) resolvedId = 'fire';
+        else if (raw.includes('sus') || raw.includes('👀') || raw.includes('🧐') || raw.includes('ojo') || raw.includes('sospecha')) resolvedId = 'sus';
+        else if (raw.includes('dead') || raw.includes('💀') || raw.includes('rip') || raw.includes('muerto') || raw.includes('falleci')) resolvedId = 'dead';
+        else resolvedId = 'happy';
+      }
+      resolvedId = resolvedId || 'happy';
+
       io.to(room.hostSocketId).emit('host:player_reaction', {
         playerName: player.name,
         avatar: player.avatar,
-        emoteId: emoteId || 'happy',
-        emoteSvg: typeof emoteSvg === 'string' && emoteSvg.length < 15000 ? emoteSvg : undefined,
-        emoji: emoji || '👻'
+        emoteId: resolvedId,
+        emoteSvg: typeof emoteSvg === 'string' && emoteSvg.length < 20000 ? emoteSvg : undefined,
+        emoji: emoji || resolvedId
       });
     }
   });

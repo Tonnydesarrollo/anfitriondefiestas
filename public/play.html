@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Mando Móvil | Duelo de Ocurrencias</title>
   <meta name="theme-color" content="#0b0c1b">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=3">
   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
   <script>if (typeof io === 'undefined') document.write('<script src="/socket.io/socket.io.js"><\/script>');</script>
   <script src="/js/config.js"></script>
@@ -616,17 +616,11 @@
 
     </main>
 
-    <!-- Bottom Player Live Reactions Bar (Always accessible once joined) -->
-    <footer class="player-reactions-bar" id="playerReactionsBar" style="display: none;">
-      <button type="button" class="btn-reaction" data-emoji="🔥" title="Fuego">🔥</button>
-      <button type="button" class="btn-reaction" data-emoji="😂" title="Risas">😂</button>
-      <button type="button" class="btn-reaction" data-emoji="👏" title="Aplausos">👏</button>
-      <button type="button" class="btn-reaction" data-emoji="💀" title="Muerto de risa">💀</button>
-      <button type="button" class="btn-reaction" data-emoji="😱" title="Sorpresa">😱</button>
-    </footer>
+    <!-- Bottom Player Live Reactions Bar (Populated dynamically with character vector stickers) -->
+    <footer class="player-reactions-bar" id="playerReactionsBar" style="display: none;"></footer>
   </div>
 
-  <script src="/js/characterEmotes.js"></script>
-  <script src="/js/play.js"></script>
+  <script src="/js/characterEmotes.js?v=3"></script>
+  <script src="/js/play.js?v=3"></script>
 </body>
 </html>

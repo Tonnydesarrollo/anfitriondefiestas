@@ -1795,22 +1795,32 @@
   socket.on('host:player_reaction', ({ playerName, avatar, emoteId, emoteSvg, emoji }) => {
     SoundFX.playPop();
 
-    // Resolve high-res vector sticker markup
-    const svgMarkup = emoteSvg || (window.CharacterEmoteEngine 
-      ? window.CharacterEmoteEngine.getEmoteSvg(avatar?.emoji || '👻', emoteId || 'happy', avatar?.color)
-      : `<span style="font-size:3.5rem;">${emoji || '👻'}</span>`);
+    const targetEmoteId = emoteId || 'happy';
+    const playerEmoji = avatar?.emoji || '🦊';
+    const playerColor = avatar?.color || '#ff6b4a';
+
+    // Prioritize freshly rendered pure vector character sticker
+    let svgMarkup = '';
+    if (window.CharacterEmoteEngine) {
+      svgMarkup = window.CharacterEmoteEngine.getEmoteSvg(playerEmoji, targetEmoteId, playerColor);
+    } else if (emoteSvg) {
+      svgMarkup = emoteSvg;
+    } else {
+      svgMarkup = `<span style="font-size:3.5rem;">${emoji || '🎉'}</span>`;
+    }
 
     triggerPlayerTokenReaction(playerName, svgMarkup);
   });
 
   function triggerPlayerTokenReaction(playerName, svgMarkup) {
     if (!playerName) return;
+    const cleanTarget = playerName.trim().toLowerCase();
     const tokens = document.querySelectorAll('.player-token');
     let found = false;
 
     tokens.forEach(t => {
-      const name = t.getAttribute('data-player-name') || t.querySelector('.player-token-name')?.textContent?.trim();
-      if (name === playerName) {
+      const tokenName = (t.getAttribute('data-player-name') || t.querySelector('.player-token-name')?.textContent || '').trim().toLowerCase();
+      if (tokenName && (tokenName === cleanTarget || tokenName.includes(cleanTarget) || cleanTarget.includes(tokenName))) {
         found = true;
         // Bounce the avatar
         const av = t.querySelector('.player-token-avatar');
@@ -1822,28 +1832,36 @@
 
         // Calculate token position on screen so sticker overlays perfectly without affecting DOM flow or scrollbars
         const rect = t.getBoundingClientRect();
-        const centerX = rect.left + (rect.width / 2);
-        const startY = rect.top + 20;
+        if (rect.width > 0 && rect.height > 0) {
+          const centerX = rect.left + (rect.width / 2);
+          const startY = rect.top + 20;
 
-        // Create overlay reaction sticker directly ABOVE the player avatar appended to body
-        const bubble = document.createElement('div');
-        bubble.className = 'player-token-reaction-bubble';
-        bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 92px; height: 92px; pointer-events: none; z-index: 99999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)); animation: stickerPopAbove 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;`;
-        bubble.innerHTML = svgMarkup;
-        document.body.appendChild(bubble);
+          // Remove any active bubble for this token
+          const existing = document.querySelector(`.player-token-reaction-bubble[data-owner="${cleanTarget}"]`);
+          if (existing) existing.remove();
 
-        setTimeout(() => bubble.remove(), 1800);
+          // Create overlay reaction sticker directly ABOVE the player avatar appended to body
+          const bubble = document.createElement('div');
+          bubble.className = 'player-token-reaction-bubble';
+          bubble.setAttribute('data-owner', cleanTarget);
+          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 92px; height: 92px; pointer-events: none; z-index: 99999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)); animation: stickerPopAbove 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;`;
+          bubble.innerHTML = svgMarkup;
+          document.body.appendChild(bubble);
+
+          setTimeout(() => bubble.remove(), 1800);
+        } else {
+          found = false;
+        }
       }
     });
 
-    // If player is not currently in the lobby grid (e.g. answering or duel phases)
+    // If player is not currently in the visible lobby grid (e.g. answering or duel phases)
     if (!found) {
-      const arena = document.getElementById('hostMainArena') || document.body;
       const floater = document.createElement('div');
       floater.className = 'arena-floating-emote';
-      floater.style.cssText = `position: fixed; bottom: 80px; right: ${Math.floor(40 + Math.random() * 220)}px; width: 92px; height: 92px; pointer-events: none; z-index: 9999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: floatReactionAesthetic 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;`;
+      floater.style.cssText = `position: fixed; bottom: 80px; right: ${Math.floor(40 + Math.random() * 220)}px; width: 92px; height: 92px; pointer-events: none; z-index: 99999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: floatReactionAesthetic 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;`;
       floater.innerHTML = svgMarkup;
-      arena.appendChild(floater);
+      document.body.appendChild(floater);
       setTimeout(() => floater.remove(), 2500);
     }
   }

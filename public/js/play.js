@@ -1671,31 +1671,53 @@
 
   function setupPlayerAvatarReactions(avatar, playerName) {
     if (!playerReactionsBar) return;
-    const avEmoji = avatar?.emoji || '👻';
-    const avColor = avatar?.color || '#00f0ff';
+    const avEmoji = avatar?.emoji || '🦊';
+    const avColor = avatar?.color || '#ff6b4a';
+
+    const shortLabels = {
+      happy: '¡Feliz!',
+      laugh: '¡Risas!',
+      shock: '¡OMG!',
+      fire: '¡Fuego!',
+      sus: '¡Ojo!',
+      dead: '¡KO!'
+    };
 
     // Retrieve dedicated vector sticker emotes created by CharacterEmoteEngine
     const emotes = window.CharacterEmoteEngine 
       ? window.CharacterEmoteEngine.getEmotesForAvatar(avEmoji, avColor)
       : [
-          { id: 'happy', label: '¡Feliz!', svg: '<span style="font-size:2rem;">👻</span>' },
+          { id: 'happy', label: '¡Feliz!', svg: '<span style="font-size:2rem;">🦊</span>' },
           { id: 'laugh', label: '¡Risa!', svg: '<span style="font-size:2rem;">😂</span>' },
           { id: 'shock', label: '¡OMG!', svg: '<span style="font-size:2rem;">😱</span>' },
           { id: 'fire', label: '¡Fuego!', svg: '<span style="font-size:2rem;">🔥</span>' },
           { id: 'sus', label: '¡Ojo!', svg: '<span style="font-size:2rem;">👀</span>' },
-          { id: 'dead', label: '¡RIP!', svg: '<span style="font-size:2rem;">💀</span>' }
+          { id: 'dead', label: '¡KO!', svg: '<span style="font-size:2rem;">💀</span>' }
         ];
 
-    playerReactionsBar.innerHTML = '';
+    playerReactionsBar.innerHTML = `
+      <div class="reactions-dock-header">
+        <span class="reactions-dock-title">⚡ REACCIONA EN VIVO (${escapeHtml(playerName || 'TÚ')}):</span>
+      </div>
+      <div class="reactions-dock-buttons" id="reactionsDockButtons"></div>
+    `;
+
+    const dockButtons = document.getElementById('reactionsDockButtons') || playerReactionsBar;
+
     emotes.forEach(r => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'btn-custom-emote-sticker';
       btn.setAttribute('data-emote-id', r.id);
       btn.setAttribute('title', r.label);
-      btn.innerHTML = r.svg;
+      btn.innerHTML = `
+        <div class="sticker-icon">${r.svg}</div>
+        <span class="sticker-label">${shortLabels[r.id] || r.label}</span>
+      `;
 
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         triggerHaptic(35);
         btn.classList.add('pop');
         setTimeout(() => btn.classList.remove('pop'), 200);
@@ -1711,7 +1733,7 @@
         });
       });
 
-      playerReactionsBar.appendChild(btn);
+      dockButtons.appendChild(btn);
     });
   }
 

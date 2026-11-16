@@ -13,6 +13,8 @@
  *    - If you vote for your own lie: 0 PTS and an AI Host roast!
  */
 
+import { calculateDynamicRounds } from '../rules/gameRulesConfig.js';
+
 const FALSO_SABIO_QUESTIONS = [
   {
     fact: "En 1923, el jockey Frank Hayes ganó una carrera en Belmont Park a pesar de estar...",
@@ -57,14 +59,16 @@ const FALSO_SABIO_QUESTIONS = [
 ];
 
 export class FalsoSabio {
-  constructor(room, onStateChange, onTimerTick, customRounds = 3) {
+  constructor(room, onStateChange, onTimerTick, customRounds = null) {
     this.id = 'falso-sabio';
     this.title = 'Falso Sabio';
     this.room = room;
     this.onStateChange = onStateChange;
     this.onTimerTick = onTimerTick;
 
-    this.totalRounds = customRounds || 3;
+    const count = Math.max(2, room.players.size || 2);
+    const dynamicPacing = calculateDynamicRounds('falso-sabio', count);
+    this.totalRounds = customRounds || dynamicPacing.rounds;
     this.currentRound = 1;
     this.phase = 'HOW_TO_PLAY'; // HOW_TO_PLAY | INTRO | LIE_WRITING | TRUTH_VOTING | REVEAL | ROUND_RESULTS | PODIUM
     this.timer = 0;
@@ -399,6 +403,11 @@ export class FalsoSabio {
       }))
       .sort((a, b) => b.score - a.score);
 
+    const myRank = sortedPlayers.findIndex(p => p.id === socketId) + 1;
+    const topScore = sortedPlayers[0]?.score || 0;
+    const isTieForFirst = sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && topScore > 0;
+    const isCoChampion = isTieForFirst && (player.score || 0) === topScore;
+
     return {
       gameId: this.id,
       gameTitle: this.title,
@@ -417,8 +426,10 @@ export class FalsoSabio {
       myVote,
       totalScore: player.score || 0,
       roundDelta: this.playerRoundDeltas.get(socketId) || 0,
-      rank: sortedPlayers.findIndex(p => p.id === socketId) + 1,
-      isWinner: sortedPlayers[0]?.id === socketId
+      rank: isCoChampion ? 1 : myRank,
+      isWinner: myRank === 1 && !isTieForFirst,
+      isCoChampion,
+      isTie: isTieForFirst
     };
   }
 }

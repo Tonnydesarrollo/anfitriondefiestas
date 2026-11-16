@@ -20,7 +20,7 @@
  * 11. PODIUM: Final winners crowned.
  */
 
-import { IMPOSTOR_SILICIO_CONFIG, getTutorial, getMobileCTA } from '../rules/gameRulesConfig.js';
+import { IMPOSTOR_SILICIO_CONFIG, getTutorial, getMobileCTA, calculateDynamicRounds } from '../rules/gameRulesConfig.js';
 import { judgeDuel } from '../aiHost.js';
 
 export const IMPOSTOR_WORDS_DATABASE = {
@@ -77,7 +77,7 @@ export const IMPOSTOR_WORDS_DATABASE = {
 };
 
 export class ImpostorSilicio {
-  constructor(room, onStateChange, onTimerTick, customRounds = 3) {
+  constructor(room, onStateChange, onTimerTick, customRounds = null) {
     this.room = room;
     this.onStateChange = onStateChange;
     this.onTimerTick = onTimerTick;
@@ -86,7 +86,9 @@ export class ImpostorSilicio {
     this.title = 'El Impostor de Silicio';
     this.description = 'Uno de ustedes no sabe la palabra secreta. Den pistas disimuladas, debatan y cacen al impostor... ¡o ayúdenlo a escapar!';
 
-    this.totalRounds = customRounds || 3;
+    const count = Math.max(2, room.players.size || 3);
+    const dynamicPacing = calculateDynamicRounds('impostor-silicio', count);
+    this.totalRounds = customRounds || dynamicPacing.rounds;
     this.currentRound = 1;
     this.phase = 'HOW_TO_PLAY'; // HOW_TO_PLAY | INTRO | CLUES_1 | CLUES_REVEAL_1 | CLUES_2 | DEBATE | VOTING | ROUND_SUSPICION | RESOLUTION | ESCAPE | RESULTS | PODIUM
     this.timer = 0;
@@ -756,8 +758,10 @@ export class ImpostorSilicio {
       cta,
       totalScore: player.score || 0,
       roundDelta: player.lastRoundGain || 0,
-      rank: sortedPlayers.findIndex(p => p.id === socketId) + 1,
-      isWinner: sortedPlayers[0]?.id === socketId
+      rank: sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && (player.score || 0) === sortedPlayers[0].score && sortedPlayers[0].score > 0 ? 1 : sortedPlayers.findIndex(p => p.id === socketId) + 1,
+      isWinner: sortedPlayers[0]?.id === socketId && !(sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && sortedPlayers[0].score > 0),
+      isCoChampion: sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && (player.score || 0) === sortedPlayers[0].score && sortedPlayers[0].score > 0,
+      isTie: sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && sortedPlayers[0].score > 0
     };
   }
 }

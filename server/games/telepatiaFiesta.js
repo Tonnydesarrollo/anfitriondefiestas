@@ -200,40 +200,56 @@ export class TelepatiaFiestaGame {
     }
 
     if (playersList.length === 2) {
-      // 2-PLAYER TELEPATHY CONNECTION CALCULATION
-      const v1 = this.playerValues.get(playersList[0].id) ?? 50;
-      const v2 = this.playerValues.get(playersList[1].id) ?? 50;
-      const diff = Math.abs(v1 - v2);
+      // 2-PLAYER ASYMMETRIC TELEPATHY SCORING (Mind Reader vs Sender)
+      // Alternates roles each round so players compete dynamically and don't tie automatically!
+      const senderIndex = (this.currentRound - 1) % 2;
+      const readerIndex = 1 - senderIndex;
+      const sender = playersList[senderIndex];
+      const reader = playersList[readerIndex];
 
-      let pts = 0;
+      const vSender = this.playerValues.get(sender.id) ?? 50;
+      const vReader = this.playerValues.get(reader.id) ?? 50;
+      const diff = Math.abs(vSender - vReader);
+
+      let readerPts = 0;
+      let senderPts = 0;
       let badge = '';
+
       if (diff <= 5) {
-        pts = Math.round(1000 * roundMultiplier);
+        readerPts = Math.round(1000 * roundMultiplier);
+        senderPts = Math.round(500 * roundMultiplier);
         badge = '¡TELEPATÍA CÓSMICA PERFECTA!';
-        this.aiCommentary = `¡INCREÍBLE! ${playersList[0].name} (${v1}%) y ${playersList[1].name} (${v2}%) tienen sus cerebros sincronizados. ¡Diferencia casi nula de ${diff}%!`;
+        this.aiCommentary = `¡INCREÍBLE! ${reader.name} (${vReader}%) leyó la mente de ${sender.name} (${vSender}%) con precisión milimétrica (¡diferencia de solo ${diff}%)!`;
       } else if (diff <= 15) {
-        pts = Math.round(750 * roundMultiplier);
+        readerPts = Math.round(750 * roundMultiplier);
+        senderPts = Math.round(350 * roundMultiplier);
         badge = '¡GRAN SINTONÍA MENTAL!';
-        this.aiCommentary = `¡Gran conexión! ${playersList[0].name} (${v1}%) y ${playersList[1].name} (${v2}%) están prácticamente en el mismo canal.`;
+        this.aiCommentary = `¡Gran puntería psíquica! ${reader.name} (${vReader}%) sintonizó muy bien el pensamiento de ${sender.name} (${vSender}%).`;
       } else if (diff <= 30) {
-        pts = Math.round(400 * roundMultiplier);
+        readerPts = Math.round(400 * roundMultiplier);
+        senderPts = Math.round(200 * roundMultiplier);
         badge = 'Sintonía Moderada';
-        this.aiCommentary = `Coincidencia decente (${v1}% vs ${v2}%). No son gemelos mentales, pero se entienden.`;
+        this.aiCommentary = `Lectura aceptable (${vReader}% vs ${vSender}%). Hubo interferencia estática, pero se acercaron.`;
       } else {
-        pts = Math.round(100 * roundMultiplier);
+        readerPts = Math.round(100 * roundMultiplier);
+        senderPts = Math.round(50 * roundMultiplier);
         badge = 'Mundos Paralelos';
-        this.aiCommentary = `¡Viven en planetas distintos! ${playersList[0].name} votó ${v1}% mientras que ${playersList[1].name} votó ${v2}%. ¡${diff}% de distancia!`;
+        this.aiCommentary = `¡Cerebros en dimensiones opuestas! ${sender.name} pensó en ${vSender}% mientras que ${reader.name} adivinó ${vReader}% (¡${diff}% de distancia!).`;
       }
 
-      playersList[0].score = (playersList[0].score || 0) + pts;
-      playersList[0].lastRoundGain = pts;
-      playersList[1].score = (playersList[1].score || 0) + pts;
-      playersList[1].lastRoundGain = pts;
+      reader.score = (reader.score || 0) + readerPts;
+      reader.lastRoundGain = readerPts;
+      sender.score = (sender.score || 0) + senderPts;
+      sender.lastRoundGain = senderPts;
 
       this.duelResult = {
         diff,
         affinityPercent: Math.max(0, 100 - diff),
-        points: pts,
+        readerName: reader.name,
+        senderName: sender.name,
+        readerPoints: readerPts,
+        senderPoints: senderPts,
+        points: readerPts,
         badge
       };
     } else {
@@ -404,6 +420,9 @@ export class TelepatiaFiestaGame {
 
     const sortedPlayers = Array.from(this.room.players.values()).sort((a, b) => (b.score || 0) - (a.score || 0));
     const rank = sortedPlayers.findIndex(p => p.id === socketId) + 1;
+    const topScore = sortedPlayers[0]?.score || 0;
+    const isTieForFirst = sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && topScore > 0;
+    const isCoChampion = isTieForFirst && (player.score || 0) === topScore;
 
     return {
       gameId: this.id,
@@ -423,8 +442,10 @@ export class TelepatiaFiestaGame {
       groupResult: this.groupResult,
       totalScore: player.score || 0,
       roundDelta: player.lastRoundGain || 0,
-      rank,
-      isWinner: rank === 1
+      rank: isCoChampion ? 1 : rank,
+      isWinner: rank === 1 && !isTieForFirst,
+      isCoChampion,
+      isTie: isTieForFirst
     };
   }
 }

@@ -465,6 +465,9 @@ export class TriviaCaoticaGame {
 
     const sortedPlayers = Array.from(this.room.players.values()).sort((a, b) => (b.score || 0) - (a.score || 0));
     const rank = sortedPlayers.findIndex(p => p.id === socketId) + 1;
+    const topScore = sortedPlayers[0]?.score || 0;
+    const isTieForFirst = sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && topScore > 0;
+    const isCoChampion = isTieForFirst && (player.score || 0) === topScore;
 
     return {
       gameId: this.id,
@@ -485,8 +488,10 @@ export class TriviaCaoticaGame {
       explanation: isReveal ? this.currentQuestion?.explanation : null,
       totalScore: player.score || 0,
       roundDelta: player.lastRoundGain || 0,
-      rank,
-      isWinner: rank === 1
+      rank: isCoChampion ? 1 : rank,
+      isWinner: rank === 1 && !isTieForFirst,
+      isCoChampion,
+      isTie: isTieForFirst
     };
   }
 }

@@ -43,7 +43,23 @@
 3. **Mando Móvil Táctil (Arcade First)**:
    - Botones gigantes `.mobile-arcade-btn` y `.mobile-suspect-btn` con compresión física `active: translateY(5px)` y borde negro marcado, diseñados para interacción con pulgar.
 
-## Estado del Servidor y Despliegue Híbrido (Docker + Vercel)
+## Correcciones Recientes de Calidad & Polish (UI/UX, Pacing, TTS, Mecánicas)
+1. **Dimensiones & Layouts Limpios**:
+   - Eliminados `max-height: 250px` y `overflow-y: auto` de `.players-grid` en la sala de espera. Las tarjetas de jugador (`.player-token`) ahora se muestran completas, sin barras de desplazamiento internas ni recortes de avatares.
+   - En mandos móviles (`play.html`), la cabecera `.player-header` se blindó para mantenerse estrictamente en 1 sola fila elegante (nombre, código de sala y puntos) sin deformarse ni saltar a 3 líneas.
+   - El dock inferior de reacciones en vivo se rediseñó con altura compacta, `z-index: 999999` y botones de stickers vectoriales con etiquetas claras ("¡Feliz!", "¡Risas!", "¡OMG!", "¡Fuego!", "¡Ojo!", "¡KO!").
+2. **Stickers Vectoriales Puros (100% SVG Confinados)**:
+   - Se añadieron `width="100%"` y `height="100%"` a todas las etiquetas `<svg>` en `characterEmotes.js`, eliminando el problema de expresiones gigantes desbordadas en pantalla.
+   - Tanto en la TV del anfitrión (`.player-token-reaction-bubble`) como en el móvil (`.mobile-local-sticker-particle`), las dimensiones quedan estrictamente acotadas a 64-84px con sombras y animación de pop/burbuja flotante.
+3. **Locución por Voz TTS en Tiempo Real**:
+   - La voz del anfitrión ("Charly Silicio") ahora lee en voz alta en español cada pregunta, dilema y premisa de los duelos (`stageAnswering`, `stageDuel`, `stageTrivia`, `stageDilemas`, `stageTelepatia`, `stageFalsoSabio`, `stageBomba`).
+4. **Mecánica Asimétrica y Competitiva de Telepatía de Fiesta**:
+   - En modo 2 jugadores 1v1, se eliminó el puntaje gemelo forzado. Ahora los roles alternan cada ronda entre "Emisor Telepático" (fija el ancla secreta) y "Lector de Mentes" (adivina la calibración). El lector gana puntos según precisión y el emisor recibe un bono cooperativo del 50%, permitiendo ganadores claros y diferencias de puntaje reales.
+5. **Reconocimiento de Empates (👑👑 Co-Campeones)**:
+   - Tanto el servidor en `getPrivateState` como el TV en `renderPodium` y el móvil en `handlePodiumPhase` detectan empates en el 1er lugar (`podium[0].score === podium[1].score`).
+   - El podio de oro se expande para coronar a ambos como Co-Campeones con fanfarria especial y anuncio de voz.
+6. **Ritmo de Partida Extendido a 4-5 Rondas**:
+   - Todos los 7 juegos calibrados con progresión emocional (Calentamiento -> Escalada -> Doble Puntuación / Clímax) para partidos de 4 a 6 minutos.
 - **Backend Dockerizado (100.100.148.80)**:
   - Servidor: `palomares@100.100.148.80`
   - Contenedor: `anfitrion-party-backend` (puerto 3000)
@@ -79,3 +95,12 @@
 3. **Captura 3 (Podio con nombres "Campeón 0 PTS" / Confeti tapando el encabezado)**:
    - *Causa*: Si `renderPodium` no encontraba podio precargado, mantenía los textos placeholder del HTML ("Campeón", "Plata", "Bronce" con 0 PTS). El canvas de confeti tenía `z-index: 9999` tapando la barra de navegación y logo.
    - *Solución*: `renderPodium` ahora hace fallback jerárquico a `game.leaderboard` o `currentState.players` para mostrar siempre los nombres y puntuaciones de los jugadores reales; oculta escalones sobrantes si juegan menos de 3 personas; y el confeti se calibró en `z-index: 20` con el `host-topbar` en `z-index: 30`.
+
+## Fase de Pulido Integral — 7 Pilares de Calidad
+1. **Lectura TTS de Preguntas**: Hooks de locución en tiempo real para todos los minijuegos (`announceQuestion`).
+2. **Mecánica Asimétrica de Telepatía**: Modo Emisor vs Adivinador en 1v1 y Consenso con Predicción en Grupo (4 Rondas alternadas).
+3. **Gestión de Empates (Co-Campeones)**: Podio inclusivo con doble corona y soporte para empates en 1er y 2do puesto.
+4. **Resolución de Errores Visuales**: Dock flotante fijo en móvil, normalización de layouts para pantallas cortas/apaisadas, stickers die-cut con borde blanco de vinilo.
+5. **Extensión de Duración (4-5 Rondas)**: Estructura de 5 fases (Calentamiento -> Escalada -> Puntos Dobles -> Venganza -> Clímax Final) para partidas de 4 a 6 minutos (ADR 004).
+6. **Splash de Instrucciones Iniciales**: Tarjeta de 6 segundos estilo Jackbox con locución cómica antes de la acción.
+7. **Personalidad 'Charly Silicio'**: Locutor de late-night cómico con roasts, humor ácido y timing televisivo.

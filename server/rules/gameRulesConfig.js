@@ -326,7 +326,7 @@ export const MOBILE_CTAS = {
 export const DUELO_OCURRENCIAS_CONFIG = {
   id: 'duelo-ocurrencias',
   name: 'Duelo de Ocurrencias',
-  totalRounds: 2,
+  totalRounds: 4,
 
   // Temporizadores Base (en segundos)
   timers: {
@@ -357,10 +357,12 @@ export const DUELO_OCURRENCIAS_CONFIG = {
 
   // Parámetros de Puntuación
   scoring: {
-    pointsPerVote: 500,            // Puntos otorgados por cada voto de jurado recibido (500 pts R1, 1000 pts R2)
+    pointsPerVote: 500,            // Puntos otorgados por cada voto de jurado recibido
     roundMultipliers: {
-      1: 1.0,
-      2: 2.0                      // Ronda 2 duplica todos los puntos de voto por 2
+      1: 1.0,                      // Ronda 1: Calentamiento (500 pts/voto)
+      2: 1.5,                      // Ronda 2: Escalada (750 pts/voto)
+      3: 2.0,                      // Ronda 3: ¡PUNTOS DOBLES! (1000 pts/voto)
+      4: 3.0                       // Ronda 4: ¡CLÍMAX FINAL PUNTOS TRIPLES! (1500 pts/voto)
     },
     sweepBonus: 250,               // Bono de 'Barredora' / 100% de votos (unanimidad)
     aiCriticBonus: 250,            // Bono de la Crítica otorgado por el Anfitrión IA
@@ -372,7 +374,7 @@ export const DUELO_OCURRENCIAS_CONFIG = {
   catchUp: {
     underdogThresholdPercentile: 0.33, // Último 33% de la tabla
     underdogTieBreakerAdvantage: true,  // En caso de empate en la final, gana el de menor puntaje acumulado
-    finalRoundScoreMultiplier: 2.0
+    finalRoundScoreMultiplier: 3.0
   }
 };
 
@@ -645,108 +647,70 @@ export function calculateDynamicRounds(gameId, playerCount = 3) {
 
   switch (gameId) {
     case 'impostor-silicio': {
-      if (count <= 3) {
-        return {
-          rounds: 2,
-          title: '⚡ 2 RONDAS DINÁMICAS (EXPEDIENTE + JUICIO FINAL)',
-          reason: 'Con 3 jugadores, 2 rondas de pistas y acumulación de sospechas son óptimas para mantener la tensión sin redundancia.'
-        };
-      } else if (count <= 6) {
-        return {
-          rounds: 3,
-          title: '⭐ 3 RONDAS DINÁMICAS (INVESTIGACIÓN COMPLETA)',
-          reason: 'Ritmo clásico Jackbox: Pista inicial, contra-interrogatorio y Juicio Final con escape.'
-        };
-      } else {
-        return {
-          rounds: 2,
-          title: '🔥 2 RONDAS DINÁMICAS (DEBATE MASIVO INTENSO)',
-          reason: 'Con grupos grandes de 7+ personas, 2 rondas permiten debate masivo ágil sin alargar los turnos.'
-        };
-      }
+      return {
+        rounds: 4,
+        title: '🕵️ 4 RONDAS (PISTAS, CONTRA-INTERROGATORIO Y DESTIERRO)',
+        reason: 'Estructura completa de deducción: Pistas iniciales, sospecha acumulada, careo directo y Votación Final con opción de fuga.'
+      };
     }
 
     case 'duelo-ocurrencias': {
-      if (count <= 4) {
-        return {
-          rounds: 2,
-          title: '⚡ 2 RONDAS DINÁMICAS (NORMAL + ¡PUNTOS DOBLES!)',
-          reason: 'Cada jugador participa en 2 duelos directos por ronda con clímax de puntos dobles al final.'
-        };
-      } else if (count <= 6) {
-        return {
-          rounds: 2,
-          title: '⭐ 2 RONDAS DINÁMICAS (DUELOS EN CADENA + FINAL)',
-          reason: 'Equilibrio perfecto entre tiempo de respuesta y votaciones del salón.'
-        };
-      } else {
-        return {
-          rounds: 2,
-          title: '🚀 2 RONDAS DINÁMICAS (TORNEO RÁPIDO)',
-          reason: 'Para 7 a 10 jugadores, 2 rondas mantienen el salón enérgico sin saturar con demasiadas votaciones.'
-        };
-      }
+      return {
+        rounds: 4,
+        title: '🥊 4 RONDAS (CALENTAMIENTO, RIVALIDAD, DOBLES Y CLÍMAX)',
+        reason: 'Permite a los jugadores soltar el ingenio, forjar rivalidades, remontar con puntos dobles y definir al campeón en un clímax épico.'
+      };
+    }
+
+    case 'trivia-caotica': {
+      return {
+        rounds: 5,
+        title: '🧠 5 RONDAS (POP, VELOCIDAD, PUNTOS DOBLES Y MUERTE SÚBITA)',
+        reason: 'Curva dramática perfecta estilo Trivia Murder Party: conocimiento, asalto de puntos, penalizaciones y duelo decisivo final.'
+      };
+    }
+
+    case 'telepatia-fiesta': {
+      return {
+        rounds: 4,
+        title: count === 2 
+          ? '💑 4 RONDAS ALTERNADAS (EMISOR VS LECTOR + CLÍMAX 3X)' 
+          : '🧠 4 RONDAS DE MENTE COLMENA (CONSENSO CRECIENTE)',
+        reason: count === 2
+          ? '2 rondas completas para cada jugador alternando roles de Emisor y Adivinador con puntos crecientes.'
+          : '4 dilemas subjetivos donde el grupo afina su sintonía mental hasta la ronda de puntos dobles.'
+      };
     }
 
     case 'dilemas-extremos': {
-      if (count <= 4) {
-        return {
-          rounds: 4,
-          title: '⭐ 4 RONDAS DINÁMICAS (APUESTAS RÁPIDAS)',
-          reason: 'Dilemas rápidos y dinámicos para que todos voten y comparen sus predicciones.'
-        };
-      } else if (count <= 7) {
-        return {
-          rounds: 3,
-          title: '⚡ 3 RONDAS DINÁMICAS (CONSENSO DE GRUPO)',
-          reason: 'Excelente muestra estadística para debatir las opiniones divididas del grupo.'
-        };
-      } else {
-        return {
-          rounds: 2,
-          title: '🔥 2 RONDAS DINÁMICAS (GRAN DEBATE POPULAR)',
-          reason: 'Grupos masivos debaten y apuestan en rondas electrizantes.'
-        };
-      }
+      return {
+        rounds: 5,
+        title: '⚖️ 5 RONDAS (DEBATE ESCALONADO Y APUESTAS DE CONVICCIÓN)',
+        reason: '5 dilemas absurdos y morales que permiten conocer a fondo la psicología del grupo y arriesgar fichas por la victoria.'
+      };
     }
 
     case 'bomba-palabras': {
-      if (count <= 4) {
-        return {
-          rounds: 3,
-          title: '💣 3 RONDAS DINÁMICAS (MECHA RÁPIDA)',
-          reason: '3 rondas intensas de pase veloz de patata caliente para grupos de 2 a 4.'
-        };
-      } else {
-        return {
-          rounds: 2,
-          title: '💣 2 RONDAS DINÁMICAS (SUPERVIVENCIA EN CADENA)',
-          reason: '2 rondas de ritmo vertiginoso donde la bomba viaja por todo el salón.'
-        };
-      }
+      return {
+        rounds: 4,
+        title: '💣 4 RONDAS (MECHA PROGRESIVA Y EXPLOSIÓN FINAL X3)',
+        reason: '4 rondas de tensión creciente donde la mecha se acelera de 30s a 15s en la ronda decisiva.'
+      };
     }
 
     case 'falso-sabio': {
-      if (count <= 5) {
-        return {
-          rounds: 3,
-          title: '🎓 3 PREGUNTAS INSÓLITAS (RITMO CLÁSICO)',
-          reason: '3 rondas de faroles para que todos tengan oportunidad de engañar al resto.'
-        };
-      } else {
-        return {
-          rounds: 2,
-          title: '🎓 2 PREGUNTAS INSÓLITAS (MURO DE MENTIRAS)',
-          reason: 'Con muchos faroles simultáneos en pantalla, 2 rondas son el punto dulce de diversión.'
-        };
-      }
+      return {
+        rounds: 4,
+        title: '🎓 4 PREGUNTAS INSÓLITAS (FAROLES MAESTROS Y VERDAD FINAL)',
+        reason: '4 rondas de mentiras ingeniosas que dan tiempo a los rezagados para tender trampas y recuperar terreno.'
+      };
     }
 
     default:
       return {
-        rounds: 3,
-        title: '⭐ 3 RONDAS DINÁMICAS',
-        reason: 'Ritmo equilibrado para la fiesta.'
+        rounds: 4,
+        title: '⭐ 4 RONDAS DINÁMICAS (SHOW COMPLETO)',
+        reason: 'Duración ideal de 4 a 6 minutos para máxima diversión y revancha.'
       };
   }
 }

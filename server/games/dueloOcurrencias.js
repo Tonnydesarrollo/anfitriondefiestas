@@ -826,14 +826,20 @@ export class DueloOcurrencias {
         totalScore: player.score
       };
     } else if (this.phase === 'PODIUM') {
-      // Rank calculation
+      // Rank calculation with tie detection
       const ranked = Array.from(this.room.players.values())
         .sort((a, b) => b.score - a.score);
       const myRank = ranked.findIndex(p => p.id === socketId) + 1;
+      const topScore = ranked[0]?.score || 0;
+      const isTieForFirst = ranked.length > 1 && ranked[0].score === ranked[1].score && topScore > 0;
+      const isCoChampion = isTieForFirst && player.score === topScore;
+
       privatePhaseData = {
-        rank: myRank,
+        rank: isCoChampion ? 1 : myRank,
         totalScore: player.score,
-        isWinner: myRank === 1
+        isWinner: myRank === 1 && !isTieForFirst,
+        isCoChampion,
+        isTie: isTieForFirst
       };
     }
 

@@ -1516,7 +1516,12 @@
   // =========================================================================
   function handlePodiumPhase(game) {
     showScreen(screenPodium);
-    if (game.isWinner) {
+    if (game.isCoChampion || (game.rank === 1 && game.isTie)) {
+      triggerHaptic([100, 50, 100, 50, 200]);
+      if (playerPodiumIcon) playerPodiumIcon.textContent = '👑👑';
+      if (playerPodiumTitle) playerPodiumTitle.textContent = '¡CO-CAMPEÓN DE LA FIESTA!';
+      if (playerPodiumRank) playerPodiumRank.innerHTML = `¡Empate épico en <strong>#1 LUGAR</strong> con ${game.totalScore || 0} PTS! ¡Compartes la corona! 🏆`;
+    } else if (game.isWinner || game.rank === 1) {
       triggerHaptic([100, 50, 100, 50, 200]);
       if (playerPodiumIcon) playerPodiumIcon.textContent = '👑';
       if (playerPodiumTitle) playerPodiumTitle.textContent = '¡ERES EL CAMPEÓN!';
@@ -1738,9 +1743,10 @@
   }
 
   function showLocalStickerParticle(svgMarkup) {
+    if (!svgMarkup) return;
     const floater = document.createElement('div');
     floater.className = 'mobile-local-sticker-particle';
-    floater.style.cssText = 'position: fixed; bottom: 85px; right: 20px; width: 68px; height: 68px; max-width: 68px; max-height: 68px; pointer-events: none; z-index: 99999; animation: mobileStickerFloatUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
+    floater.style.cssText = 'position: fixed; bottom: 85px; right: 20px; width: 64px; height: 64px; max-width: 64px; max-height: 64px; overflow: hidden; pointer-events: none; z-index: 999999; animation: mobileStickerFloatUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
     floater.innerHTML = svgMarkup;
     document.body.appendChild(floater);
     setTimeout(() => floater.remove(), 1100);
@@ -1750,9 +1756,11 @@
   const originalHandlePrivateState = handlePrivateState;
   handlePrivateState = function(state) {
     originalHandlePrivateState(state);
-    if (state?.me && playerReactionsBar && playerReactionsBar.children.length === 0) {
+    if (state?.me && playerReactionsBar) {
       playerReactionsBar.style.display = 'flex';
-      setupPlayerAvatarReactions(state.me.avatar, state.me.name);
+      if (playerReactionsBar.children.length === 0) {
+        setupPlayerAvatarReactions(state.me.avatar, state.me.name);
+      }
     }
   };
 

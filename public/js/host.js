@@ -1125,6 +1125,10 @@
     if (promptEl) {
       promptEl.textContent = game.prompt || 'Palabras de la categoría...';
     }
+
+    if (game.phase === 'TICKING' && game.prompt && (game.timer >= 25 || !lastSpokenText?.includes(game.prompt))) {
+      speakSpanish(`Bomba activa para ${game.activePlayerName || 'el jugador'}. Premisa: ${game.prompt}`);
+    }
     if (wordsFeed) {
       const words = game.wordsAccepted || [];
       if (words.length === 0) {
@@ -1180,6 +1184,10 @@
     }
     if (promptEl) {
       promptEl.innerHTML = escapeHtml(game.question || '');
+    }
+
+    if (game.phase === 'LIE_WRITING' && game.question && (game.timer >= 25 || !lastSpokenText?.includes(game.question))) {
+      speakSpanish(`Falso Sabio. Completa la frase: ${game.question.replace('____', 'espacio en blanco')}`);
     }
 
     if (game.phase === 'LIE_WRITING') {
@@ -1289,6 +1297,10 @@
     }
     if (questionEl) {
       questionEl.textContent = game.question || '¿Pregunta de Trivia?';
+    }
+
+    if (game.phase === 'QUESTION' && game.question && (game.timer >= 18 || !lastSpokenText?.includes(game.question))) {
+      speakSpanish(`Pregunta de trivia: ${game.question}`);
     }
 
     const optionColors = [
@@ -1430,6 +1442,10 @@
     }
     if (rightLabelEl) {
       rightLabelEl.textContent = game.rightLabel || '100% Máximo';
+    }
+
+    if (game.phase === 'SPECTRUM' && game.topic && (game.timer >= 20 || !lastSpokenText?.includes(game.topic))) {
+      speakSpanish(`Escala telepática: ${game.topic}`);
     }
 
     const isReveal = (game.phase === 'REVEAL');
@@ -1635,6 +1651,12 @@
 
     // Hide AI speech bubble during voting
     if (aiHostSpeechStage) aiHostSpeechStage.style.display = 'none';
+
+    // Announce prompt and answers aloud via TTS
+    if (duel.promptText && game.timer >= 15) {
+      const speechText = `Duelo de ocurrencias: ${duel.promptText}. Opción uno: ${duel.optionA.text}. Opción dos: ${duel.optionB.text}. ¡A votar!`;
+      speakSpanish(speechText);
+    }
   }
 
   // Phase 4: AI Judging & Vote Reveal
@@ -1752,6 +1774,53 @@
       }
     }
 
+    // Check for tie for 1st place (Co-Champions)!
+    const isTieForFirst = (podium[0] && podium[1] && (podium[0].score || 0) === (podium[1].score || 0) && (podium[0].score || 0) > 0);
+
+    if (isTieForFirst) {
+      const av1 = getAvatarEmoji(podium[0].avatar, '🦊');
+      const av2 = getAvatarEmoji(podium[1].avatar, '🐙');
+      const name1 = podium[0].name || 'Jugador 1';
+      const name2 = podium[1].name || 'Jugador 2';
+      const tieScore = podium[0].score || 0;
+
+      if (podiumStep1) {
+        podiumStep1.style.width = '340px';
+        podiumStep1.style.maxWidth = '90vw';
+      }
+      if (podiumAvatar1) {
+        podiumAvatar1.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 14px;">
+            <span>${av1} 👑</span>
+            <span style="font-size: 1.8rem; color: var(--neon-yellow);">🤝</span>
+            <span>${av2} 👑</span>
+          </div>
+        `;
+      }
+      if (podiumName1) {
+        podiumName1.innerHTML = `👑 ${escapeHtml(name1)} & ${escapeHtml(name2)} 👑`;
+      }
+      if (podiumScore1) {
+        podiumScore1.textContent = `${tieScore} PTS (¡EMPATE!)`;
+      }
+
+      if (podiumStep2) podiumStep2.style.visibility = 'hidden';
+      if (podium[2] && podiumStep3) {
+        const av3 = getAvatarEmoji(podium[2].avatar, '🦙');
+        if (podiumAvatar3) podiumAvatar3.textContent = av3;
+        if (podiumName3) podiumName3.textContent = podium[2].name || 'Jugador 3';
+        if (podiumScore3) podiumScore3.textContent = `${podium[2].score || 0} PTS`;
+        podiumStep3.style.visibility = 'visible';
+      } else if (podiumStep3) {
+        podiumStep3.style.visibility = 'hidden';
+      }
+
+      SoundFX.playFanfare();
+      const gTitle = game.gameTitle || 'la partida';
+      speakSpanish(`¡Increíble desenlace en ${gTitle}! ¡Tenemos un empate épico en el primer lugar entre ${name1} y ${name2} con ${tieScore} puntos! ¡Ambos se coronan como los Co-Campeones de la fiesta!`);
+      return;
+    }
+
     // 1st Place (Gold)
     if (podium[0]) {
       const av1 = getAvatarEmoji(podium[0].avatar, '🦊');
@@ -1813,7 +1882,7 @@
   });
 
   function triggerPlayerTokenReaction(playerName, svgMarkup) {
-    if (!playerName) return;
+    if (!playerName || !svgMarkup) return;
     const cleanTarget = playerName.trim().toLowerCase();
     const tokens = document.querySelectorAll('.player-token');
     let found = false;
@@ -1821,7 +1890,6 @@
     tokens.forEach(t => {
       const tokenName = (t.getAttribute('data-player-name') || t.querySelector('.player-token-name')?.textContent || '').trim().toLowerCase();
       if (tokenName && (tokenName === cleanTarget || tokenName.includes(cleanTarget) || cleanTarget.includes(tokenName))) {
-        found = true;
         // Bounce the avatar
         const av = t.querySelector('.player-token-avatar');
         if (av) {
@@ -1832,9 +1900,10 @@
 
         // Calculate token position on screen so sticker overlays perfectly without affecting DOM flow or scrollbars
         const rect = t.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-          const centerX = rect.left + (rect.width / 2);
-          const startY = rect.top + 20;
+        if (rect.width > 0 && rect.height > 0 && rect.left > 0 && rect.top > 0) {
+          found = true;
+          const centerX = Math.round(rect.left + (rect.width / 2));
+          const startY = Math.round(rect.top + 15);
 
           // Remove any active bubble for this token
           const existing = document.querySelector(`.player-token-reaction-bubble[data-owner="${cleanTarget}"]`);
@@ -1844,22 +1913,20 @@
           const bubble = document.createElement('div');
           bubble.className = 'player-token-reaction-bubble';
           bubble.setAttribute('data-owner', cleanTarget);
-          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 92px; height: 92px; pointer-events: none; z-index: 99999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)); animation: stickerPopAbove 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;`;
+          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 84px; height: 84px; max-width: 84px; max-height: 84px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)); animation: stickerPopAbove 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;`;
           bubble.innerHTML = svgMarkup;
           document.body.appendChild(bubble);
 
           setTimeout(() => bubble.remove(), 1800);
-        } else {
-          found = false;
         }
       }
     });
 
-    // If player is not currently in the visible lobby grid (e.g. answering or duel phases)
+    // If player is not currently in the visible lobby grid (e.g. answering or duel phases) or rect wasn't ready
     if (!found) {
       const floater = document.createElement('div');
       floater.className = 'arena-floating-emote';
-      floater.style.cssText = `position: fixed; bottom: 80px; right: ${Math.floor(40 + Math.random() * 220)}px; width: 92px; height: 92px; pointer-events: none; z-index: 99999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: floatReactionAesthetic 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;`;
+      floater.style.cssText = `position: fixed; bottom: 90px; right: ${Math.floor(50 + Math.random() * 260)}px; width: 84px; height: 84px; max-width: 84px; max-height: 84px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: floatReactionAesthetic 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;`;
       floater.innerHTML = svgMarkup;
       document.body.appendChild(floater);
       setTimeout(() => floater.remove(), 2500);

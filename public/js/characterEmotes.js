@@ -152,7 +152,7 @@
     }
 
     return `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="custom-character-emote-svg">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" class="custom-character-emote-svg" style="display:block; width:100%; height:100%; max-width:100%; max-height:100%;">
         ${extras}
         <!-- Fox Ears -->
         <polygon points="18,16 36,46 14,40" fill="${earBg}" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"/>
@@ -276,7 +276,7 @@
     }
 
     return `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="custom-character-emote-svg">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" class="custom-character-emote-svg" style="display:block; width:100%; height:100%; max-width:100%; max-height:100%;">
         <defs>
           <linearGradient id="grad_ghost_${type}" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="${bodyColor}"/>
@@ -384,7 +384,7 @@
     }
 
     return `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="custom-character-emote-svg">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" class="custom-character-emote-svg" style="display:block; width:100%; height:100%; max-width:100%; max-height:100%;">
         ${extras}
         <!-- Octopus Dome Head -->
         <path d="M 22 52 C 22 22, 78 22, 78 52 C 78 68, 72 74, 66 74 C 60 74, 56 68, 50 68 C 44 68, 40 74, 34 74 C 28 74, 22 68, 22 52 Z" 
@@ -495,7 +495,7 @@
     }
 
     return `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="custom-character-emote-svg">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" class="custom-character-emote-svg" style="display:block; width:100%; height:100%; max-width:100%; max-height:100%;">
         ${extras}
         <!-- Dino Head & Crest -->
         <polygon points="26,26 34,42 22,40" fill="#047857" stroke="#0f172a" stroke-width="3"/>
@@ -605,7 +605,7 @@
     }
 
     return `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="custom-character-emote-svg">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" class="custom-character-emote-svg" style="display:block; width:100%; height:100%; max-width:100%; max-height:100%;">
         ${extras}
         <!-- Badge Disc -->
         <circle cx="50" cy="52" r="34" fill="${badgeColor}" stroke="#0f172a" stroke-width="4"/>

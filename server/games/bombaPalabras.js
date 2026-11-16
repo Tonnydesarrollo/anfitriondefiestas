@@ -10,7 +10,7 @@
  * 5. If the bomb explodes on your phone: BOOM! You lose points, survivors score!
  */
 
-import { getMobileCTA } from '../rules/gameRulesConfig.js';
+import { getMobileCTA, calculateDynamicRounds } from '../rules/gameRulesConfig.js';
 
 const BOMBA_PROMPTS = [
   { prompt: "Palabras que empiecen con: CAR-", filter: "CAR" },
@@ -31,14 +31,16 @@ const BOMBA_PROMPTS = [
 ];
 
 export class BombaPalabras {
-  constructor(room, onStateChange, onTimerTick, customRounds = 3) {
+  constructor(room, onStateChange, onTimerTick, customRounds = null) {
     this.id = 'bomba-palabras';
     this.title = 'Bomba de Palabras';
     this.room = room;
     this.onStateChange = onStateChange;
     this.onTimerTick = onTimerTick;
 
-    this.totalRounds = customRounds || 3;
+    const count = Math.max(2, room.players.size || 2);
+    const dynamicPacing = calculateDynamicRounds('bomba-palabras', count);
+    this.totalRounds = customRounds || dynamicPacing.rounds;
     this.currentRound = 1;
     this.phase = 'HOW_TO_PLAY'; // HOW_TO_PLAY | INTRO | TICKING | EXPLOSION | ROUND_RESULTS | PODIUM
     this.timer = 0;
@@ -318,6 +320,11 @@ export class BombaPalabras {
       }))
       .sort((a, b) => b.score - a.score);
 
+    const myRank = sortedPlayers.findIndex(p => p.id === socketId) + 1;
+    const topScore = sortedPlayers[0]?.score || 0;
+    const isTieForFirst = sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && topScore > 0;
+    const isCoChampion = isTieForFirst && (player.score || 0) === topScore;
+
     return {
       gameId: this.id,
       gameTitle: this.title,
@@ -331,8 +338,10 @@ export class BombaPalabras {
       bombPassCount: this.bombPassCount,
       totalScore: player.score || 0,
       roundDelta: this.playerRoundDeltas.get(socketId) || 0,
-      rank: sortedPlayers.findIndex(p => p.id === socketId) + 1,
-      isWinner: sortedPlayers[0]?.id === socketId
+      rank: isCoChampion ? 1 : myRank,
+      isWinner: myRank === 1 && !isTieForFirst,
+      isCoChampion,
+      isTie: isTieForFirst
     };
   }
 }

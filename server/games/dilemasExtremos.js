@@ -16,7 +16,7 @@
  *    - Champion is crowned.
  */
 
-import { DILEMAS_EXTREMOS_CONFIG, getTutorial, getMobileCTA } from '../rules/gameRulesConfig.js';
+import { DILEMAS_EXTREMOS_CONFIG, getTutorial, getMobileCTA, calculateDynamicRounds } from '../rules/gameRulesConfig.js';
 import { judgeDuel } from '../aiHost.js';
 
 export const DILEMAS_DATABASE = {
@@ -235,7 +235,7 @@ export const DILEMAS_DATABASE = {
 };
 
 export class DilemasExtremos {
-  constructor(room, onStateChange, onTimerTick) {
+  constructor(room, onStateChange, onTimerTick, customRounds = null) {
     this.room = room;
     this.onStateChange = onStateChange;
     this.onTimerTick = onTimerTick;
@@ -244,7 +244,9 @@ export class DilemasExtremos {
     this.title = 'Dilemas Extremos';
     this.description = 'Decisiones morales absurdas. Elige tu destino, predice qué votará el salón y deja que la IA juzgue tu salud mental.';
 
-    this.totalRounds = 3;
+    const count = Math.max(2, room.players.size || 2);
+    const dynamicPacing = calculateDynamicRounds('dilemas-extremos', count);
+    this.totalRounds = customRounds || dynamicPacing.rounds;
     this.currentRound = 1;
     this.phase = 'INTRO'; // INTRO | CHOICE | REVEAL | RESULTS | PODIUM
     this.timer = 0;
@@ -583,6 +585,11 @@ export class DilemasExtremos {
       }))
       .sort((a, b) => b.score - a.score);
 
+    const myRank = sortedPlayers.findIndex(p => p.id === socketId) + 1;
+    const topScore = sortedPlayers[0]?.score || 0;
+    const isTieForFirst = sortedPlayers.length > 1 && sortedPlayers[0].score === sortedPlayers[1].score && topScore > 0;
+    const isCoChampion = isTieForFirst && (player.score || 0) === topScore;
+
     const cta = getMobileCTA('dilemas-extremos', this.phase, {
       hasSubmittedChoice: hasChosen
     });
@@ -600,8 +607,10 @@ export class DilemasExtremos {
       cta,
       totalScore: player.score || 0,
       roundDelta: player.lastRoundGain || 0,
-      rank: sortedPlayers.findIndex(p => p.id === socketId) + 1,
-      isWinner: sortedPlayers[0]?.id === socketId
+      rank: isCoChampion ? 1 : myRank,
+      isWinner: myRank === 1 && !isTieForFirst,
+      isCoChampion,
+      isTie: isTieForFirst
     };
   }
 }

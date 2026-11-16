@@ -1907,10 +1907,10 @@
 
         // Calculate token position on screen so sticker overlays perfectly without affecting DOM flow or scrollbars
         const rect = t.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0 && rect.left > 0 && rect.top > 0) {
+        if (rect && rect.width > 20 && rect.height > 20 && rect.left > 0 && rect.top > 0) {
           found = true;
           const centerX = Math.round(rect.left + (rect.width / 2));
-          const startY = Math.round(rect.top + 15);
+          const startY = Math.round(rect.top - 10);
 
           // Remove any active bubble for this token
           const existing = document.querySelector(`.player-token-reaction-bubble[data-owner="${cleanTarget}"]`);
@@ -1920,7 +1920,7 @@
           const bubble = document.createElement('div');
           bubble.className = 'player-token-reaction-bubble';
           bubble.setAttribute('data-owner', cleanTarget);
-          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 84px; height: 84px; max-width: 84px; max-height: 84px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)); animation: stickerPopAbove 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;`;
+          bubble.style.cssText = `position: fixed; left: ${centerX}px; top: ${startY}px; width: 68px; height: 68px; max-width: 68px; max-height: 68px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.65)); animation: stickerPopAbove 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;`;
           bubble.innerHTML = svgMarkup;
           document.body.appendChild(bubble);
 
@@ -1933,7 +1933,7 @@
     if (!found) {
       const floater = document.createElement('div');
       floater.className = 'arena-floating-emote';
-      floater.style.cssText = `position: fixed; bottom: 90px; right: ${Math.floor(50 + Math.random() * 260)}px; width: 84px; height: 84px; max-width: 84px; max-height: 84px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: floatReactionAesthetic 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;`;
+      floater.style.cssText = `position: fixed; bottom: 80px; right: ${Math.floor(40 + Math.random() * 220)}px; width: 68px; height: 68px; max-width: 68px; max-height: 68px; overflow: hidden; pointer-events: none; z-index: 999999; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.6)); animation: floatReactionAesthetic 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;`;
       floater.innerHTML = svgMarkup;
       document.body.appendChild(floater);
       setTimeout(() => floater.remove(), 2500);

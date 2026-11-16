@@ -1692,12 +1692,12 @@
     const emotes = window.CharacterEmoteEngine 
       ? window.CharacterEmoteEngine.getEmotesForAvatar(avEmoji, avColor)
       : [
-          { id: 'happy', label: '¡Feliz!', svg: '<span style="font-size:2rem;">🦊</span>' },
-          { id: 'laugh', label: '¡Risa!', svg: '<span style="font-size:2rem;">😂</span>' },
-          { id: 'shock', label: '¡OMG!', svg: '<span style="font-size:2rem;">😱</span>' },
-          { id: 'fire', label: '¡Fuego!', svg: '<span style="font-size:2rem;">🔥</span>' },
-          { id: 'sus', label: '¡Ojo!', svg: '<span style="font-size:2rem;">👀</span>' },
-          { id: 'dead', label: '¡KO!', svg: '<span style="font-size:2rem;">💀</span>' }
+          { id: 'happy', label: '¡Feliz!', svg: '<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="#ffd600"/><path d="M 32 60 Q 50 78 68 60 Z" fill="#e11d48"/><circle cx="36" cy="42" r="6" fill="#0f172a"/><circle cx="64" cy="42" r="6" fill="#0f172a"/></svg>' },
+          { id: 'laugh', label: '¡Risa!', svg: '<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="#ffd600"/><path d="M 28 56 Q 50 82 72 56 Z" fill="#e11d48"/><path d="M 30 42 Q 38 34 46 42" stroke="#0f172a" stroke-width="5" fill="none"/><path d="M 54 42 Q 62 34 70 42" stroke="#0f172a" stroke-width="5" fill="none"/></svg>' },
+          { id: 'shock', label: '¡OMG!', svg: '<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="#38bdf8"/><circle cx="36" cy="42" r="8" fill="#fff" stroke="#0f172a" stroke-width="3"/><circle cx="64" cy="42" r="8" fill="#fff" stroke="#0f172a" stroke-width="3"/><ellipse cx="50" cy="68" rx="8" ry="14" fill="#0f172a"/></svg>' },
+          { id: 'fire', label: '¡Fuego!', svg: '<svg viewBox="0 0 100 100" width="100%" height="100%"><path d="M 50 15 Q 65 35 60 52 Q 78 48 72 70 Q 68 88 50 88 Q 30 88 28 70 Q 25 50 42 45 Q 38 30 50 15 Z" fill="#ff2a85"/></svg>' },
+          { id: 'sus', label: '¡Ojo!', svg: '<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="#a855f7"/><circle cx="36" cy="48" r="9" fill="#fff"/><circle cx="38" cy="48" r="4" fill="#0f172a"/><circle cx="64" cy="48" r="9" fill="#fff"/><circle cx="66" cy="48" r="4" fill="#0f172a"/></svg>' },
+          { id: 'dead', label: '¡KO!', svg: '<svg viewBox="0 0 100 100" width="100%" height="100%"><circle cx="50" cy="50" r="40" fill="#64748b"/><line x1="30" y1="36" x2="42" y2="48" stroke="#0f172a" stroke-width="5"/><line x1="42" y1="36" x2="30" y2="48" stroke="#0f172a" stroke-width="5"/><line x1="58" y1="36" x2="70" y2="48" stroke="#0f172a" stroke-width="5"/><line x1="70" y1="36" x2="58" y2="48" stroke="#0f172a" stroke-width="5"/><ellipse cx="50" cy="66" rx="6" ry="10" fill="#0f172a"/></svg>' }
         ];
 
     playerReactionsBar.innerHTML = `
@@ -1715,10 +1715,10 @@
       btn.className = 'btn-custom-emote-sticker';
       btn.setAttribute('data-emote-id', r.id);
       btn.setAttribute('title', r.label);
-      btn.style.cssText = 'width: 44px; height: 46px; min-width: 44px; min-height: 46px; max-width: 44px; max-height: 46px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 1px; box-sizing: border-box; flex-shrink: 0;';
+      btn.style.cssText = 'width: 34px; height: 35px; min-width: 34px; min-height: 35px; max-width: 34px; max-height: 35px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1px; box-sizing: border-box; flex-shrink: 0;';
       btn.innerHTML = `
-        <div class="sticker-icon" style="width: 26px; height: 26px; max-width: 26px; max-height: 26px; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none;">${r.svg}</div>
-        <span class="sticker-label" style="font-size: 0.58rem; font-weight: 800; color: #ffffff; line-height: 1; text-align: center; text-transform: uppercase; white-space: nowrap; pointer-events: none;">${shortLabels[r.id] || r.label}</span>
+        <div class="sticker-icon" style="width: 20px; height: 20px; max-width: 20px; max-height: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; pointer-events: none;">${r.svg}</div>
+        <span class="sticker-label" style="font-size: 0.48rem; font-weight: 800; color: #ffffff; line-height: 1; text-align: center; text-transform: uppercase; white-space: nowrap; pointer-events: none;">${shortLabels[r.id] || r.label}</span>
       `;
 
       btn.addEventListener('click', (e) => {
@@ -1747,7 +1747,7 @@
     if (!svgMarkup) return;
     const floater = document.createElement('div');
     floater.className = 'mobile-local-sticker-particle';
-    floater.style.cssText = 'position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; max-width: 56px; max-height: 56px; overflow: hidden; pointer-events: none; z-index: 999999; animation: mobileStickerFloatUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
+    floater.style.cssText = 'position: fixed; bottom: 60px; right: 14px; width: 48px; height: 48px; max-width: 48px; max-height: 48px; overflow: hidden; pointer-events: none; z-index: 999999; animation: mobileStickerFloatUp 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));';
     floater.innerHTML = svgMarkup;
     document.body.appendChild(floater);
     setTimeout(() => floater.remove(), 1100);

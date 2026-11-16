@@ -8,9 +8,9 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Install dependencies with production flag to keep image compact
+# Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Copy application server and public assets (used for local QR generation and healthchecks)
 COPY server ./server

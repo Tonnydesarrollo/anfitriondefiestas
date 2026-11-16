@@ -1529,96 +1529,189 @@
   }
 
   // =========================================================================
-  // LIVE FLOATING AVATAR REACTIONS (Jackbox-Style)
+  // CHARACTER EMOTICONS PACKS (Emoticones Propios de Cada Personaje)
   // =========================================================================
+  const CHARACTER_EMOTE_PACKS = {
+    // Fantasma / Ghost 👻
+    '👻': [
+      { emoji: '👻', label: '¡Buuuh!' },
+      { emoji: '😱', label: '¡Terror!' },
+      { emoji: '😈', label: '¡Maldad!' },
+      { emoji: '💀', label: '¡Fallecí!' },
+      { emoji: '🎃', label: '¡Halloween!' },
+      { emoji: '✨', label: '¡Aparición!' }
+    ],
+    // Zorro / Fox 🦊
+    '🦊': [
+      { emoji: '🦊', label: '¡Astuto!' },
+      { emoji: '🐺', label: '¡Aullido!' },
+      { emoji: '🐾', label: '¡Rastreo!' },
+      { emoji: '🍗', label: '¡Presa!' },
+      { emoji: '🎯', label: '¡Diana!' },
+      { emoji: '🌟', label: '¡Genio!' }
+    ],
+    // Pulpo / Octopus 🐙
+    '🐙': [
+      { emoji: '🐙', label: '¡Fiesta!' },
+      { emoji: '🦑', label: '¡Calamar!' },
+      { emoji: '🌊', label: '¡Ola!' },
+      { emoji: '🫧', label: '¡Burbujas!' },
+      { emoji: '🪼', label: '¡Medusa!' },
+      { emoji: '🦀', label: '¡Cangrejo!' }
+    ],
+    // Llama 🦙
+    '🦙': [
+      { emoji: '🦙', label: '¡Dramática!' },
+      { emoji: '🐫', label: '¡Camello!' },
+      { emoji: '🌵', label: '¡Cactus!' },
+      { emoji: '🪅', label: '¡Piñata!' },
+      { emoji: '💅', label: '¡Diva!' },
+      { emoji: '🌾', label: '¡Tranqui!' }
+    ],
+    // Dino 🦖
+    '🦖': [
+      { emoji: '🦖', label: '¡Rugido!' },
+      { emoji: '🦕', label: '¡Dino paz!' },
+      { emoji: '🌋', label: '¡Erupción!' },
+      { emoji: '🥩', label: '¡Carne!' },
+      { emoji: '🦴', label: '¡Hueso!' },
+      { emoji: '🥚', label: '¡Huevo!' }
+    ],
+    // Unicornio 🦄
+    '🦄': [
+      { emoji: '🦄', label: '¡Magia!' },
+      { emoji: '🌈', label: '¡Arcoíris!' },
+      { emoji: '⭐', label: '¡Estrella!' },
+      { emoji: '🪄', label: '¡Hechizo!' },
+      { emoji: '💖', label: '¡Amor!' },
+      { emoji: '🎠', label: '¡Fantasía!' }
+    ],
+    // Panda 🐼
+    '🐼': [
+      { emoji: '🐼', label: '¡Panda!' },
+      { emoji: '🎋', label: '¡Bambú!' },
+      { emoji: '🥋', label: '¡Kung Fu!' },
+      { emoji: '🥱', label: '¡Sueño!' },
+      { emoji: '🌿', label: '¡Zen!' },
+      { emoji: '🐾', label: '¡Huella!' }
+    ],
+    // León 🦁
+    '🦁': [
+      { emoji: '🦁', label: '¡Rey!' },
+      { emoji: '👑', label: '¡Corona!' },
+      { emoji: '🍖', label: '¡Banquete!' },
+      { emoji: '☀️', label: '¡Sol!' },
+      { emoji: '🕶️', label: '¡Con estilo!' },
+      { emoji: '🌴', label: '¡Selva!' }
+    ],
+    // Rana 🐸
+    '🐸': [
+      { emoji: '🐸', label: '¡Croac!' },
+      { emoji: '👑', label: '¡Príncipe!' },
+      { emoji: '🪰', label: '¡Mosca!' },
+      { emoji: '☕', label: '¡Té!' },
+      { emoji: '🍄', label: '¡Hongo!' },
+      { emoji: '🪷', label: '¡Loto!' }
+    ],
+    // Búho 🦉
+    '🦉': [
+      { emoji: '🦉', label: '¡Búho!' },
+      { emoji: '🌙', label: '¡Luna!' },
+      { emoji: '👓', label: '¡Intelectual!' },
+      { emoji: '📚', label: '¡Sabiduría!' },
+      { emoji: '🕯️', label: '¡Vela!' },
+      { emoji: '🌲', label: '¡Bosque!' }
+    ],
+    // Tiburón 🦈
+    '🦈': [
+      { emoji: '🦈', label: '¡Tiburón!' },
+      { emoji: '🤿', label: '¡Buceo!' },
+      { emoji: '⚓', label: '¡Ancla!' },
+      { emoji: '⚡', label: '¡Mordida!' },
+      { emoji: '🏝️', label: '¡Isla!' },
+      { emoji: '🏄', label: '¡Surf!' }
+    ],
+    // Koala 🐨
+    '🐨': [
+      { emoji: '🐨', label: '¡Koala!' },
+      { emoji: '🍃', label: '¡Eucalipto!' },
+      { emoji: '😴', label: '¡Siesta!' },
+      { emoji: '🌳', label: '¡Árbol!' },
+      { emoji: '☕', label: '¡Relax!' },
+      { emoji: '🐾', label: '¡Abrazo!' }
+    ],
+    // Mono 🐵
+    '🐵': [
+      { emoji: '🐵', label: '¡Mono!' },
+      { emoji: '🙈', label: '¡No veo!' },
+      { emoji: '🙉', label: '¡No oigo!' },
+      { emoji: '🙊', label: '¡No hablo!' },
+      { emoji: '🐒', label: '¡Travesura!' },
+      { emoji: '🍌', label: '¡Banana!' }
+    ],
+    // Pingüino 🐧
+    '🐧': [
+      { emoji: '🐧', label: '¡Pingüino!' },
+      { emoji: '🎩', label: '¡Gala!' },
+      { emoji: '🧊', label: '¡Hielo!' },
+      { emoji: '🐟', label: '¡Pez!' },
+      { emoji: '❄️', label: '¡Nieve!' },
+      { emoji: '⛷️', label: '¡Deslizar!' }
+    ],
+    // Tigre 🐯
+    '🐯': [
+      { emoji: '🐯', label: '¡Tigre!' },
+      { emoji: '😼', label: '¡Pícaro!' },
+      { emoji: '🐾', label: '¡Garra!' },
+      { emoji: '🔥', label: '¡Furia!' },
+      { emoji: '⚡', label: '¡Veloz!' },
+      { emoji: '🏆', label: '¡Campeón!' }
+    ]
+  };
+
   function setupPlayerAvatarReactions(avatar, playerName) {
     if (!playerReactionsBar) return;
     const avEmoji = avatar?.emoji || '👤';
-    const avColor = avatar?.color || '#00f0ff';
 
-    // 6 Avatar-centered reaction expressions
-    const reactions = [
-      {
-        id: 'me',
-        iconHtml: `<span class="reaction-avatar-icon">${avEmoji}</span>`,
-        emoji: avEmoji,
-        combo: `${avEmoji}`,
-        label: playerName || '¡Yo!'
-      },
-      {
-        id: 'fire',
-        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>🔥</span>`,
-        emoji: '🔥',
-        combo: `${avEmoji} 🔥`,
-        label: '¡Fuego!'
-      },
-      {
-        id: 'laugh',
-        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>😂</span>`,
-        emoji: '😂',
-        combo: `${avEmoji} 😂`,
-        label: '¡Jajaja!'
-      },
-      {
-        id: 'party',
-        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>🎉</span>`,
-        emoji: '🎉',
-        combo: `${avEmoji} 🎉`,
-        label: '¡Fiesta!'
-      },
-      {
-        id: 'eyes',
-        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>👀</span>`,
-        emoji: '👀',
-        combo: `${avEmoji} 👀`,
-        label: '¡Ojo!'
-      },
-      {
-        id: 'skull',
-        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>💀</span>`,
-        emoji: '💀',
-        combo: `${avEmoji} 💀`,
-        label: '¡RIP!'
-      }
+    // Retrieve dedicated character pack, or smart fallback based on the character
+    const pack = CHARACTER_EMOTE_PACKS[avEmoji] || [
+      { emoji: avEmoji, label: playerName || '¡Personaje!' },
+      { emoji: '🔥', label: '¡Fuego!' },
+      { emoji: '😂', label: '¡Risas!' },
+      { emoji: '🎉', label: '¡Fiesta!' },
+      { emoji: '👀', label: '¡Ojo!' },
+      { emoji: '💀', label: '¡Fallecí!' }
     ];
 
     playerReactionsBar.innerHTML = '';
-    reactions.forEach(r => {
+    pack.forEach(r => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'btn-reaction-avatar';
-      if (r.id === 'me') {
-        btn.style.borderColor = avColor;
-        btn.style.boxShadow = `0 0 10px ${avColor}44`;
-      }
+      btn.className = 'btn-reaction';
       btn.setAttribute('data-emoji', r.emoji);
-      btn.setAttribute('data-combo', r.combo);
       btn.setAttribute('title', r.label);
-      btn.innerHTML = r.iconHtml;
+      btn.textContent = r.emoji;
 
       btn.addEventListener('click', () => {
-        triggerHaptic(35);
+        triggerHaptic(30);
         btn.classList.add('pop');
         setTimeout(() => btn.classList.remove('pop'), 200);
 
-        // Immediate tactile/visual particle on player screen
-        showLocalReactionParticle(r.emoji, r.combo);
+        // Immediate particle effect on player screen
+        showLocalReactionParticle(r.emoji);
 
         // Emit to Host TV
-        socket.emit('player:react', {
-          emoji: r.emoji,
-          comboEmoji: r.combo
-        });
+        socket.emit('player:react', { emoji: r.emoji });
       });
 
       playerReactionsBar.appendChild(btn);
     });
   }
 
-  function showLocalReactionParticle(emoji, combo) {
+  function showLocalReactionParticle(emoji) {
     const floater = document.createElement('div');
     floater.className = 'mobile-local-particle';
-    floater.textContent = combo || emoji;
+    floater.textContent = emoji;
     document.body.appendChild(floater);
     setTimeout(() => floater.remove(), 1100);
   }

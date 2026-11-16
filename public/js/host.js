@@ -626,6 +626,7 @@
         players.forEach(p => {
           const token = document.createElement('div');
           token.className = 'player-token';
+          token.setAttribute('data-player-name', p.name);
           token.innerHTML = `
             <div class="player-token-avatar" style="background: ${p.avatar?.color || '#3b82f6'};">
               ${p.avatar?.emoji || '👤'}
@@ -1788,43 +1789,52 @@
   }
 
   // =========================================================================
-  // PLAYER LIVE REACTIONS (Jackbox-Style Floating Avatar Reactions from Mobile)
+  // PLAYER LIVE REACTIONS (Aesthetic Floating & Direct Token Popups)
   // =========================================================================
-  socket.on('host:player_reaction', ({ playerName, avatar, emoji, comboEmoji }) => {
+  socket.on('host:player_reaction', ({ playerName, avatar, emoji }) => {
     SoundFX.playPop();
-    if (!reactionsOverlay) return;
+    const cleanEmoji = emoji || '🔥';
 
-    const reactionEl = document.createElement('div');
-    reactionEl.className = 'floating-player-reaction';
+    // 1. Popup reaction directly overlaid on top of the player's card
+    triggerPlayerTokenReaction(playerName, cleanEmoji);
 
-    const avatarEmoji = avatar?.emoji || '👤';
-    const avatarColor = avatar?.color || '#00f0ff';
-    const displayEmoji = emoji || '🔥';
+    // 2. Aesthetic floating reaction overlaid over the players card
+    if (reactionsOverlay) {
+      const reactionEl = document.createElement('div');
+      reactionEl.className = 'floating-reaction';
+      reactionEl.textContent = cleanEmoji;
+      reactionEl.style.left = `${Math.floor(Math.random() * 180)}px`;
+      reactionsOverlay.appendChild(reactionEl);
 
-    // Spread randomly across 8% to 82% of screen width
-    const randomLeft = Math.floor(8 + Math.random() * 74);
-    reactionEl.style.left = `${randomLeft}%`;
-
-    reactionEl.innerHTML = `
-      <div class="reaction-bubble-wrap" style="--player-color: ${avatarColor};">
-        <div class="reaction-avatar-badge" style="background: ${avatarColor};">
-          ${avatarEmoji}
-        </div>
-        <div class="reaction-emoji-display">
-          ${displayEmoji}
-        </div>
-        <div class="reaction-name-tag">
-          ${escapeHtml(playerName || 'Jugador')}
-        </div>
-      </div>
-    `;
-
-    reactionsOverlay.appendChild(reactionEl);
-
-    setTimeout(() => {
-      reactionEl.remove();
-    }, 3400);
+      setTimeout(() => {
+        reactionEl.remove();
+      }, 2800);
+    }
   });
+
+  function triggerPlayerTokenReaction(playerName, emoji) {
+    if (!playerName) return;
+    const tokens = document.querySelectorAll('.player-token');
+    tokens.forEach(t => {
+      const name = t.getAttribute('data-player-name') || t.querySelector('.player-token-name')?.textContent?.trim();
+      if (name === playerName) {
+        // Bounce the avatar
+        const av = t.querySelector('.player-token-avatar');
+        if (av) {
+          av.classList.remove('avatar-bounce');
+          void av.offsetWidth;
+          av.classList.add('avatar-bounce');
+        }
+
+        // Overlay the emoticon directly on the player token
+        const popup = document.createElement('div');
+        popup.className = 'player-token-reaction-popup';
+        popup.textContent = emoji;
+        t.appendChild(popup);
+        setTimeout(() => popup.remove(), 1600);
+      }
+    });
+  }
 
   // =========================================================================
   // USER ACTIONS / BUTTON EVENTS

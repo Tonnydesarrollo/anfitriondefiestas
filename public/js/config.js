@@ -21,12 +21,17 @@
     }
   }
 
-  // Retrieve stored backend or fallback to current origin
+  // Retrieve stored backend or fallback to deployed Docker backend / current origin
   const storedBackend = localStorage.getItem('party_backend_url');
   
   let targetBackend = storedBackend;
-  if (!targetBackend && !window.location.hostname.includes('vercel.app')) {
-    targetBackend = window.location.origin;
+  if (!targetBackend) {
+    if (window.location.hostname.includes('vercel.app')) {
+      // Default to our live dockerized backend on 100.100.148.80
+      targetBackend = 'https://outlets-settings-packard-secretariat.trycloudflare.com';
+    } else {
+      targetBackend = window.location.origin;
+    }
   }
 
   window.PARTY_BACKEND_URL = targetBackend || '';

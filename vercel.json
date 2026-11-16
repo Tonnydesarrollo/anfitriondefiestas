@@ -1,13 +1,11 @@
 {
   "version": 2,
-  "public": true,
+  "outputDirectory": "public",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "destination": "/public/index.html" },
-    { "source": "/host", "destination": "/public/host.html" },
-    { "source": "/play", "destination": "/public/play.html" },
-    { "source": "/demo", "destination": "/public/demo.html" },
-    { "source": "/(.*)", "destination": "/public/$1" }
+    { "source": "/host", "destination": "/host.html" },
+    { "source": "/play", "destination": "/play.html" },
+    { "source": "/demo", "destination": "/demo.html" }
   ],
   "headers": [
     {

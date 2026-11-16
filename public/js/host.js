@@ -616,8 +616,10 @@
       lobbyPlayersGrid.innerHTML = '';
       if (players.length === 0) {
         lobbyPlayersGrid.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0; font-size: 1.25rem;">
-            Esperando a que los jugadores escaneen el código QR... 📱
+          <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); padding: 26px 12px; gap: 8px;">
+            <span style="font-size: 2.2rem;">📱</span>
+            <span style="font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: #fff;">Esperando jugadores...</span>
+            <span style="font-size: 0.9rem; color: var(--text-dim);">Escanea el código QR desde tu celular o usa "+ 3 Bots"</span>
           </div>
         `;
       } else {
@@ -628,11 +630,11 @@
             <div class="player-token-avatar" style="background: ${p.avatar?.color || '#3b82f6'};">
               ${p.avatar?.emoji || '👤'}
             </div>
-            <div class="player-token-name" title="${p.name}">
+            <div class="player-token-name" title="${escapeHtml(p.name)}">
               ${escapeHtml(p.name)}
             </div>
-            <div style="font-size: 0.85rem; color: var(--neon-cyan); margin-top: 4px; font-weight: 600;">
-              ¡Listo para jugar!
+            <div class="player-token-status">
+              ¡LISTO! 🎮
             </div>
           `;
           lobbyPlayersGrid.appendChild(token);

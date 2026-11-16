@@ -43,11 +43,20 @@
 3. **Mando Móvil Táctil (Arcade First)**:
    - Botones gigantes `.mobile-arcade-btn` y `.mobile-suspect-btn` con compresión física `active: translateY(5px)` y borde negro marcado, diseñados para interacción con pulgar.
 
-## Estado del Servidor y Verificación
-- **Servidor Activo**: `npm start` (PID daemon activo) en puerto 3000 (`http://localhost:3000` / `http://100.70.121.47:3000`).
+## Estado del Servidor y Despliegue Híbrido (Docker + Vercel)
+- **Backend Dockerizado (100.100.148.80)**:
+  - Servidor: `palomares@100.100.148.80`
+  - Contenedor: `anfitrion-party-backend` (puerto 3000)
+  - URL local: `http://100.100.148.80:3000`
+  - URL pública con SSL: `https://outlets-settings-packard-secretariat.trycloudflare.com` (Healthcheck: `status: ok`)
+- **Repositorio GitHub**:
+  - `https://github.com/Tonnydesarrollo/anfitriondefiestas` (rama `master` al día)
+- **Frontend Vercel**:
+  - `vercel` CLI v65.16.0 instalado globalmente.
+  - `vercel.json` configurado para rewrites limpios (`/host`, `/play`, `/demo`).
+  - `public/js/config.js` apunta por defecto al backend dockerizado con SSL.
 - **Tests Automatizados**:
-  - `node tests/test-all-5-games.js`: 100% PASS (5 juegos verificados con salida de código 0).
-  - Test de inicio individual con auto-bots: 100% PASS (`{ success: true }`).
+  - `node tests/test-all-7-games.js`: 100% PASS (7 juegos verificados con salida de código 0).
 
 ## Calibración Dinámica de Rondas (Eliminación de Botones Manuales)
 - **Motivo**: En un party game estilo Jackbox, el anfitrión no debe adivinar ni configurar manualmente las rondas; el sistema debe auto-calibrarlas según la cantidad de jugadores y la dinámica de cada juego para evitar tiempos muertos y garantizar un ritmo óptimo.

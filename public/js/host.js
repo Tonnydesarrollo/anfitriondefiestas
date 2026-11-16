@@ -1788,19 +1788,42 @@
   }
 
   // =========================================================================
-  // PLAYER LIVE REACTIONS (Floating emojis from phone)
+  // PLAYER LIVE REACTIONS (Jackbox-Style Floating Avatar Reactions from Mobile)
   // =========================================================================
-  socket.on('host:player_reaction', ({ playerName, emoji }) => {
+  socket.on('host:player_reaction', ({ playerName, avatar, emoji, comboEmoji }) => {
     SoundFX.playPop();
+    if (!reactionsOverlay) return;
+
     const reactionEl = document.createElement('div');
-    reactionEl.className = 'floating-reaction';
-    reactionEl.textContent = emoji || '🔥';
-    reactionEl.style.left = `${Math.floor(Math.random() * 120)}px`;
+    reactionEl.className = 'floating-player-reaction';
+
+    const avatarEmoji = avatar?.emoji || '👤';
+    const avatarColor = avatar?.color || '#00f0ff';
+    const displayEmoji = emoji || '🔥';
+
+    // Spread randomly across 8% to 82% of screen width
+    const randomLeft = Math.floor(8 + Math.random() * 74);
+    reactionEl.style.left = `${randomLeft}%`;
+
+    reactionEl.innerHTML = `
+      <div class="reaction-bubble-wrap" style="--player-color: ${avatarColor};">
+        <div class="reaction-avatar-badge" style="background: ${avatarColor};">
+          ${avatarEmoji}
+        </div>
+        <div class="reaction-emoji-display">
+          ${displayEmoji}
+        </div>
+        <div class="reaction-name-tag">
+          ${escapeHtml(playerName || 'Jugador')}
+        </div>
+      </div>
+    `;
+
     reactionsOverlay.appendChild(reactionEl);
 
     setTimeout(() => {
       reactionEl.remove();
-    }, 3000);
+    }, 3400);
   });
 
   // =========================================================================

@@ -664,9 +664,9 @@ io.on('connection', (socket) => {
   });
 
   /**
-   * Player sends a reaction emoji to pop up on the Host screen.
+   * Player sends an avatar-based reaction emoji to pop up on the Host screen.
    */
-  socket.on('player:react', ({ emoji }) => {
+  socket.on('player:react', ({ emoji, comboEmoji }) => {
     const session = roomManager.getSession(socket.id);
     if (!session || session.isHost) return;
 
@@ -674,11 +674,12 @@ io.on('connection', (socket) => {
     if (!room || !room.hostSocketId) return;
 
     const player = room.players.get(socket.id);
-    if (player && emoji) {
+    if (player && (emoji || comboEmoji)) {
       io.to(room.hostSocketId).emit('host:player_reaction', {
         playerName: player.name,
         avatar: player.avatar,
-        emoji: String(emoji).slice(0, 4)
+        emoji: String(emoji || '🔥').slice(0, 16),
+        comboEmoji: comboEmoji ? String(comboEmoji).slice(0, 24) : undefined
       });
     }
   });

@@ -403,7 +403,10 @@
 
     if (playerProfileBadge) playerProfileBadge.style.display = 'flex';
     if (playerScoreDisplay) playerScoreDisplay.style.display = 'block';
-    if (playerReactionsBar) playerReactionsBar.style.display = 'flex';
+    if (playerReactionsBar) {
+      playerReactionsBar.style.display = 'flex';
+      setupPlayerAvatarReactions(myPlayer.avatar, myPlayer.name);
+    }
 
     if (waitAvatarIcon) waitAvatarIcon.textContent = myPlayer.avatar?.emoji || '🦊';
     if (waitPlayerGreeting) waitPlayerGreeting.textContent = `¡Estás dentro, ${myPlayer.name}!`;
@@ -1526,12 +1529,106 @@
   }
 
   // =========================================================================
-  // LIVE FLOATING REACTIONS
+  // LIVE FLOATING AVATAR REACTIONS (Jackbox-Style)
   // =========================================================================
+  function setupPlayerAvatarReactions(avatar, playerName) {
+    if (!playerReactionsBar) return;
+    const avEmoji = avatar?.emoji || '👤';
+    const avColor = avatar?.color || '#00f0ff';
+
+    // 6 Avatar-centered reaction expressions
+    const reactions = [
+      {
+        id: 'me',
+        iconHtml: `<span class="reaction-avatar-icon">${avEmoji}</span>`,
+        emoji: avEmoji,
+        combo: `${avEmoji}`,
+        label: playerName || '¡Yo!'
+      },
+      {
+        id: 'fire',
+        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>🔥</span>`,
+        emoji: '🔥',
+        combo: `${avEmoji} 🔥`,
+        label: '¡Fuego!'
+      },
+      {
+        id: 'laugh',
+        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>😂</span>`,
+        emoji: '😂',
+        combo: `${avEmoji} 😂`,
+        label: '¡Jajaja!'
+      },
+      {
+        id: 'party',
+        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>🎉</span>`,
+        emoji: '🎉',
+        combo: `${avEmoji} 🎉`,
+        label: '¡Fiesta!'
+      },
+      {
+        id: 'eyes',
+        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>👀</span>`,
+        emoji: '👀',
+        combo: `${avEmoji} 👀`,
+        label: '¡Ojo!'
+      },
+      {
+        id: 'skull',
+        iconHtml: `<span class="reaction-combo"><span class="reaction-mini-avatar">${avEmoji}</span>💀</span>`,
+        emoji: '💀',
+        combo: `${avEmoji} 💀`,
+        label: '¡RIP!'
+      }
+    ];
+
+    playerReactionsBar.innerHTML = '';
+    reactions.forEach(r => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-reaction-avatar';
+      if (r.id === 'me') {
+        btn.style.borderColor = avColor;
+        btn.style.boxShadow = `0 0 10px ${avColor}44`;
+      }
+      btn.setAttribute('data-emoji', r.emoji);
+      btn.setAttribute('data-combo', r.combo);
+      btn.setAttribute('title', r.label);
+      btn.innerHTML = r.iconHtml;
+
+      btn.addEventListener('click', () => {
+        triggerHaptic(35);
+        btn.classList.add('pop');
+        setTimeout(() => btn.classList.remove('pop'), 200);
+
+        // Immediate tactile/visual particle on player screen
+        showLocalReactionParticle(r.emoji, r.combo);
+
+        // Emit to Host TV
+        socket.emit('player:react', {
+          emoji: r.emoji,
+          comboEmoji: r.combo
+        });
+      });
+
+      playerReactionsBar.appendChild(btn);
+    });
+  }
+
+  function showLocalReactionParticle(emoji, combo) {
+    const floater = document.createElement('div');
+    floater.className = 'mobile-local-particle';
+    floater.textContent = combo || emoji;
+    document.body.appendChild(floater);
+    setTimeout(() => floater.remove(), 1100);
+  }
+
+  // Fallback initial listener for any static reaction buttons
   document.querySelectorAll('.btn-reaction').forEach(btn => {
     btn.addEventListener('click', () => {
       triggerHaptic(30);
       const emoji = btn.getAttribute('data-emoji') || '🔥';
+      showLocalReactionParticle(emoji);
       socket.emit('player:react', { emoji });
     });
   });

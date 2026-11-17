@@ -10,7 +10,7 @@
  */
 
 import { judgeDuel } from '../aiHost.js';
-import { calculateDynamicRounds } from '../rules/gameRulesConfig.js';
+import { calculateDynamicRounds, getTutorial } from '../rules/gameRulesConfig.js';
 
 // Pre-defined bank of witty, funny trivia questions categorized by audience
 export const TRIVIA_DATABASE = [
@@ -116,7 +116,7 @@ export class TriviaCaoticaGame {
     this.totalRounds = customRounds || dynamicPacing.rounds;
 
     this.currentRound = 1;
-    this.phase = 'INTRO'; // INTRO | QUESTION | REVEAL | RESULTS | PODIUM
+    this.phase = 'HOW_TO_PLAY'; // HOW_TO_PLAY | INTRO | QUESTION | REVEAL | RESULTS | PODIUM
     this.timer = 0;
     this.timerInterval = null;
 
@@ -142,7 +142,19 @@ export class TriviaCaoticaGame {
       p.lastRoundGain = 0;
     }
 
-    this.startRound();
+    this.startHowToPlayPhase();
+  }
+
+  startHowToPlayPhase() {
+    this.clearCountdown();
+    this.phase = 'HOW_TO_PLAY';
+    const tut = getTutorial('trivia-caotica');
+    this.timer = tut ? tut.durationSeconds : 12;
+    this.notifyStateChange();
+
+    this.startCountdown(this.timer, () => {
+      this.startRound();
+    });
   }
 
   startRound() {
@@ -356,7 +368,9 @@ export class TriviaCaoticaGame {
   skipTimer() {
     if (this.timerInterval) {
       this.clearCountdown();
-      if (this.phase === 'INTRO') {
+      if (this.phase === 'HOW_TO_PLAY') {
+        this.startRound();
+      } else if (this.phase === 'INTRO') {
         this.startQuestionPhase();
       } else if (this.phase === 'QUESTION') {
         this.finishQuestionPhase();
@@ -441,6 +455,7 @@ export class TriviaCaoticaGame {
       gameId: this.id,
       gameTitle: this.title,
       phase: this.phase,
+      tutorial: this.phase === 'HOW_TO_PLAY' ? getTutorial('trivia-caotica') : null,
       currentRound: this.currentRound,
       totalRounds: this.totalRounds,
       isDoublePoints: (this.currentRound === this.totalRounds),
@@ -473,6 +488,7 @@ export class TriviaCaoticaGame {
       gameId: this.id,
       gameTitle: this.title,
       phase: this.phase,
+      tutorial: this.phase === 'HOW_TO_PLAY' ? getTutorial('trivia-caotica') : null,
       currentRound: this.currentRound,
       totalRounds: this.totalRounds,
       isDoublePoints: (this.currentRound === this.totalRounds),

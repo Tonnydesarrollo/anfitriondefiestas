@@ -1,0 +1,192 @@
+/* Jackbox Party Pack Inspired Tactile Design Tokens */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=JetBrains+Mono:wght@700;800&family=Nunito:wght@600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap');
+
+:root {
+  /* Fonts */
+  --font-display: 'Fredoka', 'Space Grotesk', system-ui, sans-serif;
+  --font-title: 'Space Grotesk', 'Fredoka', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Tactile Ink & Paper Palette */
+  --jb-ink: #12101d;
+  --jb-ink-soft: #25203b;
+  --jb-cream: #fffdf7;
+  --jb-paper: #f6efe2;
+  --jb-paper-dark: #e6dac4;
+
+  /* Broadcast Stage & @connect Palette */
+  --jb-stage-bg: #181326;
+  --jb-stage-felt: #211a36;
+  --jb-connect-bg: #1e232c;
+  --jb-connect-card: #12151b;
+  --jb-connect-accent: #4254f4;
+
+  /* Candy Pop Accents */
+  --jb-gold: #ffd60a;
+  --jb-orange: #ff7b1c;
+  --jb-crimson: #e63946;
+  --jb-mint: #06d6a0;
+  --jb-cyan: #00d4ff;
+  --jb-violet: #8b5cf6;
+  --jb-magenta: #ff2e93;
+
+  /* Active Game Theme Defaults (swapped per game on stage/phone body) */
+  --theme-accent: #ff7b1c;
+  --theme-accent-alt: #00b4d8;
+
+  /* Tactile Borders & Hard Cartoon Drop Shadows */
+  --jb-border: 3.5px solid var(--jb-ink);
+  --jb-border-thin: 2.5px solid var(--jb-ink);
+  --jb-shadow-hard: 0 6px 0 var(--jb-ink);
+  --jb-shadow-press: 0 2px 0 var(--jb-ink);
+  --jb-shadow-card: 0 10px 0 var(--jb-ink), 0 18px 34px rgba(10, 8, 22, 0.44);
+
+  /* Motion Timing Curves (Kowalski / Jackbox snappy craft) */
+  --jb-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --jb-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-body);
+  color: var(--jb-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+/* Tactile Cartoon Panel */
+.jb-card {
+  background: var(--jb-cream);
+  color: var(--jb-ink);
+  border: var(--jb-border);
+  border-radius: 22px;
+  box-shadow: var(--jb-shadow-card);
+}
+
+.jb-card-dark {
+  background: rgba(18, 16, 29, 0.92);
+  color: var(--jb-cream);
+  border: var(--jb-border);
+  border-radius: 22px;
+  box-shadow: var(--jb-shadow-card);
+}
+
+/* Tactile Pressable Button */
+.jb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: var(--jb-border);
+  border-radius: 16px;
+  box-shadow: var(--jb-shadow-hard);
+  cursor: pointer;
+  transition: transform 0.14s var(--jb-ease-out), box-shadow 0.14s var(--jb-ease-out), background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.jb-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.jb-btn:active:not(:disabled) {
+  transform: translateY(4px) scale(0.985);
+  box-shadow: var(--jb-shadow-press);
+}
+
+.jb-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.jb-btn-primary {
+  background: var(--jb-gold);
+  color: var(--jb-ink);
+}
+
+.jb-btn-blue {
+  background: var(--jb-connect-accent);
+  color: #ffffff;
+}
+
+.jb-btn-mint {
+  background: var(--jb-mint);
+  color: var(--jb-ink);
+}
+
+.jb-btn-crimson {
+  background: var(--jb-crimson);
+  color: #ffffff;
+}
+
+.jb-btn-paper {
+  background: var(--jb-cream);
+  color: var(--jb-ink);
+}
+
+/* Badges & Pills */
+.jb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: var(--jb-border-thin);
+  background: var(--jb-cream);
+  color: var(--jb-ink);
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.78rem;
+  box-shadow: 0 3px 0 var(--jb-ink);
+}
+
+.jb-code-stamp {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+/* Keyframes for lively clay / TV stage energy */
+@keyframes jb-pop-in {
+  0% { opacity: 0; transform: scale(0.86) translateY(12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes jb-host-idle {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+}
+
+@keyframes jb-host-talk {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-7px) scale(1.04) rotate(-2deg); }
+  75% { transform: translateY(-3px) scale(0.98) rotate(2deg); }
+}
+
+@keyframes jb-float-react {
+  0% { opacity: 0; transform: translateY(40px) scale(0.5) rotate(-14deg); }
+  18% { opacity: 1; transform: translateY(-10px) scale(1.12) rotate(8deg); }
+  80% { opacity: 1; transform: translateY(-130px) scale(1) rotate(-6deg); }
+  100% { opacity: 0; transform: translateY(-200px) scale(0.75) rotate(10deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

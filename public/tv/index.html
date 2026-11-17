@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anfitrión de Fiestas 2.0 — Estudio TV</title>
+  <link rel="stylesheet" href="/shared/tokens.css" />
+  <link rel="stylesheet" href="/tv/tv.css" />
+  <script src="/shared/config.js" type="module"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="tv-body">
+  <!-- Studio Spotlights & Halftone Grain -->
+  <div class="stage-spotlights" aria-hidden="true"></div>
+  <div id="reactionLayer" class="reaction-layer" aria-hidden="true"></div>
+
+  <div class="tv-shell">
+    <!-- Top Studio Broadcast Header -->
+    <header class="tv-topbar">
+      <div class="tv-topbar-left">
+        <div class="studio-mark">
+          <span class="studio-live-dot"></span>
+          <span>EN EL AIRE</span>
+        </div>
+        <h1 id="topbarGameTitle" class="topbar-game-title">ANFITRIÓN PARTY PACK</h1>
+        <span id="topbarRoundBadge" class="jb-pill topbar-round-badge hidden">RONDA 1/4</span>
+      </div>
+
+      <div class="tv-topbar-controls">
+        <label class="voice-picker-wrap" title="Voz de Estudio del Anfitrión">
+          <span>🎙️</span>
+          <select id="voiceSelect" class="studio-select"></select>
+        </label>
+
+        <select id="personalitySelect" class="studio-select" title="Personalidad del Anfitrión">
+          <option value="FIESTA_PICANTE">Showman Sarcástico</option>
+          <option value="CAOS_ABSURDO">Comediante Absurdo</option>
+          <option value="DETECTOR_MENTIRAS">Presentador Dramático</option>
+        </select>
+
+        <button id="toggleAudioBtn" class="jb-btn jb-btn-paper topbar-btn" title="Silenciar o activar audio">🔊 VOZ ON</button>
+        <button id="skipPhaseBtn" class="jb-btn jb-btn-blue topbar-btn hidden">⏭ SALTAR</button>
+        <button id="backLobbyBtn" class="jb-btn jb-btn-paper topbar-btn hidden">🏠 LOBBY</button>
+
+        <div id="compactRoomChip" class="compact-room-chip hidden">
+          <span>SALA</span>
+          <strong id="compactRoomCode" class="jb-code-stamp">----</strong>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Broadcast Viewport -->
+    <main class="tv-main">
+      <!-- LOBBY SCREEN -->
+      <section id="lobbyView" class="lobby-grid">
+        <!-- Left Featured Cartridge + Join Ticket -->
+        <aside class="lobby-left">
+          <article class="jb-card featured-poster-card">
+            <div class="featured-poster-media">
+              <img id="featuredPosterImg" src="/assets/posters/duelo-ocurrencias.jpg" alt="Poster del juego" />
+              <span id="featuredGameTag" class="jb-pill featured-game-tag">CHISTES 1V1</span>
+            </div>
+            <div class="featured-poster-info">
+              <h2 id="featuredGameTitle">Duelo de Ocurrencias</h2>
+              <p id="featuredGameDesc">Respuestas absurdas cara a cara. Todo el salón vota por la mejor.</p>
+              <div id="audiencePills" class="audience-pills"></div>
+            </div>
+          </article>
+
+          <article class="jb-card join-ticket-card">
+            <div class="join-ticket-meta">
+              <span class="join-kicker">ÚNETE CON TU TELÉFONO EN</span>
+              <div id="joinUrlLabel" class="join-url">/play</div>
+              <div class="join-code-row">
+                <span class="join-code-label">CÓDIGO</span>
+                <div id="lobbyRoomCode" class="lobby-room-code jb-code-stamp">----</div>
+              </div>
+            </div>
+            <div class="join-qr-box">
+              <img id="lobbyQrImg" alt="Código QR para unirse" />
+            </div>
+          </article>
+        </aside>
+
+        <!-- Right 7-Game Pack Selector + Cast Couch -->
+        <section class="lobby-right">
+          <div class="pack-strip-header">
+            <h3>ELIGE UN SHOW DEL PACK (7 JUEGOS)</h3>
+            <span id="playerCounterBadge" class="jb-pill">0 / 10 EN ESCENARIO</span>
+          </div>
+
+          <div id="packGrid" class="pack-grid" role="listbox" aria-label="Catálogo de 7 juegos"></div>
+
+          <div class="cast-stage-panel jb-card-dark">
+            <div class="cast-stage-header">
+              <span>ESPECTADORES Y CONCURSANTES LISTOS</span>
+              <span class="cast-hint">Cuando entren 2 o más amigos (o pulsa Iniciar para jugar con Bots), comienza el espectáculo.</span>
+            </div>
+            <div id="lobbyPlayersGrid" class="lobby-players-grid"></div>
+
+            <div class="lobby-action-row">
+              <button id="startShowBtn" class="jb-btn jb-btn-primary start-show-btn">
+                🎬 ¡INICIAR SHOW EN VIVO!
+              </button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- ACTIVE IN-GAME VIEW -->
+      <section id="gameView" class="game-stage-wrapper hidden">
+        <!-- Timer Ribbon inside game stage -->
+        <div id="stageTimerBar" class="stage-timer-pill hidden">
+          <span class="timer-dot"></span>
+          <strong id="stageTimerNum" class="jb-code-stamp">00</strong>
+          <span>SEG</span>
+        </div>
+
+        <div id="gameStageSlot" class="game-stage-slot"></div>
+      </section>
+    </main>
+
+    <!-- Persistent On-Stage Cookie Host Puppet + Speech Bubble -->
+    <div id="hostCorner" class="host-corner">
+      <div id="hostBubble" class="host-speech-bubble jb-card hidden">
+        <p id="hostSubtitleText">¡Bienvenidos al show!</p>
+      </div>
+      <div id="hostPuppetWrap" class="host-puppet-wrap is-idle">
+        <img src="/assets/host/cookie-host.png" alt="Cookie Host" class="host-puppet-img" draggable="false" />
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/tv/tvApp.js"></script>
+</body>
+</html>

@@ -229,6 +229,8 @@ async function testAll7Games() {
     await new Promise((res) => host.emit('host:start_game', {}, res));
     await sleep(300);
 
+    host.emit('host:skip_timer'); // HOW_TO_PLAY -> INTRO
+    await sleep(250);
     host.emit('host:skip_timer'); // INTRO -> QUESTION
     await sleep(400);
 
@@ -265,6 +267,8 @@ async function testAll7Games() {
     await new Promise((res) => host.emit('host:start_game', {}, res));
     await sleep(300);
 
+    host.emit('host:skip_timer'); // HOW_TO_PLAY -> INTRO
+    await sleep(250);
     host.emit('host:skip_timer'); // INTRO -> SPECTRUM
     await sleep(400);
 

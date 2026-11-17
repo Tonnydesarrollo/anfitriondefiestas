@@ -12,7 +12,7 @@ import cors from 'cors';
 import { Server } from 'socket.io';
 import QRCode from 'qrcode';
 
-import { roomManager } from './roomManager.js';
+import { roomManager, AVATAR_POOL } from './roomManager.js';
 import { DueloOcurrencias } from './games/dueloOcurrencias.js';
 import { ImpostorSilicio } from './games/impostorSilicio.js';
 import { DilemasExtremos } from './games/dilemasExtremos.js';
@@ -329,33 +329,36 @@ app.get('/api/room/:code/qr', async (req, res) => {
   }
 });
 
-// Friendly redirect for mobile joining
-app.get('/play', (req, res) => {
-  const playerFile = path.join(PUBLIC_DIR, 'play.html');
-  res.sendFile(playerFile, (err) => {
-    if (err) {
-      res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
-    }
-  });
+// Sculpted character cast catalog for controller selection
+app.get('/api/cast', (req, res) => {
+  res.json({ cast: AVATAR_POOL });
 });
 
-// Friendly redirect for host screen
+// Backwards-compatible runtime backend config path
+app.get('/js/config.js', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'shared', 'config.js'));
+});
+
+// Friendly route for mobile @connect controller
+const serveController = (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'controller', 'index.html'), (err) => {
+    if (err) res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  });
+};
+app.get('/play', serveController);
+app.get('/player', serveController);
+
+// Friendly route for Host TV studio stage
 app.get('/host', (req, res) => {
-  const hostFile = path.join(PUBLIC_DIR, 'host.html');
-  res.sendFile(hostFile, (err) => {
-    if (err) {
-      res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
-    }
+  res.sendFile(path.join(PUBLIC_DIR, 'tv', 'index.html'), (err) => {
+    if (err) res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
   });
 });
 
-// Multi-Screen Arena Live Simulator (Host TV + All Virtual Player Phones)
+// Multi-Screen Arena Live Simulator (Host TV + Virtual Player Phones)
 app.get('/demo', (req, res) => {
-  const demoFile = path.join(PUBLIC_DIR, 'demo.html');
-  res.sendFile(demoFile, (err) => {
-    if (err) {
-      res.sendFile(path.join(PUBLIC_DIR, 'host.html'));
-    }
+  res.sendFile(path.join(PUBLIC_DIR, 'demo', 'index.html'), (err) => {
+    if (err) res.sendFile(path.join(PUBLIC_DIR, 'tv', 'index.html'));
   });
 });
 
@@ -432,9 +435,9 @@ io.on('connection', (socket) => {
     if (activePlayers.length < room.minPlayers) {
       console.log(`[Host] Room ${room.code} had ${activePlayers.length} players. Auto-filling with test bots for seamless start.`);
       const botPool = [
-        { name: 'FedeZorro', avatar: { emoji: '🦊', color: '#ff6b4a' } },
-        { name: 'PulpoFiestero', avatar: { emoji: '🐙', color: '#ec4899' } },
-        { name: 'LlamaLoca', avatar: { emoji: '🦙', color: '#8b5cf6' } }
+        { name: 'Brutus', avatar: AVATAR_POOL[0] },
+        { name: 'Chispita', avatar: AVATAR_POOL[1] },
+        { name: 'OjoLimón', avatar: AVATAR_POOL[2] }
       ];
       for (const bot of botPool) {
         if (Array.from(room.players.values()).filter(p => p.connected).length >= 3) break;
@@ -615,14 +618,15 @@ io.on('connection', (socket) => {
   /**
    * Player joins or resumes session in a room (Identified by Device Token & IP).
    */
-  socket.on('player:join', ({ roomCode, playerName, deviceToken, avatar }, callback) => {
+  socket.on('player:join', ({ roomCode, playerName, deviceToken, avatar, avatarId }, callback) => {
     const rawIp = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address || socket.conn?.remoteAddress || '';
     const clientIp = typeof rawIp === 'string' ? rawIp.split(',')[0].trim() : 'local';
 
     const result = roomManager.joinRoom(roomCode, playerName, socket.id, {
       clientIp,
       deviceToken,
-      customAvatar: avatar
+      customAvatar: avatar,
+      avatarId
     });
 
     if (!result.success) {

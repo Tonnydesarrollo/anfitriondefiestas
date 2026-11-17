@@ -1,129 +1,136 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Anfitrión de Fiestas | Party Games con IA Local</title>
-  <meta name="description" content="Plataforma de Party Games estilo Jackbox en español, con Host en pantalla común, mandos móviles y Anfitrión IA impulsado por Ollama.">
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/config.js"></script>
-</head>
-<body>
-  <!-- Ambient glowing party orbs -->
-  <div class="party-backdrop">
-    <div class="floating-shape shape-1"></div>
-    <div class="floating-shape shape-2"></div>
-    <div class="floating-shape shape-3"></div>
-  </div>
-
-  <div class="landing-wrapper">
-    <!-- Header / Brand -->
-    <header class="landing-header">
-      <div class="game-logo-badge">
-        <span>✨</span> Powered by Ollama AI & WebSockets
-      </div>
-      <h1 class="landing-title">Anfitrión de Fiestas</h1>
-      <p class="landing-subtitle">
-        El party game definitivo de humor e ingenio. Una pantalla común para la TV y tu smartphone como mando. ¡Prepárate para ser juzgado por la IA!
-      </p>
-    </header>
-
-    <!-- Main Navigation Action Cards -->
-    <main class="landing-actions">
-      <!-- Create Room / Host Screen -->
-      <div class="card landing-card-action card-glow-cyan">
-        <span class="action-icon">📺</span>
-        <h3 style="font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 12px; color: var(--neon-cyan);">
-          Crear Sala
-        </h3>
-        <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 24px; flex-grow: 1;">
-          Abre la pantalla del Anfitrión en tu <strong>TV, PC o proyector</strong>. Muestra el código QR para que todos se unan y disfruta la narración del Anfitrión IA.
-        </p>
-        <a href="/host.html" class="btn btn-cyan btn-lg" style="width: 100%;">
-          📺 Iniciar como Host
-        </a>
-      </div>
-
-      <!-- Join Room / Mobile Controller -->
-      <div class="card landing-card-action card-glow-magenta">
-        <span class="action-icon">📱</span>
-        <h3 style="font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 12px; color: var(--neon-magenta);">
-          Unirse a Sala
-        </h3>
-        <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 20px;">
-          Usa tu teléfono móvil como mando para escribir tus ocurrencias secretas y votar en los duelos.
-        </p>
-
-        <!-- Direct join quick form -->
-        <form id="quickJoinForm" style="width: 100%; display: flex; flex-direction: column; gap: 12px;" onsubmit="handleQuickJoin(event)">
-          <input 
-            type="text" 
-            id="quickRoomCode" 
-            placeholder="CÓDIGO (EJ: ABCD)" 
-            maxlength="4" 
-            class="input-giant" 
-            style="font-size: 1.4rem; padding: 12px; border-color: rgba(255, 42, 133, 0.4);"
-            required
-            autocomplete="off"
-            autocapitalize="characters"
-          >
-          <button type="submit" class="btn btn-magenta btn-lg" style="width: 100%;">
-            📱 Entrar al Mando
-          </button>
-        </form>
-      </div>
-    </main>
-
-    <!-- Feature Highlights -->
-    <section class="landing-features">
-      <div class="feature-box">
-        <div class="feature-icon">🤖</div>
-        <div class="feature-text">
-          <h4>Anfitrión IA Mordaz</h4>
-          <p>Ollama (qwen2.5) juzga en vivo tus respuestas con comentarios cómicos y picantes estilo late-night.</p>
-        </div>
-      </div>
-
-      <div class="feature-box">
-        <div class="feature-icon">🔊</div>
-        <div class="feature-text">
-          <h4>Voz Sintetizada en Español</h4>
-          <p>El presentador virtual narra los resultados en voz alta directamente desde el navegador de la TV.</p>
-        </div>
-      </div>
-
-      <div class="feature-box">
-        <div class="feature-icon">📲</div>
-        <div class="feature-text">
-          <h4>Cero Descargas</h4>
-          <p>Tus amigos solo escanean el código QR con la cámara de su teléfono y entran a jugar al instante.</p>
-        </div>
-      </div>
-
-      <div class="feature-box">
-        <div class="feature-icon">⚔️</div>
-        <div class="feature-text">
-          <h4>Duelos de Ocurrencias</h4>
-          <p>Enfréntate 1 contra 1 respondiendo premisas disparatadas y compite por los votos de los demás.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="landing-footer">
-      <p>🎪 Anfitrión de Fiestas — Desarrollado para reuniones divertidas con amigos y familia</p>
-    </footer>
-  </div>
-
-  <script>
-    function handleQuickJoin(e) {
-      e.preventDefault();
-      const codeInput = document.getElementById('quickRoomCode');
-      const code = (codeInput.value || '').trim().toUpperCase();
-      if (code) {
-        window.location.href = `/play.html?room=${encodeURIComponent(code)}`;
-      }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anfitrión de Fiestas 2.0 — Party Pack</title>
+  <link rel="stylesheet" href="/shared/tokens.css" />
+  <style>
+    .home-body {
+      min-height: 100dvh;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255, 123, 28, 0.25), transparent 46%),
+        radial-gradient(circle at 85% 80%, rgba(0, 212, 255, 0.2), transparent 50%),
+        #181326;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 18px;
+      gap: 24px;
     }
+
+    .hero-panel {
+      width: 100%;
+      max-width: 1060px;
+      padding: 26px 28px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 22px;
+      align-items: center;
+      background: var(--jb-cream);
+      color: var(--jb-ink);
+      border: var(--jb-border);
+      border-radius: 26px;
+      box-shadow: var(--jb-shadow-card);
+    }
+
+    .hero-copy h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      line-height: 1.03;
+      margin: 10px 0 8px;
+    }
+    .hero-copy p {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #3d3559;
+      max-width: 600px;
+      line-height: 1.4;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .hero-actions a {
+      text-decoration: none;
+      padding: 13px 22px;
+      font-size: 1.05rem;
+    }
+
+    .hero-host-img {
+      width: 190px;
+      height: 190px;
+      object-fit: contain;
+      animation: jb-host-idle 3.4s ease-in-out infinite;
+      filter: drop-shadow(0 8px 0 rgba(18, 16, 29, 0.38));
+    }
+
+    .catalog-strip {
+      width: 100%;
+      max-width: 1060px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .catalog-mini {
+      background: var(--jb-cream);
+      color: var(--jb-ink);
+      border: var(--jb-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 5px 0 var(--jb-ink);
+    }
+    .catalog-mini img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      border-bottom: 2.5px solid var(--jb-ink);
+    }
+    .catalog-mini span {
+      display: block;
+      padding: 7px 9px;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      .hero-panel { grid-template-columns: 1fr; text-align: center; }
+      .hero-host-img { margin: 0 auto; width: 150px; height: 150px; }
+      .hero-actions { justify-content: center; }
+    }
+  </style>
+</head>
+<body class="home-body">
+  <section class="hero-panel">
+    <div class="hero-copy">
+      <span class="jb-pill" style="background:var(--jb-gold);">PARTY PACK 2.0 • 7 JUEGOS EN VIVO</span>
+      <h1>Anfitrión de Fiestas</h1>
+      <p>Pon el show en la TV del salón y deja que todos jueguen desde su propio teléfono con voz de estudio en vivo, personajes de arcilla y cero descargas.</p>
+      <div class="hero-actions">
+        <a href="/host" class="jb-btn jb-btn-primary">📺 ABRIR PANTALLA TV</a>
+        <a href="/play" class="jb-btn jb-btn-blue">📱 UNIRME CON CÓDIGO</a>
+        <a href="/demo" class="jb-btn jb-btn-paper">🧪 SIMULADOR 360°</a>
+      </div>
+    </div>
+    <img src="/assets/host/cookie-host.png" alt="Cookie Host" class="hero-host-img" draggable="false" />
+  </section>
+
+  <section id="catalogShowcase" class="catalog-strip"></section>
+
+  <script type="module">
+    import { GAME_CATALOG, escapeHtml } from '/shared/cast.js';
+    document.getElementById('catalogShowcase').innerHTML = GAME_CATALOG.map(g => `
+      <div class="catalog-mini">
+        <img src="${g.poster}" alt="${escapeHtml(g.title)}" />
+        <span>${escapeHtml(g.title)}</span>
+      </div>
+    `).join('');
   </script>
 </body>
 </html>

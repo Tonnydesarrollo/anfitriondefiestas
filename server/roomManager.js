@@ -10,22 +10,16 @@ import { calculateDynamicRounds } from './rules/gameRulesConfig.js';
 const CODE_CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const CODE_LENGTH = 4;
 
-// Avatar pool with fun emojis, colors and descriptive nicknames
-const AVATAR_POOL = [
-  { emoji: '🦊', color: '#FF6B6B', label: 'Zorro Astuto' },
-  { emoji: '🐙', color: '#4ECDC4', label: 'Pulpo Fiestero' },
-  { emoji: '🦙', color: '#FFD166', label: 'Llama Dramática' },
-  { emoji: '🦖', color: '#06D6A0', label: 'Dino Bailarín' },
-  { emoji: '🦄', color: '#9B5DE5', label: 'Unicornio Cósmico' },
-  { emoji: '🐼', color: '#457B9D', label: 'Panda Zen' },
-  { emoji: '🦁', color: '#F77F00', label: 'León Rumbero' },
-  { emoji: '🐸', color: '#2EC4B6', label: 'Rana Sabia' },
-  { emoji: '🦉', color: '#E76F51', label: 'Búho Nocturno' },
-  { emoji: '🦈', color: '#118AB2', label: 'Tiburón Bromista' },
-  { emoji: '🐨', color: '#8338EC', label: 'Koala Chill' },
-  { emoji: '🐵', color: '#FB5607', label: 'Mono Travieso' },
-  { emoji: '🐧', color: '#3A86FF', label: 'Pingüino Elegante' },
-  { emoji: '🐯', color: '#FF9F1C', label: 'Tigre Veloz' }
+// Sculpted Jackbox-grade character cast pool (no OS emojis as artwork)
+export const AVATAR_POOL = [
+  { id: 'crimson', image: '/assets/cast/crimson.png', color: '#E63946', accentDark: '#9E1C26', label: 'Brutus Arcilla', emoji: '🟥' },
+  { id: 'tangerine', image: '/assets/cast/tangerine.png', color: '#FF7B1C', accentDark: '#B34400', label: 'Chispita Naranja', emoji: '🟧' },
+  { id: 'lemon', image: '/assets/cast/lemon.png', color: '#FFD60A', accentDark: '#9E7E00', label: 'Ojo Limón', emoji: '🟨' },
+  { id: 'mint', image: '/assets/cast/mint.png', color: '#06D6A0', accentDark: '#047A5B', label: 'Rex Menta', emoji: '🟩' },
+  { id: 'cyan', image: '/assets/cast/cyan.png', color: '#00D4FF', accentDark: '#007799', label: 'Cubo Pop', emoji: '🟦' },
+  { id: 'cobalt', image: '/assets/cast/cobalt.png', color: '#3B82F6', accentDark: '#1D4ED8', label: 'Dino Azul', emoji: '🔷' },
+  { id: 'violet', image: '/assets/cast/violet.png', color: '#9B5DE5', accentDark: '#5B21B6', label: 'Mora Imp', emoji: '🟪' },
+  { id: 'magenta', image: '/assets/cast/magenta.png', color: '#FF2E93', accentDark: '#9D174D', label: 'Lila Spark', emoji: '🩷' }
 ];
 
 export class RoomManager {
@@ -66,18 +60,17 @@ export class RoomManager {
    * @returns {{ emoji: string, color: string, label: string }}
    */
   assignAvatar(room) {
-    const usedEmojis = new Set(
-      Array.from(room.players.values()).map(p => p.avatar?.emoji)
+    const usedIds = new Set(
+      Array.from(room.players.values()).map(p => p.avatar?.id || p.avatar?.emoji)
     );
-    const available = AVATAR_POOL.filter(a => !usedEmojis.has(a.emoji));
+    const available = AVATAR_POOL.filter(a => !usedIds.has(a.id));
 
     if (available.length > 0) {
       const idx = Math.floor(Math.random() * available.length);
-      return available[idx];
+      return { ...available[idx] };
     }
-    // Fallback: pick any from the pool
     const idx = Math.floor(Math.random() * AVATAR_POOL.length);
-    return AVATAR_POOL[idx];
+    return { ...AVATAR_POOL[idx] };
   }
 
   /**
@@ -140,7 +133,7 @@ export class RoomManager {
     const room = this.getRoom(code);
     if (!room) return false;
     const r = parseInt(rounds, 10);
-    room.totalRounds = [2, 3, 4].includes(r) ? r : 3;
+    room.totalRounds = (r >= 2 && r <= 6) ? r : 3;
     return true;
   }
 
@@ -208,6 +201,11 @@ export class RoomManager {
     const clientIp = options.clientIp || null;
     const deviceToken = options.deviceToken || null;
     const customAvatar = options.customAvatar || null;
+    const requestedAvatarId = options.avatarId || customAvatar?.id || null;
+    const poolMatch = requestedAvatarId ? AVATAR_POOL.find(a => a.id === requestedAvatarId) : null;
+    const resolvedAvatar = poolMatch
+      ? { ...poolMatch }
+      : (customAvatar && customAvatar.image ? customAvatar : null);
 
     // 1. Check for reconnection by deviceToken AND name (protects against multi-tab sharing token)
     let existingPlayerEntry = null;
@@ -244,7 +242,7 @@ export class RoomManager {
         existingPlayer.connected = true;
         if (clientIp) existingPlayer.clientIp = clientIp;
         if (deviceToken) existingPlayer.deviceToken = deviceToken;
-        if (customAvatar) existingPlayer.avatar = customAvatar;
+        if (resolvedAvatar) existingPlayer.avatar = resolvedAvatar;
         if (cleanName && cleanName.length >= 2) existingPlayer.name = cleanName;
 
         room.players.set(socketId, existingPlayer);
@@ -275,7 +273,7 @@ export class RoomManager {
       return { success: false, error: 'El juego ya ha comenzado en esta sala.' };
     }
 
-    const avatar = customAvatar || this.assignAvatar(room);
+    const avatar = resolvedAvatar || this.assignAvatar(room);
     const player = {
       id: socketId,
       name: cleanName,

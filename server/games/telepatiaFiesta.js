@@ -9,7 +9,7 @@
  * - AI Host delivery and funny psychological roasting by Ollama
  */
 
-import { calculateDynamicRounds } from '../rules/gameRulesConfig.js';
+import { calculateDynamicRounds, getTutorial } from '../rules/gameRulesConfig.js';
 
 export const TELEPATIA_DATABASE = [
   // --- FAMILIA ---
@@ -92,7 +92,7 @@ export class TelepatiaFiestaGame {
     this.totalRounds = customRounds || dynamicPacing.rounds;
 
     this.currentRound = 1;
-    this.phase = 'INTRO'; // INTRO | SPECTRUM | REVEAL | RESULTS | PODIUM
+    this.phase = 'HOW_TO_PLAY'; // HOW_TO_PLAY | INTRO | SPECTRUM | REVEAL | RESULTS | PODIUM
     this.timer = 0;
     this.timerInterval = null;
 
@@ -116,7 +116,19 @@ export class TelepatiaFiestaGame {
       p.lastRoundGain = 0;
     }
 
-    this.startRound();
+    this.startHowToPlayPhase();
+  }
+
+  startHowToPlayPhase() {
+    this.clearCountdown();
+    this.phase = 'HOW_TO_PLAY';
+    const tut = getTutorial('telepatia-fiesta');
+    this.timer = tut ? tut.durationSeconds : 12;
+    this.notifyStateChange();
+
+    this.startCountdown(this.timer, () => {
+      this.startRound();
+    });
   }
 
   startRound() {
@@ -312,7 +324,9 @@ export class TelepatiaFiestaGame {
   skipTimer() {
     if (this.timerInterval) {
       this.clearCountdown();
-      if (this.phase === 'INTRO') {
+      if (this.phase === 'HOW_TO_PLAY') {
+        this.startRound();
+      } else if (this.phase === 'INTRO') {
         this.startSpectrumPhase();
       } else if (this.phase === 'SPECTRUM') {
         this.finishSpectrumPhase();
@@ -396,6 +410,7 @@ export class TelepatiaFiestaGame {
       gameId: this.id,
       gameTitle: this.title,
       phase: this.phase,
+      tutorial: this.phase === 'HOW_TO_PLAY' ? getTutorial('telepatia-fiesta') : null,
       currentRound: this.currentRound,
       totalRounds: this.totalRounds,
       isDoublePoints: (this.currentRound === this.totalRounds),
@@ -428,6 +443,7 @@ export class TelepatiaFiestaGame {
       gameId: this.id,
       gameTitle: this.title,
       phase: this.phase,
+      tutorial: this.phase === 'HOW_TO_PLAY' ? getTutorial('telepatia-fiesta') : null,
       currentRound: this.currentRound,
       totalRounds: this.totalRounds,
       isDoublePoints: (this.currentRound === this.totalRounds),

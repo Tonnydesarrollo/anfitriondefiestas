@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Anfitrión @connect — Mando Móvil</title>
+  <link rel="stylesheet" href="/shared/tokens.css" />
+  <link rel="stylesheet" href="/controller/controller.css" />
+  <script src="/shared/config.js" type="module"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="ctrl-body">
+  <!-- JOIN CARD VIEW (@connect Jackbox style) -->
+  <main id="joinScreen" class="connect-viewport">
+    <div class="connect-brand">
+      <img src="/assets/host/cookie-host.png" alt="Anfitrión" class="connect-brand-mascot" draggable="false" />
+      <div>
+        <span class="connect-brand-kicker">MANDO OFICIAL</span>
+        <h1>ANFITRIÓN<span style="color:var(--jb-gold);">.TV</span></h1>
+      </div>
+    </div>
+
+    <form id="joinForm" class="connect-card" autocomplete="off">
+      <div class="connect-field">
+        <label for="roomCodeInput">CÓDIGO DE SALA</label>
+        <input id="roomCodeInput" type="text" maxlength="4" placeholder="ABCD" autocapitalize="characters" required />
+      </div>
+
+      <div class="connect-field">
+        <label for="playerNameInput">TU NOMBRE</label>
+        <input id="playerNameInput" type="text" maxlength="14" placeholder="Ej. Sofía" required />
+      </div>
+
+      <div class="connect-field">
+        <label>ELIGE TU PERSONAJE</label>
+        <div id="castPickerGrid" class="cast-picker-grid" role="radiogroup" aria-label="Personajes"></div>
+      </div>
+
+      <p id="joinErrorMsg" class="join-error hidden"></p>
+
+      <button id="joinSubmitBtn" type="submit" class="jb-btn jb-btn-blue connect-submit-btn">
+        ¡ENTRAR A JUGAR!
+      </button>
+    </form>
+  </main>
+
+  <!-- CONNECTED PLAYER CONTROLLER VIEW -->
+  <section id="padScreen" class="pad-viewport hidden">
+    <!-- Colored Character Top Header -->
+    <header id="padHeader" class="pad-header">
+      <div class="pad-avatar-frame">
+        <img id="padAvatarImg" src="/assets/cast/crimson.png" alt="Tu personaje" draggable="false" />
+      </div>
+      <div class="pad-player-meta">
+        <div id="padPlayerName" class="pad-player-name">Jugador</div>
+        <div class="pad-room-sub">SALA <strong id="padRoomCode" class="jb-code-stamp">----</strong></div>
+      </div>
+      <div class="pad-score-pill">
+        <strong id="padScoreNum" class="jb-code-stamp">0</strong>
+        <span>PTS</span>
+      </div>
+    </header>
+
+    <!-- Main Action Surface -->
+    <main id="padStage" class="pad-stage"></main>
+
+    <!-- Bottom Live Reaction Bar -->
+    <footer class="pad-reaction-bar">
+      <span class="react-label">REACCIONA EN LA TV</span>
+      <div class="react-btns">
+        <button type="button" class="react-btn" data-emoji="😂">😂</button>
+        <button type="button" class="react-btn" data-emoji="🔥">🔥</button>
+        <button type="button" class="react-btn" data-emoji="👏">👏</button>
+        <button type="button" class="react-btn" data-emoji="🤯">🤯</button>
+        <button type="button" class="react-btn" data-emoji="💀">💀</button>
+      </div>
+    </footer>
+  </section>
+
+  <script type="module" src="/controller/controllerApp.js"></script>
+</body>
+</html>

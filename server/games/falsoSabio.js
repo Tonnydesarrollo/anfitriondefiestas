@@ -13,7 +13,7 @@
  *    - If you vote for your own lie: 0 PTS and an AI Host roast!
  */
 
-import { calculateDynamicRounds } from '../rules/gameRulesConfig.js';
+import { calculateDynamicRounds, getTutorial } from '../rules/gameRulesConfig.js';
 
 const FALSO_SABIO_QUESTIONS = [
   {
@@ -362,6 +362,7 @@ export class FalsoSabio {
       gameId: this.id,
       gameTitle: this.title,
       phase: this.phase,
+      howToPlay: this.phase === 'HOW_TO_PLAY' ? getTutorial('falso-sabio') : null,
       currentRound: this.currentRound,
       totalRounds: this.totalRounds,
       timer: this.timer,
@@ -412,6 +413,7 @@ export class FalsoSabio {
       gameId: this.id,
       gameTitle: this.title,
       phase: this.phase,
+      howToPlay: this.phase === 'HOW_TO_PLAY' ? getTutorial('falso-sabio') : null,
       currentRound: this.currentRound,
       timer: this.timer,
       fact: this.currentQuestion?.fact,

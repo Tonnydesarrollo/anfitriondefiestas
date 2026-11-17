@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anfitrión 2.0 — Simulador Multi-Pantalla 360°</title>
+  <link rel="stylesheet" href="/shared/tokens.css" />
+  <style>
+    .demo-body {
+      height: 100vh;
+      overflow: hidden;
+      background: #141122;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 14px;
+      gap: 10px;
+    }
+    .demo-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 14px;
+      background: var(--jb-cream);
+      color: var(--jb-ink);
+      border: var(--jb-border);
+      border-radius: 16px;
+      box-shadow: 0 4px 0 var(--jb-ink);
+      flex-shrink: 0;
+    }
+    .demo-bar h1 { font-family: var(--font-display); font-size: 1.15rem; }
+    .demo-bar-actions { display: flex; align-items: center; gap: 8px; }
+    .demo-btn { padding: 7px 14px; font-size: 0.86rem; border-radius: 12px; }
+
+    .demo-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 12px;
+    }
+    .demo-pane {
+      background: #0d0b16;
+      border: var(--jb-border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--jb-shadow-card);
+    }
+    .demo-pane-label {
+      background: var(--jb-ink);
+      color: var(--jb-gold);
+      padding: 5px 12px;
+      font-family: var(--font-title);
+      font-size: 0.76rem;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+    }
+    .demo-pane-body {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background: #181326;
+    }
+    .demo-pane iframe.tv-scaled {
+      width: 1440px;
+      height: 900px;
+      border: none;
+      transform-origin: top left;
+    }
+
+    .phones-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      min-height: 0;
+    }
+    .phone-frame {
+      background: #12151b;
+      border: var(--jb-border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 6px 0 var(--jb-ink);
+    }
+    .phone-frame-body {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+    }
+    .phone-frame iframe.phone-scaled {
+      width: 360px;
+      height: 760px;
+      border: none;
+      transform-origin: top left;
+    }
+  </style>
+</head>
+<body class="demo-body">
+  <header class="demo-bar">
+    <h1>🎛️ SIMULADOR ARENA 360° — TV + 3 MÓVILES EN VIVO</h1>
+    <div class="demo-bar-actions">
+      <span id="detectedCodePill" class="jb-pill" style="background:var(--jb-gold);">SALA: ----</span>
+      <button id="connectPhonesBtn" class="jb-btn jb-btn-blue demo-btn">📱 CONECTAR 3 JUGADORES</button>
+      <button id="reloadArenaBtn" class="jb-btn jb-btn-paper demo-btn">🔄 REINICIAR ARENA</button>
+    </div>
+  </header>
+
+  <section class="demo-grid">
+    <div class="demo-pane">
+      <div class="demo-pane-label">
+        <span>📺 PANTALLA TV DEL SALÓN (/host)</span>
+        <span>1440×900 ESCALADO</span>
+      </div>
+      <div id="tvWrap" class="demo-pane-body">
+        <iframe id="tvFrame" class="tv-scaled" src="/host"></iframe>
+      </div>
+    </div>
+
+    <div class="phones-grid">
+      <div class="phone-frame">
+        <div class="demo-pane-label"><span>📱 SOFÍA</span></div>
+        <div class="phone-frame-body"><iframe id="phone1" class="phone-scaled" src="/play"></iframe></div>
+      </div>
+      <div class="phone-frame">
+        <div class="demo-pane-label"><span>📱 MATEO</span></div>
+        <div class="phone-frame-body"><iframe id="phone2" class="phone-scaled" src="/play"></iframe></div>
+      </div>
+      <div class="phone-frame">
+        <div class="demo-pane-label"><span>📱 DIEGO</span></div>
+        <div class="phone-frame-body"><iframe id="phone3" class="phone-scaled" src="/play"></iframe></div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function fitFrames() {
+      const tvWrap = document.getElementById('tvWrap');
+      const tvFrameEl = document.getElementById('tvFrame');
+      if (tvWrap && tvFrameEl) {
+        const s = Math.min(tvWrap.clientWidth / 1440, tvWrap.clientHeight / 900);
+        tvFrameEl.style.transform = `scale(${s})`;
+        tvFrameEl.style.height = `${Math.round(tvWrap.clientHeight / s)}px`;
+        tvFrameEl.style.width = `${Math.round(tvWrap.clientWidth / s)}px`;
+      }
+      document.querySelectorAll('.phone-frame-body').forEach(box => {
+        const ifr = box.querySelector('iframe');
+        if (!ifr) return;
+        const s = box.clientWidth / 360;
+        ifr.style.transform = `scale(${s})`;
+        ifr.style.height = `${Math.round(box.clientHeight / s)}px`;
+      });
+    }
+    window.addEventListener('resize', fitFrames);
+    setTimeout(fitFrames, 40);
+    const tvFrame = document.getElementById('tvFrame');
+    const phones = [
+      { el: document.getElementById('phone1'), name: 'Sofía', avatar: 'crimson' },
+      { el: document.getElementById('phone2'), name: 'Mateo', avatar: 'tangerine' },
+      { el: document.getElementById('phone3'), name: 'Diego', avatar: 'mint' }
+    ];
+    const codePill = document.getElementById('detectedCodePill');
+    let joinedRoom = '';
+
+    function readHostCode() {
+      try {
+        const doc = tvFrame.contentDocument;
+        const raw = doc?.getElementById('lobbyRoomCode')?.textContent?.trim();
+        if (raw && raw.length === 4 && raw !== '----') {
+          codePill.textContent = `SALA: ${raw}`;
+          return raw;
+        }
+      } catch (_) {}
+      return '';
+    }
+
+    function autoConnectAll() {
+      const code = readHostCode();
+      if (!code || code === joinedRoom) return;
+      joinedRoom = code;
+      phones.forEach((p, idx) => {
+        setTimeout(() => {
+          p.el.src = `/play?room=${code}&name=${encodeURIComponent(p.name)}&avatar=${p.avatar}&autojoin=1`;
+        }, idx * 140);
+      });
+    }
+
+    document.getElementById('connectPhonesBtn').addEventListener('click', () => {
+      joinedRoom = '';
+      autoConnectAll();
+    });
+
+    document.getElementById('reloadArenaBtn').addEventListener('click', () => {
+      joinedRoom = '';
+      tvFrame.src = '/host';
+      phones.forEach(p => { p.el.src = '/play'; });
+    });
+
+    setInterval(() => {
+      const code = readHostCode();
+      if (code && !joinedRoom) {
+        autoConnectAll();
+      }
+    }, 900);
+  </script>
+</body>
+</html>

@@ -10,7 +10,7 @@
  * 5. If the bomb explodes on your phone: BOOM! You lose points, survivors score!
  */
 
-import { getMobileCTA, calculateDynamicRounds } from '../rules/gameRulesConfig.js';
+import { getMobileCTA, calculateDynamicRounds, getTutorial } from '../rules/gameRulesConfig.js';
 
 const BOMBA_PROMPTS = [
   { prompt: "Palabras que empiecen con: CAR-", filter: "CAR" },
@@ -291,6 +291,7 @@ export class BombaPalabras {
       gameId: this.id,
       gameTitle: this.title,
       phase: this.phase,
+      howToPlay: this.phase === 'HOW_TO_PLAY' ? getTutorial('bomba-palabras') : null,
       currentRound: this.currentRound,
       totalRounds: this.totalRounds,
       timer: this.timer,
@@ -329,6 +330,7 @@ export class BombaPalabras {
       gameId: this.id,
       gameTitle: this.title,
       phase: this.phase,
+      howToPlay: this.phase === 'HOW_TO_PLAY' ? getTutorial('bomba-palabras') : null,
       currentRound: this.currentRound,
       timer: this.timer,
       prompt: this.currentPrompt?.prompt,

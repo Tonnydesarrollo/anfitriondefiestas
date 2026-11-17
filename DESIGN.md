@@ -39,10 +39,9 @@ A diferencia de un juego de Unity o Unreal que renderiza mediante OpenGL/DirectX
 - **Área de Juego Central (`.player-body`)**:
   - `flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto;`
   - Clearance inferior: `padding-bottom: 85px` para evitar que el dock flotante de reacciones tape botones o campos de texto.
-- **Dock Flotante de Reacciones (`.player-reactions-bar`)**:
-  - `position: fixed; bottom: 0; left: 0; right: 0; height: 70px; z-index: 999999;`
-  - Vidrio translúcido oscuro: `background: rgba(10, 14, 32, 0.95); backdrop-filter: blur(16px); border-top: 2px solid rgba(0, 240, 255, 0.4);`
-  - Contiene 6 botones de calcomanía troquelada (`.btn-custom-emote-sticker`) con dimensiones fijas (`44px x 48px`).
+- **Dock Flotante de Reacciones (`.pad-reaction-bar`)**:
+  - Pie fijo con borde ink sólido `3px solid #12101d` y botones táctiles `48px x 44px` sobre fondo oscuro `#141820` (`public/controller/controller.css`).
+  - Reacciones flotan como stickers en la pantalla del Host TV (`floating-reaction`) con `pointer-events: none; z-index: 40;`.
 
 ---
 
@@ -81,23 +80,13 @@ A diferencia de un juego de Unity o Unreal que renderiza mediante OpenGL/DirectX
 
 ---
 
-## 5. Emoticones y Reacciones: Vector Character Stickers (No Unicode Genérico)
+## 5. Arte Táctil, Elenco de Arcilla y Anfitrión en Escenario (Anfitrión 2.0)
 
-1. **Identidad Troquelada ("Die-Cut Vinyl Sticker")**:
-   - Cada emoticón es un **SVG vectorial ilustrado** representativo del avatar del jugador (Zorro, Fantasma, Pulpo, Dino, Universal).
-   - Incorpora borde troquelado blanco exterior (`stroke="#ffffff" stroke-width="4"` o `filter: drop-shadow(0 0 2px #fff)`).
-   - Expresiones faciales cartoon auténticas:
-     - 🦊/👻 **¡Feliz!**: Ojos achinados alegres, rubor rosa, sonrisa y destellos dorados.
-     - 🦊/👻 **¡Risas!**: Lágrimas de risa azul cian saliendo a chorros y boca abierta.
-     - 🦊/👻 **¡OMG!**: Ojos saltones desorbitados y boca desencajada en grito.
-     - 🦊/👻 **¡Fuego!**: Ojos ardientes, colmillos feroces y aura de llamas.
-     - 🦊/👻 **¡Ojo!**: Mirada de sospecha lateral, ceja alzada y signo de interrogación.
-     - 🦊/👻 **¡KO!**: Ojos en cruz (X X), lengua afuera y estrellas giratorias.
-2. **Despliegue en Pantalla Host (TV)**:
-   - Se posiciona **estrictamente sobre la ficha del jugador** mediante coordenadas fijas `getBoundingClientRect()` o flotando lateralmente si el jugador no está en el lobby.
-   - Duración: `1.8 segundos`.
-   - `pointer-events: none; overflow: hidden; z-index: 999999;`
-   - **Jamás se inyecta como texto Unicode plano ni altera el DOM flow de las tarjetas**.
+1. **Estética Prime-Time Show & Tactile Claymation (`design/art/art-bible.md`)**:
+   - Carteles clave ilustrados 16:9 por juego en `public/assets/posters/*.jpg` (sin texto quemado ni emojis gigantes en cabeceras).
+   - **8 Concursantes de Arcilla Esculpida** en PNG transparente (`public/assets/cast/*.png`): `crimson`, `tangerine`, `lemon`, `mint`, `cyan`, `cobalt`, `violet`, `magenta`, seleccionables en el card `@connect` (`/play`).
+   - **Cookie Host Animado** (`public/assets/host/cookie-host.png`) persistente en esquina derecha del escenario TV con animación de habla sincronizada con Voice Studio (`/api/tts`) y globo de diálogo tipo cómic.
+   - Arquitectura estrictamente modular por juego: `public/tv/games/<gameId>.js` + `public/controller/games/<gameId>.js`.
 
 ---
 

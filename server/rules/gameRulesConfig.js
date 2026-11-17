@@ -145,6 +145,62 @@ export const TUTORIALS_CONFIG = {
       { event: 'Dilema Dorado (50/50)', points: '+250 pts', description: 'Bono especial para todos si la sala queda dividida exactamente a la mitad.', icon: '✨' }
     ],
     hostNarration: '¡Llegó la hora de Dilemas Extremos! Les presentaré situaciones morales absurdas e incómodas. En sus celulares, elijan qué harían y apuesten qué votará la mayoría del salón. ¡Veamos qué tan retorcidos son sus amigos!'
+  },
+
+  'bomba-palabras': {
+    gameId: 'bomba-palabras',
+    title: 'Bomba de Palabras',
+    tagline: '¡Contrarreloj explosivo de vocabulario bajo presión!',
+    durationSeconds: 12,
+    objective: 'Escribe rápidamente una palabra que contenga la sílaba secreta antes de que estalle la mecha en tu turno.',
+    goldenRules: [
+      { number: 1, title: 'Sílaba Obligatoria', description: 'Tu palabra debe incluir exactamente la combinación de letras que parpadea en pantalla.', icon: '💣' },
+      { number: 2, title: 'No Repitas Palabras', description: 'El sistema memoriza cada palabra válida en la ronda: ¡usa tu ingenio antes de que otros la quemen!', icon: '🚫' },
+      { number: 3, title: 'La Mecha Se Acelera', description: 'Cada acierto pasa la bomba al siguiente jugador y acorta el tiempo restante.', icon: '🔥' }
+    ],
+    hostNarration: '¡Bienvenidos a Bomba de Palabras! Les daré una sílaba y una bomba encendida. Quien la tenga en sus manos deberá escribir una palabra válida antes de que haga ¡BUM!'
+  },
+
+  'falso-sabio': {
+    gameId: 'falso-sabio',
+    title: 'Falso Sabio',
+    tagline: '¡Inventa mentiras tan creíbles que engañen a todo el salón!',
+    durationSeconds: 13,
+    objective: 'Lee el dato histórico o absurdo incompleto, redacta una mentira convincente y detecta la verdad entre los engaños.',
+    goldenRules: [
+      { number: 1, title: 'Redacta tu Mentira', description: 'Completa la frase misteriosa en tu celular como si fueras enciclopedia viviente.', icon: '🥸' },
+      { number: 2, title: 'Elige la Verdad Real', description: 'Todas las mentiras se mezclan con la respuesta verdadera en la TV. ¡Vota por la auténtica!', icon: '🔍' },
+      { number: 3, title: 'Cobra por Cada Víctima', description: 'Cada amigo que vote por tu mentira te regala puntos masivos de farsante.', icon: '💰' }
+    ],
+    hostNarration: '¡Prepárense para mentir sin pudor en Falso Sabio! Inventen respuestas tan creíbles que sus amigos caigan directo en su trampa mientras intentan encontrar la única verdad.'
+  },
+
+  'trivia-caotica': {
+    gameId: 'trivia-caotica',
+    title: 'Trivia Caótica',
+    tagline: '¡Cultura pop macabra, velocidad relámpago y robos de último segundo!',
+    durationSeconds: 12,
+    objective: 'Responde más rápido que nadie entre 4 opciones bizarras y sobrevive a la ronda final de puntos dobles.',
+    goldenRules: [
+      { number: 1, title: 'Cuatro Opciones, Un Destino', description: 'Lee la pregunta en la TV y presiona la respuesta correcta lo más rápido posible en tu móvil.', icon: '⚡' },
+      { number: 2, title: 'Bono de Velocidad', description: 'Acertar en los primeros segundos otorga cientos de puntos extra frente a los indecisos.', icon: '⏱️' },
+      { number: 3, title: 'Ronda Final X2', description: 'Nadie está a salvo: las últimas preguntas valen el doble y pueden voltear el podio.', icon: '💀' }
+    ],
+    hostNarration: '¡Bienvenidos al salón macabro de Trivia Caótica! Preguntas bizarras, cuatro respuestas y cero piedad. Quien dude un segundo pierde puntos!'
+  },
+
+  'telepatia-fiesta': {
+    gameId: 'telepatia-fiesta',
+    title: 'Telepatía de Fiesta',
+    tagline: '¡Calibra el dial mental y sintoniza con la frecuencia de tus amigos!',
+    durationSeconds: 12,
+    objective: 'Mueve tu dial de 0% a 100% en un dilema subjetivo para coincidir exactamente con la mente colmena del grupo.',
+    goldenRules: [
+      { number: 1, title: 'Dos Extremos Claros', description: 'La TV muestra una escala absurda del 0% al 100% entre dos posturas extremas.', icon: '📡' },
+      { number: 2, title: 'Calibra Sin Hablar', description: 'Desliza tu aguja en secreto en el teléfono intentando predecir dónde caerá el consenso.', icon: '🎛️' },
+      { number: 3, title: 'Sintonía Fina', description: 'Mientras más cerca estés de la mediana del salón (o de tu pareja), mayor será tu recompensa.', icon: '🧠' }
+    ],
+    hostNarration: '¡Enciendan sus antenas en Telepatía de Fiesta! Verán una escala del cero al cien por ciento. Calibren su dial en secreto para demostrar si comparten cerebro!'
   }
 };
 

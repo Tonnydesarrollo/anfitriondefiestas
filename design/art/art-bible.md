@@ -1,76 +1,49 @@
-# Art Bible — Anfitrión de Fiestas
-**Versión:** 2.0  
-**Línea Artística:** Cyber-Arcade Party Neon  
-**Plataformas Objetivo:** Pantalla Grande (TV / Monitor 1080p / 4K) y Smartphones (iOS / Android 360px–430px)
+# Art Bible — Anfitrión de Fiestas 2.0 (Jackbox TV Party Pack Reboot)
+
+**Versión:** 3.0 (Reinicio Total)
+**Línea Artística:** Tactile Claymation, Cut-Paper & Prime-Time Game Show Studio
+**Referencias Directas (extraídas con REA):** *Quiplash 3*, *Fibbage 4*, *Fakin' It! 2*, *Nonsensory*, *The Poll Mine*, *Trivia Murder Party 2* y `@connect` (`jackbox.tv`).
 
 ---
 
-## 1. Visual Identity Statement (Declaración de Identidad Visual)
-*Anfitrión de Fiestas* combina la adrenalina visual de una máquina de arcade japonesa de los 90 con la sofisticación limpia y eléctrica del diseño de interfaces modernas (*glassmorphism*, bordes de neón reactivos y contrastes extremos). 
-La pantalla central (TV) debe sentirse como un set de concurso televisivo futurista en horario estelar, mientras que los mandos móviles deben ser ergonómicos, vibrantes, con botones gigantes y sin distracciones cognitivas: **100% legibles a 3 metros en la TV y a 30 centímetros en una mano con una copa en la otra**.
+## 1. Principio Rector: Cero "Dashboard Neón", 100% Show Televisivo
+- **PROHIBIDO**: Glassmorphism genérico oscuro con bordes cian neón (`#00f0ff`), tablas o cuadrículas vacías de panel de administración, y emojis del sistema operativo (`🦊`, `🥊`, `🕵️`, `🚀`) usados como ilustraciones de portada o avatares.
+- **OBLIGATORIO**:
+  1. **Arte Ilustrado Propio**: Cada minijuego posee su propia ilustración clave (`public/assets/posters/<gameId>.png`), paleta cromática, ambiente de estudio y lenguaje de tarjetas.
+  2. **Elenco de Marionetas Esculpidas**: Los jugadores eligen personajes físicos esculpidos tipo plastilina/vinilo con caras expresivas entintadas a mano (`public/assets/cast/*.png`), nunca emojis unicode desnudos.
+  3. **Anfitrión Visible en Escena**: Un presentador ilustrado animado en el escenario (`public/assets/host/`) sincronizado con la voz neuronal de **Voice Studio** y subtítulos televisivos grandes.
+  4. **Fisicalidad Táctil (Jackbox `@connect`)**: Contornos gruesos de tinta (`3px solid #12121a`), sombras sólidas desplazadas (`0 6px 0 #0a0c14`) que se hunden al presionar (`translateY(4px)`), tipografía display pesada con trazo exterior e interior.
 
 ---
 
-## 2. Mood & Atmosphere (Atmósfera y Tono Emocional)
-* **Emociones clave**: Euforia, anticipación de suspense, humor irreverente, tensión de farol y celebración festiva.
-* **Tono**: Concurso de televisión nocturno donde la IA es un presentador sarcástico pero carismático.
-* **Contraste lumínico**: Fondo oscuro cósmico profundo (obsidiana / azul noche) sobre el cual los elementos interactivos resplandecen con halos de luz (*glow effects*) y partículas de confeti.
+## 2. Sistema Tipográfico
+- **Display / Cartelera TV**: `'Bungee'`, `'Rubik'`, `'Fredoka'`, pesadas en mayúsculas para títulos de duelo, preguntas gigantes y códigos de sala.
+- **Cuerpo y Mando Móvil**: `'Plus Jakarta Sans'`, `'Rubik'`, `'Helvetica Neue'`, mínimo `16px` en inputs móviles (anti-zoom iOS) y contraste alto (`>= 7:1` entre tinta y superficie).
 
 ---
 
-## 3. Shape Language (Lenguaje de Formas)
-* **Contenedores y Tarjetas**: Bordes suavizados (*rounded corners* de `16px` a `24px`) que transmiten amabilidad y accesibilidad lúdica, contrastados con bordes de 2px a 3px en neón brillante.
-* **Botones e Inputs**: 
-  - Altura mínima táctil en móvil: `56px` (zona de toque de pulgar sin fallos).
-  - Píldoras (*pill shapes*, `border-radius: 9999px`) para estados, badges y categorías.
-  - Rectángulos con esquinas curvas para opciones de respuesta y cartas de duelo.
-* **Íconos y Avatares**: Figuras zoomórficas expresivas (🦊, 🐙, 🦙, 🦖, 🦄, 🐼, 🦁, 🦈) dentro de círculos de alto contraste con auras de color individuales.
+## 3. Paleta Maestra del Pack & Temas por Minijuego
+
+### A. Shell Maestro (`@connect` / Pack Launcher)
+- **Azul Showbiz Eléctrico**: `#4254f4` (acentos de marca, CTA principal móvil)
+- **Noche de Estudio Profunda**: `#0a1420` y `#0d1c2b` (telón base sin neón genérico)
+- **Superficie de Tarjeta Táctil**: `#182235` / `#f8f5ec` (papel crema cálido para tarjetas de pregunta y comedia)
+- **Tinta / Contorno**: `#0e1118` y sombreado físico `#07090f`
+- **Amarillo Concurso**: `#ffd233` · **Rojo Alerta / Veto**: `#e63946` · **Verde Acierto**: `#16c784`
+
+### B. Identidad Cromática por Minijuego
+1. **Duelo de Ocurrencias** (*Quiplash 3*): Púrpura plastilina `#4c1d95` + Mandarina `#f97316` + Turquesa `#06b6d4` + burbujas blancas recortadas.
+2. **El Impostor de Silicio** (*Fakin' It! 2*): Crema mid-century `#f5efe6` + Pizarra espía `#2b2d42` + Rojo alerta `#d62828` + cortes angulares inclinados.
+3. **Dilemas Extremos** (*Poll Mine / Split*): Púrpura caverna `#241638` + Antorcha Ámbar `#f59e0b` + Split A `#0284c7` vs Split B `#e11d48`.
+4. **Bomba de Palabras** (*Arcade Explosivo*): Carbón cálido `#1f1414` + Naranja pólvora `#ff5400` + Amarillo peligro `#ffbe0b` + cintas diagonales.
+5. **Falso Sabio** (*Fibbage 4*): Negro estudio `#111111` + Crema editorial `#faf7f0` + Rojo carmesí `#ef233c` + Dorado espectáculo `#ffb703`.
+6. **Trivia Caótica** (*Trivia Murder Party 2*): Terciopelo carmesí `#2d0810` + Rojo sangre `#dc2626` + Turquesa neón retro `#22d3ee` + Latón dorado `#eab308`.
+7. **Telepatía de Fiesta** (*Nonsensory*): Gris pizarra texturizado `#2c3540` + Arcoíris de dial (`#e28f24` → `#504294`) + Verde sintonía `#00e676`.
 
 ---
 
-## 4. Color System (Paleta de Colores Oficial)
-
-### A. Fondos y Bases
-* **Deep Space Obsidian**: `#0a0b12` (Fondo general del escenario)
-* **Dark Velvet Navy**: `#131627` (Fondo de tarjetas y paneles)
-* **Glass Surface**: `rgba(255, 255, 255, 0.06)` con `backdrop-filter: blur(12px)`
-
-### B. Neones de Acción y Roles
-* **Electric Cyan**: `#00f0ff` (Identidad general, inocentes, opción A, estado activo)
-  - Glow: `box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);`
-* **Hot Magenta / Neon Pink**: `#ff2a85` (Impostor, peligro, opción B, veredicto culpable)
-  - Glow: `box-shadow: 0 0 20px rgba(255, 42, 133, 0.5);`
-* **Radioactive Green**: `#00ff9d` (Aciertos, victorias, votos confirmados, oro del campeón)
-  - Glow: `box-shadow: 0 0 25px rgba(0, 255, 157, 0.6);`
-* **Cyber Yellow**: `#ffd600` (Temporizadores, advertencias, fase de debate, pistas clave)
-* **Amethyst Purple**: `#8b5cf6` (Fase de votación, eventos especiales)
-
-### C. Tipografía y Textos
-* **Pure Light**: `#ffffff` (Títulos, preguntas, opciones destacadas)
-* **Muted Lavender**: `rgba(255, 255, 255, 0.7)` (Instrucciones secundarias, subtítulos)
-* **Subtle Dark**: `rgba(255, 255, 255, 0.35)` (Marcas de agua, bordes inactivos)
-
----
-
-## 5. Typography Hierarchy (Tipografía)
-* **Display / Títulos de Concurso**: 
-  - Fuentes: *Bungee*, *Titan One*, *Montserrat Black* (`font-weight: 900`).
-  - Uso: Nombres de minijuegos, "¡JUICIO FINAL!", "CAMPEONES", números de temporizador.
-* **Lectura y Controles Móviles**:
-  - Fuentes: *Plus Jakarta Sans*, *Inter*, *System-UI* (`font-weight: 600–800`).
-  - Uso: Preguntas de dilemas, premisas de ocurrencias, campos de texto, nombres de sospechosos.
-
----
-
-## 6. Motion & Animation Standards (Animación y Efectos Visuales)
-1. **Temporizador Circular**: Anillo SVG decreciente con interpolación fluida `stroke-dashoffset` y cambio de color a amarillo (<10s) y rojo pulsante (<5s).
-2. **Entrada de Tarjetas**: Transición elástica `transform: translateY(20px) scale(0.95)` a `translateY(0) scale(1)` con `cubic-bezier(0.34, 1.56, 0.64, 1)`.
-3. **Reacciones Flotantes**: Emojis en pantalla Host que suben con deriva horizontal aleatoria y se desvanecen en 3 segundos (`floatUpAndFade`).
-4. **Veredicto y Clímax**: Efecto de foco teatral (*stage spotlight*), sacudida de pantalla sutil (*screen shake*) en sentencias culpables y lluvia de confeti en el podio.
-
----
-
-## 7. Directrices de Accesibilidad y Legibilidad en Sala
-* Contraste mínimo de texto sobre fondo de **7:1** (WCAG AAA para pantallas lejanas).
-* Toda información de color se acompaña con un **ícono semántico** (😇 para Inocente, 😈 para Impostor, 🚨 para Culpable, ⚖️ para Sentencia).
-* Tamaño de fuente mínimo en mando móvil: `16px` para evitar zoom automático en Safari iOS.
+## 4. Micro-interacciones y Audio
+- Curvas Emil Kowalski (`--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`, `--ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1)`).
+- Jamás animar escalas desde `0`; mínimo `scale(0.92)`.
+- Cada botón físico comprime su sombra inferior en `:active` en `60ms`.
+- Efectos de sonido Web Audio API por cada acción + locución **Voice Studio** en escenario.

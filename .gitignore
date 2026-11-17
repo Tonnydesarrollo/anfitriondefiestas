@@ -1,7 +1,8 @@
 node_modules/
 .gemini/
 *.log
-*.png
+/*.png
+!public/assets/**/*.png
 .env
 .env.local
 .DS_Store
